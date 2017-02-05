@@ -16,7 +16,7 @@
 //# preload ./render.js
 
 const {initGL, SimpleRenderable, setOrtho, viewportToWorld} = require("./render.js");
-const {Vector2D} = require("../src/framework/math.js");
+const {Vector2D, Rotation} = require("../src/framework/math.js");
 const Body = require("../src/objects/body.js");
 const RevJoint = require("../src/joints/revjoint.js");
 const RopeJoint = require("../src/joints/ropejoint.js");
@@ -249,18 +249,58 @@ createBasicTest();
 createRopeTest();
 createSpringTest();
 startLoop();
-window.onclick = (event) => {
-	let p = viewportToWorld({x: event.x, y: event.y});
-	let box = new Body({
-		position: new Vector2D(p.x, p.y),
-		shapes: [new Polygon().setAsBox(.5, .5)],
-	});
-	solver.addBody(box);
-	let colors = [];
-	for (let i = 0; i < 4; i++)
-		colors.push(Math.random(), Math.random(), Math.random(), 1);
-	box.renderable = new SimpleRenderable(
-		serializePoints(box.shapes[0].points), colors
-	);
-	renderables.push(box);
-};
+
+window.addEventListener("mousedown", (event) => {
+	let origin = viewportToWorld({x: event.x, y: event.y});
+	let endPoint = origin;
+	let v = new Vector2D(0, 0);
+	let index;
+
+	function mouseMove(innerEvent) {
+		if (index != null)
+			renderables.splice(index, 1);
+
+		endPoint = viewportToWorld({x: innerEvent.x, y: innerEvent.y});
+		v = Vector2D.clone(endPoint).minus(origin);
+		let length = v.length;
+		v.mul(1 / length);
+		length = Math.min(length, 10);
+		v.mul(length);
+
+		let thing = {
+			renderable: new SimpleRenderable(
+				[0, -.1, 0, .1, length, 0],
+				[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+			),
+			position: origin,
+			transform: new Rotation(Math.atan2(v.y, v.x)),
+		};
+		renderables.push(thing);
+		index = renderables.length - 1;
+	}
+
+	function mouseUp() {
+		if (index != null)
+			renderables.splice(index, 1);
+
+		let box = new Body({
+			position: new Vector2D(origin.x, origin.y),
+			shapes: [new Polygon().setAsBox(.5, .5)],
+			velocity: v.times(5),
+		});
+		solver.addBody(box);
+		let colors = [];
+		for (let i = 0; i < 4; i++)
+			colors.push(Math.random(), Math.random(), Math.random(), 1);
+		box.renderable = new SimpleRenderable(
+			serializePoints(box.shapes[0].points), colors
+		);
+		renderables.push(box);
+
+		window.removeEventListener("mousemove", mouseMove);
+		window.removeEventListener("mouseup", mouseUp);
+	}
+
+	window.addEventListener("mousemove", mouseMove);
+	window.addEventListener("mouseup", mouseUp);
+});
