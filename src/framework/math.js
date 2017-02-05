@@ -10,6 +10,7 @@ class Vector2D {
 	set({x, y}) {
 		if (x != null) this.x = x;
 		if (y != null) this.y = y;
+		return this;
 	}
 	neg() {
 		return new Vector2D(-this.x, -this.y);
@@ -93,6 +94,7 @@ class Vector3D {
 		if (x != null) this.x = x;
 		if (y != null) this.y = y;
 		if (z != null) this.z = z;
+		return this;
 	}
 	neg() {
 		return new Vector3D(-this.x, -this.y, -this.z);
@@ -101,11 +103,13 @@ class Vector3D {
 		this.x += other.x;
 		this.y += other.y;
 		this.z += other.z;
+		return this;
 	}
 	sub(other) {
 		this.x -= other.x;
 		this.y -= other.y;
 		this.z -= other.z;
+		return this;
 	}
 	plus(other) {
 		return new Vector3D(this.x + other.x, this.y + other.y, this.z + other.z);
@@ -149,6 +153,7 @@ class Matrix2D {
 		if (ij != null) this.ij = ij;
 		if (ji != null) this.ji = ji;
 		if (jj != null) this.jj = jj;
+		return this;
 	}
 	setRotation(radians) {
 		let c = Math.cos(radians);
@@ -157,6 +162,7 @@ class Matrix2D {
 		this.ij = -s;
 		this.ji = s;
 		this.jj = c;
+		return this;
 	}
 	plus(other) {
 		return new Matrix2D(this.ii + other.ii, this.ij + other.ij, this.ji + other.ji, this.jj + other.jj);
@@ -195,6 +201,7 @@ class Rotation extends Matrix2D {
 	}
 	set(value) {
 		this.radians = value;
+		return this;
 	}
 	get radians() {
 		return this._r;
