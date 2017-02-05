@@ -64,9 +64,23 @@ function render() {
 		body.renderable.render(body.position, body.transform.radians);
 }
 
-function step() {
-	solver.solve(1 / 60);
-	render();
+function startLoop() {
+	const minPhysicsElapsedTime = 1 / 30;
+	let timestamp;
+
+	function step(stamp) {
+		let elapsed = (stamp - timestamp) / 1000;
+		timestamp = stamp;
+
+		render();
+		solver.solve(Math.min(elapsed, minPhysicsElapsedTime));
+		window.requestAnimationFrame(step);
+	}
+
+	window.requestAnimationFrame((stamp) => {
+		timestamp = stamp;
+		window.requestAnimationFrame(step);
+	});
 }
 
 function createBasicTest() {
@@ -234,7 +248,7 @@ function createSpringTest() {
 createBasicTest();
 createRopeTest();
 createSpringTest();
-window.setInterval(step, 1 / 60 * 1000);
+startLoop();
 window.onclick = (event) => {
 	let p = viewportToWorld({x: event.x, y: event.y});
 	let box = new Body({
@@ -249,5 +263,4 @@ window.onclick = (event) => {
 		serializePoints(box.shapes[0].points), colors
 	);
 	renderables.push(box);
-	console.log(solver.bodies.size);
 };
