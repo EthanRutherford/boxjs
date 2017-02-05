@@ -169,6 +169,12 @@ function viewportToWorld(pos) {
 class SimpleRenderable {
 	constructor(verts, colors) {
 		//create and fill buffers
+		if (verts.length % 2)
+			throw new Error("Vertex buffer must have even length");
+		if (verts.length < 6)
+			throw new Error("Vertex buffer must have at least 3 points");
+		if (verts.length / 2 !== colors.length / 4)
+			throw new Error("Vertex and color count must match");
 		this.vertCount = verts.length / 2;
 		this.vertBuf = gl.context.createBuffer();
 		this.colorBuf = gl.context.createBuffer();
@@ -177,7 +183,38 @@ class SimpleRenderable {
 		gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.colorBuf);
 		gl.context.bufferData(gl.context.ARRAY_BUFFER, new Float32Array(colors), gl.context.STATIC_DRAW);
 	}
+	updateBuffers({verts, colors}) {
+		//if the buffers have been deleted, we shouldn't be updating
+		if (this.vertBuf == null)
+			throw new Error("Cannot update deleted buffers");
+
+		if (verts) {
+			if (verts.length / 2 !== this.vertCount)
+				throw new Error("Updated vertex buffer length does not match original length");
+			gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.vertBuf);
+			gl.context.bufferData(gl.context.ARRAY_BUFFER, new Float32Array(verts), gl.context.STATIC_DRAW);
+		}
+		if (colors) {
+			if (colors.length / 4 !== this.vertCount)
+				throw new Error("Updated color buffer length does not match original length");
+			gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.colorBuf);
+			gl.context.bufferData(gl.context.ARRAY_BUFFER, new Float32Array(colors), gl.context.STATIC_DRAW);
+		}
+	}
+	deleteBuffers() {
+		if (this.vertBuf == null)
+			return;
+
+		gl.context.deleteBuffer(this.vertBuf);
+		gl.context.deleteBuffer(this.colorBuf);
+		this.vertBuf = null;
+		this.colorBuf = null;
+	}
 	render(pos, r) {
+		//if the buffers have been deleted, we can't draw
+		if (this.vertBuf == null)
+			throw new Error("Attempt to render deleted buffers");
+
 		//use the simple program
 		setCurShader(gl.simpleShader);
 		//set model matrix
@@ -205,7 +242,6 @@ class TextureRenderable {
 		this.vertBuf = gl.context.createBuffer();
 		this.texBuf = gl.context.createBuffer();
 		this.texture = gl.context.createTexture();
-		this.radius = Math.sqrt(w * w + h * h);
 		gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.vertBuf);
 		gl.context.bufferData(gl.context.ARRAY_BUFFER, new Float32Array(verts), gl.context.STATIC_DRAW);
 		gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.texBuf);
@@ -231,7 +267,22 @@ class TextureRenderable {
 			};
 		});
 	}
+	deleteBuffers() {
+		if (this.vertBuf == null)
+			return;
+
+		gl.context.deleteBuffer(this.vertBuf);
+		gl.context.deleteBuffer(this.texBuf);
+		gl.context.deleteTexture(this.texture);
+		this.vertBuf = null;
+		this.texBuf = null;
+		this.texture = null;
+	}
 	render(pos, r) {
+		//if the buffers have been deleted, we can't draw
+		if (this.vertBuf == null)
+			throw new Error("Attempt to render deleted buffers");
+
 		//use the texture program
 		setCurShader(gl.textureShader);
 		//set up model view matrix using input values

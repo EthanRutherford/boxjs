@@ -257,9 +257,6 @@ window.addEventListener("mousedown", (event) => {
 	let index;
 
 	function mouseMove(innerEvent) {
-		if (index != null)
-			renderables.splice(index, 1);
-
 		endPoint = viewportToWorld({x: innerEvent.x, y: innerEvent.y});
 		v = Vector2D.clone(endPoint).minus(origin);
 		let length = v.length;
@@ -267,21 +264,27 @@ window.addEventListener("mousedown", (event) => {
 		length = Math.min(length, 10);
 		v.mul(length);
 
-		let thing = {
-			renderable: new SimpleRenderable(
-				[0, -.1, 0, .1, length, 0],
-				[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-			),
-			position: origin,
-			transform: new Rotation(Math.atan2(v.y, v.x)),
-		};
-		renderables.push(thing);
-		index = renderables.length - 1;
+		let width = .01 + length / 100;
+		let verts = [0, -width, 0, width, length, 0];
+		let angle = Math.atan2(v.y, v.x);
+		let redness = length / 10;
+		let colors = [0, 0, .5, 1, 0, 0, .5, 1, redness, 1 - redness, 0, 1];
+		if (index == null) {
+			renderables.push({
+				renderable: new SimpleRenderable(verts, colors),
+				position: origin,
+				transform: new Rotation(angle),
+			});
+			index = renderables.length - 1;
+		} else {
+			renderables[index].renderable.updateBuffers({verts, colors});
+			renderables[index].transform.set(angle);
+		}
 	}
 
 	function mouseUp() {
 		if (index != null)
-			renderables.splice(index, 1);
+			renderables.splice(index, 1)[0].renderable.deleteBuffers();
 
 		let box = new Body({
 			position: new Vector2D(origin.x, origin.y),
