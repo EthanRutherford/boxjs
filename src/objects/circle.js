@@ -10,14 +10,14 @@ module.exports = class Circle extends Shape {
 		this.radius = radius;
 	}
 	setAABB() {
-		this.aabb.max.set(
-			this.body.position.x + this.radius,
-			this.body.position.y + this.radius
-		);
-		this.aabb.min.set(
-			this.body.position.x - this.radius,
-			this.body.position.y - this.radius
-		);
+		this.aabb.max.set({
+			x: this.body.position.x + this.radius,
+			y: this.body.position.y + this.radius,
+		});
+		this.aabb.min.set({
+			x: this.body.position.x - this.radius,
+			y: this.body.position.y - this.radius,
+		});
 	}
 	computeMass(density) {
 		let mass = new MassData();
