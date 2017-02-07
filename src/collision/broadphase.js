@@ -374,8 +374,11 @@ module.exports = class BroadPhase {
 
 		return pairs;
 	}
-	query(shape, callback) {
-		this.tree.query(this.shapeToNode(shape), callback);
+	query(aabb, callback) {
+		this.tree.query({aabb}, (_, nodeB) => {
+			callback(nodeB.shape);
+			return true;
+		});
 	}
 	raycast({p1, p2, maxFraction}, callback) {
 		this.tree.rayCast({p1, p2, maxFraction}, callback);

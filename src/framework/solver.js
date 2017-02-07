@@ -35,6 +35,9 @@ module.exports = class Solver {
 	removeJoint(joint) {
 		this.joints.delete(joint);
 	}
+	query(aabb, callback) {
+		this.broadPhase.query(aabb, callback);
+	}
 };
 
 //private functions, call with function.prototype.call
