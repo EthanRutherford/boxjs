@@ -40,10 +40,12 @@ module.exports = class Body {
 		this.mass.iM = this.mass.m ? 1 / this.mass.m : 0;
 		this.mass.iI = this.mass.i ? 1 / this.mass.i : 0;
 		this.mass.center.mul(this.mass.iM);
-		//translate each shape
 		for (let shape of this.shapes) {
+			//translate each shape
 			if (shape.recenter instanceof Function)
 				shape.recenter(this.mass.center);
+			//initialize aabb
+			shape.setAABB();
 		}
 		//set to static?
 		if (isStatic)
