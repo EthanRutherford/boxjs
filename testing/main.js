@@ -15,12 +15,13 @@
 //# preload ./gl-matrix.min.js
 //# preload ./render.js
 
-const {initGL, SimpleRenderable, setOrtho, viewportToWorld} = require("./render.js");
-const {Vector2D, Rotation} = require("../src/framework/math.js");
+const {initGL, SimpleRenderable, setOrtho, viewportToWorld, getBounds} = require("./render.js");
+const {Vector2D} = require("../src/framework/math.js");
 const Body = require("../src/objects/body.js");
 const RevJoint = require("../src/joints/revjoint.js");
 const RopeJoint = require("../src/joints/ropejoint.js");
 const SpringJoint = require("../src/joints/springjoint.js");
+const {AABB} = require("../src/objects/shape.js");
 const Polygon = require("../src/objects/polygon.js");
 const Circle = require("../src/objects/circle.js");
 const Solver = require("../src/framework/solver.js");
@@ -60,8 +61,21 @@ let renderables = [];
 function render() {
 	gl.clear(gl.COLOR_BUFFER_BIT);
 	setOrtho(0, 0, 1);
-	for (let body of renderables)
-		body.renderable.render(body.position, body.transform.radians);
+
+	let {x0, x1, y0, y1} = getBounds();
+	let bodies = new Set();
+
+	solver.query(new AABB(x0, y0, x1, y1), (shape) => {
+		bodies.add(shape.body);
+	});
+
+	for (let body of bodies) {
+		if (body.renderable)
+			body.renderable.render(body.position, body.transform.radians);
+	}
+
+	for (let item of renderables)
+		item.renderable.render(item.position, item.radians);
 }
 
 function startLoop() {
@@ -139,8 +153,6 @@ function createBasicTest() {
 		serializePoints(generateCircle(ball.shapes[0].radius, 20)),
 		generateCircleColors(20)
 	);
-
-	renderables.push(box, box2, ground, ball);
 }
 
 function createRopeTest() {
@@ -174,7 +186,6 @@ function createRopeTest() {
 			serializePoints(box.shapes[0].points),
 			[0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1]
 		);
-		renderables.push(box);
 		lastBox = box;
 	}
 	let superDense = new Body({
@@ -196,7 +207,6 @@ function createRopeTest() {
 		anchorB: new Vector2D(-.5, 0),
 	});
 	solver.addJoint(joint);
-	renderables.push(superDense);
 	let rope = new RopeJoint({
 		bodyA: anchorPoint,
 		bodyB: superDense,
@@ -241,8 +251,6 @@ function createSpringTest() {
 		serializePoints(box2.shapes[0].points),
 		[1, 1, 0, 1, 0, 1, 0, 1, 0, 1, .5, 1, 0, .2, 1, 1]
 	);
-
-	renderables.push(box, box2);
 }
 
 createBasicTest();
@@ -273,12 +281,12 @@ window.addEventListener("mousedown", (event) => {
 			renderables.push({
 				renderable: new SimpleRenderable(verts, colors),
 				position: origin,
-				transform: new Rotation(angle),
+				radians: angle,
 			});
 			index = renderables.length - 1;
 		} else {
 			renderables[index].renderable.updateBuffers({verts, colors});
-			renderables[index].transform.set(angle);
+			renderables[index].radians = angle;
 		}
 	}
 

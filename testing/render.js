@@ -166,6 +166,10 @@ function viewportToWorld(pos) {
 	return ans;
 }
 
+function getBounds() {
+	return Object.assign({}, gl.bounds);
+}
+
 class SimpleRenderable {
 	constructor(verts, colors) {
 		//create and fill buffers
@@ -311,4 +315,5 @@ module.exports = {
 	initGL,
 	setOrtho,
 	viewportToWorld,
+	getBounds,
 };
