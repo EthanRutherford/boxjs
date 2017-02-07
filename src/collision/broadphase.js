@@ -367,7 +367,7 @@ module.exports = class BroadPhase {
 		let oldPairs = [...pairs];
 		for (let pair of oldPairs) {
 			let fatA = this.shapeToNode.get(pair.a).aabb;
-			let fatB = this.shapeToNode.get(pair.a).aabb;
+			let fatB = this.shapeToNode.get(pair.b).aabb;
 			if (!fatA.test(fatB))
 				pairs.delete(pair);
 		}
