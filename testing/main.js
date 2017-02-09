@@ -1,30 +1,23 @@
-//# preload ../src/collision/broadphase.js
-//# preload ../src/collision/collision.js
-//# preload ../src/collision/manifold.js
-//# preload ../src/framework/math.js
-//# preload ../src/framework/solver.js
-//# preload ../src/joints/joint.js
-//# preload ../src/joints/revjoint.js
-//# preload ../src/joints/ropejoint.js
-//# preload ../src/joints/springjoint.js
-//# preload ../src/objects/body.js
-//# preload ../src/objects/mass.js
-//# preload ../src/objects/polygon.js
-//# preload ../src/objects/circle.js
-//# preload ../src/objects/shape.js
+//# preload ../src/box.js
 //# preload ./gl-matrix.min.js
 //# preload ./render.js
 
-const {initGL, SimpleRenderable, setOrtho, viewportToWorld, getBounds} = require("./render.js");
-const {Vector2D} = require("../src/framework/math.js");
-const Body = require("../src/objects/body.js");
-const RevJoint = require("../src/joints/revjoint.js");
-const RopeJoint = require("../src/joints/ropejoint.js");
-const SpringJoint = require("../src/joints/springjoint.js");
-const {AABB} = require("../src/objects/shape.js");
-const Polygon = require("../src/objects/polygon.js");
-const Circle = require("../src/objects/circle.js");
-const Solver = require("../src/framework/solver.js");
+const {
+	initGL,
+	SimpleRenderable,
+	setOrtho,
+	viewportToWorld,
+	getBounds,
+} = require("./render.js");
+const {
+	Math: {Vector2D},
+	Solver,
+	Body,
+	AABB,
+	Shapes: {Polygon, Circle},
+	Joints: {RevJoint, RopeJoint, SpringJoint},
+
+} = require("../src/box.js");
 
 const gl = initGL(document.getElementById("canvas"), 20);
 
