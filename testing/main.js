@@ -63,16 +63,16 @@ function render() {
 	setOrtho(0, 0, 1);
 
 	let {x0, x1, y0, y1} = getBounds();
-	let bodies = new Set();
+	let shapes = [];
 
 	solver.query(new AABB(x0, y0, x1, y1), (shape) => {
-		bodies.add(shape.body);
+		shapes[shape.id] = shape;
 	});
 
-	for (let body of bodies) {
-		if (body.renderable)
-			body.renderable.render(body.position, body.transform.radians);
-	}
+	shapes.forEach((shape) => {
+		if (shape.renderable)
+			shape.renderable.render(shape.body.position, shape.body.transform.radians);
+	});
 
 	for (let item of renderables)
 		item.renderable.render(item.position, item.radians);
@@ -134,22 +134,22 @@ function createBasicTest() {
 	solver.addJoint(joint);
 	solver.addBody(ball);
 
-	box.renderable = new SimpleRenderable(
+	box.shapes[0].renderable = new SimpleRenderable(
 		serializePoints(box.shapes[0].points),
 		[0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1]
 	);
 
-	box2.renderable = new SimpleRenderable(
+	box2.shapes[0].renderable = new SimpleRenderable(
 		serializePoints(box2.shapes[0].points),
 		[1, 1, 0, 1, 0, 1, 0, 1, 0, 1, .5, 1, 0, .2, 1, 1]
 	);
 
-	ground.renderable = new SimpleRenderable(
+	ground.shapes[0].renderable = new SimpleRenderable(
 		serializePoints(ground.shapes[0].points),
 		[1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1]
 	);
 
-	ball.renderable = new SimpleRenderable(
+	ball.shapes[0].renderable = new SimpleRenderable(
 		serializePoints(generateCircle(ball.shapes[0].radius, 20)),
 		generateCircleColors(20)
 	);
@@ -182,7 +182,7 @@ function createRopeTest() {
 			anchorB: new Vector2D(-.5, 0),
 		});
 		solver.addJoint(joint);
-		box.renderable = new SimpleRenderable(
+		box.shapes[0].renderable = new SimpleRenderable(
 			serializePoints(box.shapes[0].points),
 			[0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1]
 		);
@@ -196,7 +196,7 @@ function createRopeTest() {
 		exclusionList: [2],
 	});
 	solver.addBody(superDense);
-	superDense.renderable = new SimpleRenderable(
+	superDense.shapes[0].renderable = new SimpleRenderable(
 		serializePoints(superDense.shapes[0].points),
 		[0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1]
 	);
@@ -242,12 +242,12 @@ function createSpringTest() {
 	solver.addBody(box2);
 	solver.addJoint(joint);
 
-	box.renderable = new SimpleRenderable(
+	box.shapes[0].renderable = new SimpleRenderable(
 		serializePoints(box.shapes[0].points),
 		[0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1]
 	);
 
-	box2.renderable = new SimpleRenderable(
+	box2.shapes[0].renderable = new SimpleRenderable(
 		serializePoints(box2.shapes[0].points),
 		[1, 1, 0, 1, 0, 1, 0, 1, 0, 1, .5, 1, 0, .2, 1, 1]
 	);
@@ -304,7 +304,7 @@ function endEvent(data) {
 	let colors = [];
 	for (let i = 0; i < 4; i++)
 		colors.push(Math.random(), Math.random(), Math.random(), 1);
-	box.renderable = new SimpleRenderable(
+	box.shapes[0].renderable = new SimpleRenderable(
 		serializePoints(box.shapes[0].points), colors
 	);
 }
