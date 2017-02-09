@@ -258,55 +258,119 @@ createRopeTest();
 createSpringTest();
 startLoop();
 
-window.addEventListener("mousedown", (event) => {
-	let origin = viewportToWorld({x: event.x, y: event.y});
-	let endPoint = origin;
-	let v = new Vector2D(0, 0);
-	let index;
+function startEvent(eventItem) {
+	let origin = viewportToWorld({x: eventItem.clientX, y: eventItem.clientY});
+	return {origin, endPoint: origin, v: new Vector2D(0, 0), index: null};
+}
 
-	function mouseMove(innerEvent) {
-		endPoint = viewportToWorld({x: innerEvent.x, y: innerEvent.y});
-		v = Vector2D.clone(endPoint).minus(origin);
-		let length = v.length;
-		v.mul(1 / length);
-		length = Math.min(length, 10);
-		v.mul(length);
+function moveEvent(data, eventItem) {
+	data.endPoint = viewportToWorld({x: eventItem.clientX, y: eventItem.clientY});
+	data.v = Vector2D.clone(data.endPoint).minus(data.origin);
+	let length = data.v.length;
+	data.v.mul(1 / length);
+	length = Math.min(length, 10);
+	data.v.mul(length);
 
-		let width = .01 + length / 100;
-		let verts = [0, -width, 0, width, length, 0];
-		let angle = Math.atan2(v.y, v.x);
-		let redness = length / 10;
-		let colors = [0, 0, .5, 1, 0, 0, .5, 1, redness, 1 - redness, 0, 1];
-		if (index == null) {
-			renderables.push({
-				renderable: new SimpleRenderable(verts, colors),
-				position: origin,
-				radians: angle,
-			});
-			index = renderables.length - 1;
-		} else {
-			renderables[index].renderable.updateBuffers({verts, colors});
-			renderables[index].radians = angle;
-		}
+	let width = .01 + length / 100;
+	let verts = [0, -width, 0, width, length, 0];
+	let angle = Math.atan2(data.v.y, data.v.x);
+	let redness = length / 10;
+	let colors = [0, 0, .5, 1, 0, 0, .5, 1, redness, 1 - redness, 0, 1];
+	if (data.index == null) {
+		renderables.push({
+			renderable: new SimpleRenderable(verts, colors),
+			position: data.origin,
+			radians: angle,
+		});
+		data.index = renderables.length - 1;
+	} else {
+		renderables[data.index].renderable.updateBuffers({verts, colors});
+		renderables[data.index].radians = angle;
+	}
+}
+
+function removeRenderable(data) {
+	if (data.index != null)
+		renderables.splice(data.index, 1)[0].renderable.deleteBuffers();
+}
+
+function endEvent(data) {
+	let box = new Body({
+		position: new Vector2D(data.origin.x, data.origin.y),
+		shapes: [new Polygon().setAsBox(.5, .5)],
+		velocity: data.v.times(5),
+	});
+	solver.addBody(box);
+	let colors = [];
+	for (let i = 0; i < 4; i++)
+		colors.push(Math.random(), Math.random(), Math.random(), 1);
+	box.renderable = new SimpleRenderable(
+		serializePoints(box.shapes[0].points), colors
+	);
+}
+
+window.addEventListener("touchstart", (event) => {
+	//prevent mousedown handler from firing
+	event.preventDefault();
+	//only track one touch
+	if (event.touches.length !== 1)
+		return;
+
+	let touch = event.touches[0];
+	let data = startEvent(touch);
+
+	function touchMove(innerEvent) {
+		let innerTouch = [...innerEvent.changedTouches].find((x) => x.identifier === touch.identifier);
+		if (innerTouch)
+			moveEvent(data, innerTouch);
 	}
 
-	function mouseUp() {
-		if (index != null)
-			renderables.splice(index, 1)[0].renderable.deleteBuffers();
+	function touchEnd(innerEvent) {
+		let innerTouch = [...innerEvent.changedTouches].find((x) => x.identifier === touch.identifier);
+		if (!innerTouch)
+			return;
 
-		let box = new Body({
-			position: new Vector2D(origin.x, origin.y),
-			shapes: [new Polygon().setAsBox(.5, .5)],
-			velocity: v.times(5),
-		});
-		solver.addBody(box);
-		let colors = [];
-		for (let i = 0; i < 4; i++)
-			colors.push(Math.random(), Math.random(), Math.random(), 1);
-		box.renderable = new SimpleRenderable(
-			serializePoints(box.shapes[0].points), colors
-		);
-		renderables.push(box);
+		removeRenderable(data);
+		endEvent(data);
+
+		window.removeEventListener("touchmove", touchMove);
+		window.removeEventListener("touchend", touchEnd);
+		window.removeEventListener("touchcancel", touchCancel);
+	}
+
+	function touchCancel() {
+		let innerTouch = [...innerEvent.changedTouches].find((x) => x.identifier === touch.identifier);
+		if (!innerTouch)
+			return;
+
+		removeRenderable(data);
+
+		window.removeEventListener("touchmove", touchMove);
+		window.removeEventListener("touchend", touchEnd);
+		window.removeEventListener("touchcancel", touchCancel);
+	}
+
+	window.addEventListener("touchmove", touchMove);
+	window.addEventListener("touchend", touchEnd);
+	window.addEventListener("touchcancel", touchCancel);
+}, {passive: false});
+
+window.addEventListener("mousedown", (event) => {
+	if (event.button !== 0)
+		return;
+
+	let data = startEvent(event);
+
+	function mouseMove(innerEvent) {
+		moveEvent(data, innerEvent);
+	}
+
+	function mouseUp(innerEvent) {
+		if (innerEvent.button !== 0)
+			return;
+
+		removeRenderable(data);
+		endEvent(data);
 
 		window.removeEventListener("mousemove", mouseMove);
 		window.removeEventListener("mouseup", mouseUp);
