@@ -29,6 +29,9 @@ class AABB {
 			Math.max(this.max.y, other.max.y)
 		);
 	}
+	clone() {
+		return new AABB(this.min.x, this.min.y, this.max.x, this.max.y);
+	}
 }
 
 class Shape {

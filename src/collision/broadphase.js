@@ -35,10 +35,16 @@ class AABBTree {
 	remove(node) {
 		removeLeaf(node);
 	}
-	checkMove(node, aabb) {
+	checkMove(node, aabb, displacement) {
 		if (node.aabb.contains(aabb))
 			return false;
 		node.aabb = makeFatAABB(aabb);
+
+		let d = displacement.times(2);
+
+		(d.x < 0 ? node.aabb.min : node.aabb.max).x += d.x;
+		(d.y < 0 ? node.aabb.min : node.aabb.max).y += d.y;
+
 		this.removeLeaf(node);
 		this.insertLeaf(node);
 		return true;
@@ -354,7 +360,8 @@ module.exports = class BroadPhase {
 		for (let kv of this.shapeToNode) {
 			let shape = kv[0];
 			let node = kv[1];
-			if (this.tree.checkMove(node, shape.aabb))
+			let displacement = shape.body.position.minus(shape.body.prevPos);
+			if (this.tree.checkMove(node, shape.aabb, displacement))
 				moved.push(node);
 		}
 		return moved;
@@ -382,5 +389,8 @@ module.exports = class BroadPhase {
 	}
 	raycast({p1, p2, maxFraction}, callback) {
 		this.tree.rayCast({p1, p2, maxFraction}, callback);
+	}
+	debugGetNodes() {
+		return [...this.shapeToNode].map((kv) => kv[1].aabb.clone());
 	}
 };

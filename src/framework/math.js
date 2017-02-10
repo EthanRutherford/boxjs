@@ -67,6 +67,9 @@ class Vector2D {
 	get nskew() {
 		return new Vector2D(this.y, -this.x);
 	}
+	clone() {
+		return new Vector2D(this.x, this.y);
+	}
 	static clone({x, y} = {x: 0, y: 0}) {
 		return new Vector2D(x, y);
 	}

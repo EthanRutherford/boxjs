@@ -58,7 +58,7 @@ module.exports = class Polygon extends Shape {
 				break;
 		}
 		for (let i of hull)
-			this.points.push(Vector2D.clone(points[i]));
+			this.points.push(points[i].clone());
 		for (let i = 0; i < this.points.length; i++) {
 			let j = i + 1 < this.points.length ? i + 1 : 0;
 			let edge = this.points[i].minus(points[j]);
@@ -117,9 +117,9 @@ module.exports = class Polygon extends Shape {
 	clone() {
 		let copy = new Polygon();
 		for (let point of this.points)
-			copy.points.push(Vector2D.clone(point));
+			copy.points.push(point.clone());
 		for (let norm of this.norms)
-			copy.norms.push(Vector2D.clone(norm));
+			copy.norms.push(norm.clone());
 		return copy;
 	}
 	recenter(offset) {

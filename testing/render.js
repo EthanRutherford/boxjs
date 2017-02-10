@@ -194,7 +194,7 @@ function arrayToZArray(array, z) {
 }
 
 class SimpleRenderable {
-	constructor(verts, colors) {
+	constructor(verts, colors, drawMode = gl.context.TRIANGLE_FAN) {
 		//create and fill buffers
 		if (verts.length % 2)
 			throw new Error("Vertex buffer must have even length");
@@ -207,6 +207,7 @@ class SimpleRenderable {
 		verts = arrayToZArray(verts, this.z);
 		this.vertBuf = gl.context.createBuffer();
 		this.colorBuf = gl.context.createBuffer();
+		this.drawMode = drawMode;
 		gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.vertBuf);
 		gl.context.bufferData(gl.context.ARRAY_BUFFER, new Float32Array(verts), gl.context.STATIC_DRAW);
 		gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.colorBuf);
@@ -259,7 +260,7 @@ class SimpleRenderable {
 		gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.colorBuf);
 		gl.context.vertexAttribPointer(gl.simpleShader.vertextColorAttribute,
 			4, gl.context.FLOAT, false, 0, 0);
-		gl.context.drawArrays(gl.context.TRIANGLE_FAN, 0, this.vertCount);
+		gl.context.drawArrays(this.drawMode, 0, this.vertCount);
 	}
 }
 

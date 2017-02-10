@@ -38,6 +38,9 @@ module.exports = class Solver {
 	query(aabb, callback) {
 		this.broadPhase.query(aabb, callback);
 	}
+	debugGetNodes() {
+		return this.broadPhase.debugGetNodes();
+	}
 };
 
 //private functions, call with function.prototype.call
@@ -88,6 +91,7 @@ function solveVelocities(dt) {
 
 function solvePositions(dt) {
 	for (let body of this.bodies) {
+		body.prevPos = body.position.clone();
 		body.position.add(body.velocity.times(dt));
 		body.transform.radians += body.angularVelocity * dt;
 	}

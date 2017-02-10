@@ -51,6 +51,12 @@ solver.applyG = (bodies) => {
 
 let renderables = [];
 
+let debugBoxRenderable = new SimpleRenderable(
+	[0, 0, 0, 0, 0, 0, 0, 0],
+	[1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1],
+	gl.LINE_LOOP
+);
+
 function render() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	setOrtho(0, 0, 1);
@@ -65,6 +71,23 @@ function render() {
 
 	for (let item of renderables)
 		item.renderable.render(item.position, item.radians);
+
+	if (!window.debugDraw)
+		return;
+
+	let nodes = solver.debugGetNodes();
+
+	for (let node of nodes) {
+		debugBoxRenderable.updateBuffers({
+			verts: [
+				node.min.x, node.min.y,
+				node.min.x, node.max.y,
+				node.max.x, node.max.y,
+				node.max.x, node.min.y,
+			],
+		});
+		debugBoxRenderable.render({x: 0, y: 0}, 0);
+	}
 }
 
 function startLoop() {
@@ -363,3 +386,6 @@ window.addEventListener("mousedown", (event) => {
 	window.addEventListener("mousemove", mouseMove);
 	window.addEventListener("mouseup", mouseUp);
 });
+
+//external debug flags
+window.debugDraw = false;

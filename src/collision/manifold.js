@@ -56,6 +56,10 @@ class Manifold {
 	solve() {
 		let a = this.shapeA;
 		let b = this.shapeB;
+		if (!a.aabb.test(b.aabb)) {
+			this.contacts = [];
+			return;
+		}
 		Collision.getCollider(a.constructor, b.constructor)(this, a, b);
 	}
 	get isCollided() {
