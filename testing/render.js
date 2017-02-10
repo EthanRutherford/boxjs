@@ -128,15 +128,19 @@ function initShaders() {
 }
 
 function setCurShader(shader) {
-	gl.curShader = shader;
-	gl.context.useProgram(shader);
+	if (gl.curShader !== shader) {
+		gl.curShader = shader;
+		gl.context.useProgram(shader);
+	}
+	if (gl.curShader.projectionDirty) {
+		gl.context.uniformMatrix4fv(gl.curShader.pMatrixUniform, false, gl.pMatrix);
+		gl.curShader.projectionDirty = false;
+	}
 }
 
-function setProjection() {
-	setCurShader(gl.textureShader);
-	gl.context.uniformMatrix4fv(gl.textureShader.pMatrixUniform, false, gl.pMatrix);
-	setCurShader(gl.simpleShader);
-	gl.context.uniformMatrix4fv(gl.simpleShader.pMatrixUniform, false, gl.pMatrix);
+function setProjectionDirty() {
+	gl.textureShader.projectionDirty = true;
+	gl.simpleShader.projectionDirty = true;
 }
 
 function setModelView() {
@@ -148,7 +152,7 @@ function setOrtho(x, y, zoom) {
 	let w = (gl.height * gl.aspect / 2) * zoom;
 	let h = (gl.height / 2) * zoom;
 	Mat4.ortho(gl.pMatrix, x - w, x + w, y - h, y + h, 0, -1);
-	setProjection();
+	setProjectionDirty();
 	gl.bounds.x0 = x - w;
 	gl.bounds.x1 = x + w;
 	gl.bounds.y0 = y - h;
