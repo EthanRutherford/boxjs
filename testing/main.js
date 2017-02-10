@@ -52,19 +52,15 @@ solver.applyG = (bodies) => {
 let renderables = [];
 
 function render() {
-	gl.clear(gl.COLOR_BUFFER_BIT);
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	setOrtho(0, 0, 1);
 
 	let {x0, x1, y0, y1} = getBounds();
-	let shapes = [];
 
 	solver.query(new AABB(x0, y0, x1, y1), (shape) => {
-		shapes[shape.id] = shape;
-	});
-
-	shapes.forEach((shape) => {
+		let body = shape.body;
 		if (shape.renderable)
-			shape.renderable.render(shape.body.position, shape.body.transform.radians);
+			shape.renderable.render(body.position, body.transform.radians);
 	});
 
 	for (let item of renderables)
@@ -75,19 +71,14 @@ function startLoop() {
 	const minPhysicsElapsedTime = 1 / 30;
 	let timestamp;
 
-	function step(stamp) {
-		let elapsed = (stamp - timestamp) / 1000;
+	(function step(stamp) {
+		window.requestAnimationFrame(step);
+		let elapsed = (stamp - timestamp) / 1000 || 0;
 		timestamp = stamp;
 
 		render();
 		solver.solve(Math.min(elapsed, minPhysicsElapsedTime));
-		window.requestAnimationFrame(step);
-	}
-
-	window.requestAnimationFrame((stamp) => {
-		timestamp = stamp;
-		window.requestAnimationFrame(step);
-	});
+	})();
 }
 
 function createBasicTest() {

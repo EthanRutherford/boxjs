@@ -8,13 +8,13 @@ void main(void) {
 }`;
 
 const vertexShader = `
-attribute vec2 aVertexPosition;
+attribute vec3 aVertexPosition;
 attribute vec2 aTextureCoord;
 uniform mat4 uMVMatrix;
 uniform mat4 uPMatrix;
 varying highp vec2 vTextureCoord;
 void main(void) {
-	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 0, 1);
+	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1);
 	vTextureCoord = aTextureCoord;
 }`;
 
@@ -25,13 +25,13 @@ void main(void) {
 }`;
 
 const simpleVertexShader = `
-attribute vec2 aVertexPosition;
+attribute vec3 aVertexPosition;
 attribute vec4 aVertexColor;
 uniform mat4 uMVMatrix;
 uniform mat4 uPMatrix;
 varying vec4 vColor;
 void main(void) {
-	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 0, 1);
+	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1);
 	vColor = aVertexColor;
 }`;
 
@@ -53,6 +53,7 @@ function initGL(canvas, height) {
 	gl.canvas = canvas;
 	gl.context.clearColor(0, 0, 0, 1);
 	gl.context.enable(gl.context.BLEND);
+	gl.context.enable(gl.context.DEPTH_TEST);
 	gl.context.blendFunc(gl.context.SRC_ALPHA, gl.context.ONE_MINUS_SRC_ALPHA);
 	resize();
 	initShaders();
@@ -174,6 +175,24 @@ function getBounds() {
 	return Object.assign({}, gl.bounds);
 }
 
+const getZIndex = (() => {
+	const zMaxValue = 16000000;
+	let zOrder = 0;
+	return function() {
+		let zIndex = zOrder / zMaxValue;
+		if (++zOrder === zMaxValue)
+			zOrder = 0;
+		return zIndex;
+	};
+})();
+
+function arrayToZArray(array, z) {
+	let zArray = [];
+	for (let i = 0; i < array.length; i += 2)
+		zArray.push(array[i], array[i + 1], z);
+	return zArray;
+}
+
 class SimpleRenderable {
 	constructor(verts, colors) {
 		//create and fill buffers
@@ -183,7 +202,9 @@ class SimpleRenderable {
 			throw new Error("Vertex buffer must have at least 3 points");
 		if (verts.length / 2 !== colors.length / 4)
 			throw new Error("Vertex and color count must match");
+		this.z = getZIndex();
 		this.vertCount = verts.length / 2;
+		verts = arrayToZArray(verts, this.z);
 		this.vertBuf = gl.context.createBuffer();
 		this.colorBuf = gl.context.createBuffer();
 		gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.vertBuf);
@@ -199,6 +220,7 @@ class SimpleRenderable {
 		if (verts) {
 			if (verts.length / 2 !== this.vertCount)
 				throw new Error("Updated vertex buffer length does not match original length");
+			verts = arrayToZArray(verts, this.z);
 			gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.vertBuf);
 			gl.context.bufferData(gl.context.ARRAY_BUFFER, new Float32Array(verts), gl.context.STATIC_DRAW);
 		}
@@ -233,7 +255,7 @@ class SimpleRenderable {
 		//update active buffers
 		gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.vertBuf);
 		gl.context.vertexAttribPointer(gl.simpleShader.vertextPositionAttribute,
-			2, gl.context.FLOAT, false, 0, 0);
+			3, gl.context.FLOAT, false, 0, 0);
 		gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.colorBuf);
 		gl.context.vertexAttribPointer(gl.simpleShader.vertextColorAttribute,
 			4, gl.context.FLOAT, false, 0, 0);
@@ -247,6 +269,8 @@ class TextureRenderable {
 		height /= 2;
 		let verts = [width, height, -width, height, width, -height, -width, -height];
 		let tex = [1, 1, 0, 1, 1, 0, 0, 0];
+		this.z = getZIndex();
+		verts = arrayToZArray(verts, this.z);
 		this.vertBuf = gl.context.createBuffer();
 		this.texBuf = gl.context.createBuffer();
 		this.texture = gl.context.createTexture();
@@ -301,7 +325,7 @@ class TextureRenderable {
 		//update the active buffers and texture
 		gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.vertBuf);
 		gl.context.vertexAttribPointer(gl.textureShader.vertexPositionAttribute,
-			2, gl.context.FLOAT, false, 0, 0);
+			3, gl.context.FLOAT, false, 0, 0);
 		gl.conext.bindBuffer(gl.context.ARRAY_BUFFER, this.texBuf);
 		gl.conext.vertexAttribPointer(gl.textureShader.textureCoordAttribute,
 			2, gl.context.FLOAT, false, 0, 0);
