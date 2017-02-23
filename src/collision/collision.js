@@ -179,7 +179,7 @@ function polyToPoly(m, a, b) {
 
 function circleToCircle(m, a, b) {
 	m.contacts = [];
-	m.normal = b.body.position - a.body.position;
+	m.normal = a.body.position.minus(b.body.position);
 	let dist = m.normal.lsqr;
 	let radius = a.radius + b.radius;
 	if (dist > Math.sqr(radius))

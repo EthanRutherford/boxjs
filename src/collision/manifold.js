@@ -313,7 +313,7 @@ class Manifold {
 			let normal;
 			if (this.type === Manifold.circles) {
 				const pA = this.lpoint.plus(this.shapeA.body.position);
-				const pB = this.contact[0].lpoint.plus(this.shapeB.body.position);
+				const pB = this.contacts[0].lpoint.plus(this.shapeB.body.position);
 				normal = (pB.minus(pA)).normalize();
 				point = (pA.plus(pB)).times(.5);
 				separation = pB.minus(pA).dot(normal) - r;

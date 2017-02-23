@@ -24,16 +24,17 @@ module.exports = class Polygon extends Shape {
 		return this;
 	}
 	set(points) {
-		if (points.length < 2)
-			throw new Error("Can't create polygon with fewer than 2 points");
+		if (points.length < 3)
+			throw new Error("Can't create polygon with fewer than 3 points");
+
 		let rightmost = 0;
 		let maxX = points[0].x;
-		for (let i = 0; i < points.length; i++) {
-			let x = vertices[i].x;
+		for (let i = 1; i < points.length; i++) {
+			let x = points[i].x;
 			if (x > maxX) {
 				maxX = x;
 				rightmost = i;
-			} else if (x === maxX && points[i] < points[rightmost].y) {
+			} else if (x === maxX && points[i].y < points[rightmost].y) {
 				rightmost = i;
 			}
 		}
@@ -42,15 +43,15 @@ module.exports = class Polygon extends Shape {
 		while (true) {
 			hull.push(index);
 			let nextIndex = 0;
-			for (let i = 0; i < points.length; i++) {
+			for (let i = 1; i < points.length; i++) {
 				if (nextIndex === index) {
 					nextIndex = i;
 					continue;
 				}
-				let e1 = points[nextIndex].minus(points[hull[hull.length - 1]]);
-				let e2 = points[i] - points[hull[hull.length - 1]];
+				let e1 = points[nextIndex].minus(points[index]);
+				let e2 = points[i].minus(points[index]);
 				let c = e1.cross(e2);
-				if (c < 0 || (c === 0 && e2.lsqr() > e1.lsqr()))
+				if (c < 0 || (c === 0 && e2.lsqr > e1.lsqr))
 					nextIndex = i;
 			}
 			index = nextIndex;
@@ -61,7 +62,7 @@ module.exports = class Polygon extends Shape {
 			this.points.push(points[i].clone());
 		for (let i = 0; i < this.points.length; i++) {
 			let j = i + 1 < this.points.length ? i + 1 : 0;
-			let edge = this.points[i].minus(points[j]);
+			let edge = this.points[j].minus(this.points[i]);
 			this.norms.push(edge.nskew.normalize());
 		}
 		return this;
