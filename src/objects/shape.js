@@ -8,14 +8,17 @@ class AABB {
 	}
 	test(other) {
 		if (this.max.x < other.min.x || this.min.x > other.max.x ||
-			this.max.y < other.min.y || this.min.y > other.max.y)
+			this.max.y < other.min.y || this.min.y > other.max.y) {
 			return false;
+		}
+
 		return true;
 	}
 	contains(other) {
 		if (this.max.x < other.max.x || this.min.x > other.min.x ||
-			this.max.y < other.max.y || this.min.y > other.min.y)
+			this.max.y < other.max.y || this.min.y > other.min.y) {
 			return false;
+		}
 		return true;
 	}
 	get perimeter() {
@@ -39,8 +42,10 @@ class Shape {
 		this.id = next++;
 	}
 	static order(a, b) {
-		if (a.id < b.id)
+		if (a.id < b.id) {
 			return [a, b];
+		}
+
 		return [b, a];
 	}
 }

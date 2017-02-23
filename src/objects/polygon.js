@@ -24,8 +24,9 @@ module.exports = class Polygon extends Shape {
 		return this;
 	}
 	set(points) {
-		if (points.length < 3)
+		if (points.length < 3) {
 			throw new Error("Can't create polygon with fewer than 3 points");
+		}
 
 		let rightmost = 0;
 		let maxX = points[0].x;
@@ -51,15 +52,18 @@ module.exports = class Polygon extends Shape {
 				let e1 = points[nextIndex].minus(points[index]);
 				let e2 = points[i].minus(points[index]);
 				let c = e1.cross(e2);
-				if (c < 0 || (c === 0 && e2.lsqr > e1.lsqr))
+				if (c < 0 || (c === 0 && e2.lsqr > e1.lsqr)) {
 					nextIndex = i;
+				}
 			}
 			index = nextIndex;
-			if (nextIndex === rightmost)
+			if (nextIndex === rightmost) {
 				break;
+			}
 		}
-		for (let i of hull)
+		for (let i of hull) {
 			this.points.push(points[i].clone());
+		}
 		for (let i = 0; i < this.points.length; i++) {
 			let j = i + 1 < this.points.length ? i + 1 : 0;
 			let edge = this.points[j].minus(this.points[i]);
@@ -117,14 +121,17 @@ module.exports = class Polygon extends Shape {
 	}
 	clone() {
 		let copy = new Polygon();
-		for (let point of this.points)
+		for (let point of this.points) {
 			copy.points.push(point.clone());
-		for (let norm of this.norms)
+		}
+		for (let norm of this.norms) {
 			copy.norms.push(norm.clone());
+		}
 		return copy;
 	}
 	recenter(offset) {
-		for (let point of this.points)
+		for (let point of this.points) {
 			point.sub(offset);
+		}
 	}
 };

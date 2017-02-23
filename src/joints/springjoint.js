@@ -29,10 +29,11 @@ module.exports = class SpringJoint extends Joint {
 		this.u = cB.plus(rB).minus(cA.plus(rA));
 		let length = this.u.length;
 
-		if (length > .005)
+		if (length > .005) {
 			this.u.mul(1 / length);
-		else
+		} else {
 			this.u.set({x: 0, y: 0});
+		}
 
 		let crA = rA.cross(this.u);
 		let crB = rB.cross(this.u);
@@ -95,8 +96,9 @@ module.exports = class SpringJoint extends Joint {
 		this.bodyB.angularVelocity = wB;
 	}
 	positionalCorrection() {
-		if (this.frequency > 0)
+		if (this.frequency > 0) {
 			return;
+		}
 
 		let rA = this.bodyA.transform.times(this.anchorA);
 		let rB = this.bodyB.transform.times(this.anchorB);

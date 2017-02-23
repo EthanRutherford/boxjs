@@ -33,8 +33,10 @@ function generateCircle(radius, count) {
 
 function generateCircleColors(count) {
 	let colors = [];
-	for (let i = 0; i < count; i++)
+	for (let i = 0; i < count; i++) {
 		colors.push(i / 40 + .5, i / 40 + .5, i / 40 + .5, 1);
+	}
+
 	return colors;
 }
 
@@ -45,8 +47,9 @@ function serializePoints(array) {
 let solver = new Solver();
 const gravityAcceleration = new Vector2D(0, -9.8);
 solver.applyG = (bodies) => {
-	for (let body of bodies)
+	for (let body of bodies) {
 		body.applyForce(gravityAcceleration.times(body.mass.m));
+	}
 };
 
 let renderables = [];
@@ -66,15 +69,18 @@ function render() {
 
 	solver.query(new AABB(x0, y0, x1, y1), (shape) => {
 		let body = shape.body;
-		if (shape.renderable)
+		if (shape.renderable) {
 			shape.renderable.render(body.position, body.transform.radians);
+		}
 	});
 
-	for (let item of renderables)
+	for (let item of renderables) {
 		item.renderable.render(item.position, item.radians);
+	}
 
-	if (!window.debugDraw)
+	if (!window.debugDraw) {
 		return;
+	}
 
 	let nodes = solver.debugGetNodes();
 
@@ -368,8 +374,9 @@ function moveEvent(data, eventItem) {
 }
 
 function removeRenderable(data) {
-	if (data.index != null)
+	if (data.index != null) {
 		renderables.splice(data.index, 1)[0].renderable.deleteBuffers();
+	}
 }
 
 function endEvent(data) {
@@ -380,8 +387,10 @@ function endEvent(data) {
 	});
 	solver.addBody(box);
 	let colors = [];
-	for (let i = 0; i < 4; i++)
+	for (let i = 0; i < 4; i++) {
 		colors.push(Math.random(), Math.random(), Math.random(), 1);
+	}
+
 	box.shapes[0].renderable = new SimpleRenderable(
 		serializePoints(box.shapes[0].points), colors
 	);
@@ -391,22 +400,25 @@ window.addEventListener("touchstart", (event) => {
 	//prevent mousedown handler from firing
 	event.preventDefault();
 	//only track one touch
-	if (event.touches.length !== 1)
+	if (event.touches.length !== 1) {
 		return;
+	}
 
 	let touch = event.touches[0];
 	let data = startEvent(touch);
 
 	function touchMove(innerEvent) {
 		let innerTouch = [...innerEvent.changedTouches].find((x) => x.identifier === touch.identifier);
-		if (innerTouch)
+		if (innerTouch) {
 			moveEvent(data, innerTouch);
+		}
 	}
 
 	function touchEnd(innerEvent) {
 		let innerTouch = [...innerEvent.changedTouches].find((x) => x.identifier === touch.identifier);
-		if (!innerTouch)
+		if (!innerTouch) {
 			return;
+		}
 
 		removeRenderable(data);
 		endEvent(data);
@@ -418,8 +430,9 @@ window.addEventListener("touchstart", (event) => {
 
 	function touchCancel() {
 		let innerTouch = [...innerEvent.changedTouches].find((x) => x.identifier === touch.identifier);
-		if (!innerTouch)
+		if (!innerTouch) {
 			return;
+		}
 
 		removeRenderable(data);
 
@@ -434,8 +447,9 @@ window.addEventListener("touchstart", (event) => {
 }, {passive: false});
 
 window.addEventListener("mousedown", (event) => {
-	if (event.button !== 0)
+	if (event.button !== 0) {
 		return;
+	}
 
 	let data = startEvent(event);
 
@@ -444,8 +458,9 @@ window.addEventListener("mousedown", (event) => {
 	}
 
 	function mouseUp(innerEvent) {
-		if (innerEvent.button !== 0)
+		if (innerEvent.button !== 0) {
 			return;
+		}
 
 		removeRenderable(data);
 		endEvent(data);

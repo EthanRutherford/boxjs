@@ -7,16 +7,22 @@ let baseMap = new Map();
 
 class Collision {
 	static getCollider(type1, type2) {
-		if (!baseMap.has(type1))
+		if (!baseMap.has(type1)) {
 			throw {message: "collider not set for type combination", type1, type2};
+		}
+
 		const map = baseMap.get(type1);
-		if (!map.has(type2))
+		if (!map.has(type2)) {
 			throw {message: "collider not set for type combination", type1, type2};
+		}
+
 		return baseMap.get(type1).get(type2);
 	}
 	static newCollider(type1, type2, func) {
-		if (!baseMap.has(type1))
+		if (!baseMap.has(type1)) {
 			baseMap.set(type1, new Map());
+		}
+
 		baseMap.get(type1).set(type2, func);
 	}
 }
@@ -90,10 +96,12 @@ function clipPoints(input, n, c, index) {
 	let output = [];
 	let dist0 = n.dot(input[0].point) - c;
 	let dist1 = n.dot(input[1].point) - c;
-	if (dist0 <= 0)
+	if (dist0 <= 0) {
 		output.push(input[0]);
-	if (dist1 <= 0)
+	}
+	if (dist1 <= 0) {
 		output.push(input[1]);
+	}
 	if (dist0 * dist1 < 0) {
 		let interp = dist0 / (dist0 - dist1);
 		output.push(new ManifoldPoint(
@@ -112,11 +120,14 @@ function polyToPoly(m, a, b) {
 	let oldContacts = m.contacts;
 	m.contacts = [];
 	let {index: edgeA, distance: separationA} = findSeparatingAxis(a, b);
-	if (separationA > 0)
+	if (separationA > 0) {
 		return;
+	}
+
 	let {index: edgeB, distance: separationB} = findSeparatingAxis(b, a);
-	if (separationB > 0)
+	if (separationB > 0) {
 		return;
+	}
 
 	let refIndex;
 	let flip;
@@ -155,20 +166,26 @@ function polyToPoly(m, a, b) {
 	let posSide = tangent.dot(v2);
 
 	let clip = clipPoints(incidentEdge, tangent.neg(), negSide, iv1);
-	if (clip.length < 2)
+	if (clip.length < 2) {
 		return;
+	}
+
 	clip = clipPoints(clip, tangent, posSide, iv2);
-	if (clip.count < 2)
+	if (clip.count < 2) {
 		return;
+	}
 
 	for (let point of clip) {
 		let separation = normal.dot(point.point) - refC;
 		if (separation <= 0) {
-			if (flip)
+			if (flip) {
 				point.flip();
+			}
+
 			for (let old of oldContacts) {
-				if (point.equals(old))
+				if (point.equals(old)) {
 					point.absorb(old);
+				}
 			}
 			m.contacts.push(point);
 		}
@@ -182,8 +199,10 @@ function circleToCircle(m, a, b) {
 	m.normal = a.body.position.minus(b.body.position);
 	let dist = m.normal.lsqr;
 	let radius = a.radius + b.radius;
-	if (dist > Math.sqr(radius))
+	if (dist > Math.sqr(radius)) {
 		return;
+	}
+
 	m.contacts.push(new ManifoldPoint(
 		new Vector2D(b.body.position + a.body.position).mul(.5)
 	));
@@ -199,8 +218,10 @@ function circleToPoly(m, a, b) {
 	let i1 = 0;
 	for (let i = 0; i < b.points.length; i++) {
 		let s = b.norms[i].dot(center.minus(b.points[i]));
-		if (s > a.radius)
+		if (s > a.radius) {
 			return;
+		}
+
 		if (s > separation) {
 			separation = s;
 			i1 = i;
@@ -221,8 +242,10 @@ function circleToPoly(m, a, b) {
 		let dot1 = center.minus(v1).dot(v2.minus(v1));
 		let dot2 = center.minus(v2).dot(v1.minus(v2));
 		if (dot1 <= 0) {
-			if (center.minus(v1).lsqr > Math.sqr(a.radius))
+			if (center.minus(v1).lsqr > Math.sqr(a.radius)) {
 				return;
+			}
+
 			m.type = Manifold.faceB;
 			m.lnormal = center.minus(v1).normalize();
 			m.normal = b.body.transform.times(m.lnormal).neg().normalize();
@@ -231,8 +254,10 @@ function circleToPoly(m, a, b) {
 				b.body.transform.times(v1).plus(b.body.position)
 			));
 		} else if (dot2 <= 0) {
-			if (center.minus(v2).lsqr > Math.sqr(a.radius))
+			if (center.minus(v2).lsqr > Math.sqr(a.radius)) {
 				return;
+			}
+
 			m.type = Manifold.faceB;
 			m.lnormal = center.minus(v2).normalize();
 			m.normal = b.body.transform.times(m.lnormal).neg().normalize();
@@ -243,8 +268,10 @@ function circleToPoly(m, a, b) {
 		} else {
 			m.lpoint = v1.plus(v2).mul(.5);
 			m.lnormal = b.norms[i1];
-			if (center.minus(m.lpoint).dot(m.lnormal) > a.radius)
+			if (center.minus(m.lpoint).dot(m.lnormal) > a.radius) {
 				return;
+			}
+
 			m.normal = b.body.transform.times(m.lnormal).neg().normalize();
 			m.type = Manifold.faceB;
 			m.contacts.push(new ManifoldPoint(

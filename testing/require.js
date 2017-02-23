@@ -40,10 +40,11 @@
 			let request = new XMLHttpRequest();
 			request.open("get", src);
 			request.onload = () => {
-				if (request.status === 200)
+				if (request.status === 200) {
 					resolve(request.response);
-				else
+				} else {
 					reject(Error("Module failed to load, status: " + request.statusText));
+				}
 			};
 			request.onerror = () => {
 				reject(Error("Module failed to load due to network error"));
@@ -54,21 +55,25 @@
 	//require a javascript file
 	function requireJs(src) {
 		//if it isn't in the loaded map, it wasn't preloaded. throw an error
-		if (!loaded[src])
+		if (!loaded[src]) {
 			throw new Error(`${src} was required without being preloaded.`);
+		}
 		//if we don't already have the module, execute the code
-		if (!loaded[src].module)
+		if (!loaded[src].module) {
 			execute(loaded[src].code, src);
+		}
 		return loaded[src].module;
 	}
 	//require a json file
 	function requireJSON(src) {
 		//if it isn't in the loaded map, it wasn't preloaded. throw an error
-		if (!loaded[src])
+		if (!loaded[src]) {
 			throw new Error(`${src} was required without being preloaded.`);
+		}
 		//if we haven't already parsed it, parse JSON
-		if (!loaded[src].module)
+		if (!loaded[src].module) {
 			loaded[src].module = JSON.parse(loaded[src].code);
+		}
 		return loaded[src].module;
 	}
 	//the recursive inner require call
@@ -77,22 +82,26 @@
 		//parse the url
 		let url = parseUrl(src, relativeTo);
 		//check to see if this is css
-		if (src.includes(".css"))
+		if (src.includes(".css")) {
 			return null;
+		}
 		//check to see if this is json
-		if (src.includes(".json"))
+		if (src.includes(".json")) {
 			return requireJSON(url);
+		}
 		//load the javascript
 		return requireJs(url);
 	}
 	//preload a javascript file
 	function preloadJs(src, set) {
 		//if we've already checked this file, return true
-		if (set.has(src))
+		if (set.has(src)) {
 			return true;
+		}
 		//if we already have a promise, return the promise
-		if (loaded[src])
+		if (loaded[src]) {
 			return loaded[src].promise;
+		}
 		//otherwise, preload with a promise which resolves when the module is loaded
 		loaded[src] = {
 			promise: new Promise((resolve, reject) => {
@@ -121,11 +130,13 @@
 	//preload a json file
 	function preloadJSON(src, set) {
 		//if we've already checked this file, return true
-		if (set.has(src))
+		if (set.has(src)) {
 			return true;
+		}
 		//if we already have a promise, return the promise
-		if (loaded[src])
+		if (loaded[src]) {
 			return loaded[src].promise;
+		}
 		//otherwise, preload with a promise which resolves when the json is loaded
 		loaded[src] = {
 			promise: new Promise((resolve, reject) => {
@@ -146,8 +157,9 @@
 	//preload a css file
 	function preloadCss(src) {
 		//if a link with that name exists, return true
-		if (document.querySelectorAll("link[href='" + src + "']").length)
+		if (document.querySelectorAll("link[href='" + src + "']").length) {
 			return true;
+		}
 		//otherwise, return a promise that resolves when the css is loaded
 		return new Promise((resolve, reject) => {
 			let link = document.createElement("link");
@@ -168,11 +180,13 @@
 		//parse the url
 		let url = parseUrl(src, relativeTo);
 		//check to see if we are loading css
-		if (src.includes(".css"))
+		if (src.includes(".css")) {
 			return preloadCss(url);
+		}
 		//check to see if we are loading json
-		if (src.includes(".json"))
+		if (src.includes(".json")) {
 			return preloadJSON(url, set);
+		}
 		//otherwise load javascript
 		return preloadJs(url, set);
 	}
@@ -181,7 +195,7 @@
 		//preload everything, then execute the main module
 		//this will then execute its dependencies as it comes to them
 		preloadCore(src, this.location.href, new Set()).then(() => {
-			//call the worker function, with relativeTo set to origin
+			//call the worker function, with relativeTo set to current location
 			requireCore(src, this.location.href);
 		});
 	};

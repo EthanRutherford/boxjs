@@ -63,8 +63,9 @@ module.exports = class RopeJoint extends Joint {
 		let vpB = vB.plus(Vector2D.cross1x2(wB, rB));
 		let c = this.distance - this.limit;
 		let cDot = this.u.dot(vpB.minus(vpA));
-		if (c < 0)
+		if (c < 0) {
 			cDot += 1 / dt * c;
+		}
 
 		let impulse = -this.mass * cDot;
 		let oldImpulse = this.impulse;

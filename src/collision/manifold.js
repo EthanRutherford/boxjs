@@ -94,8 +94,9 @@ class Manifold {
 			contact.bias = 0;
 			const rv = vB.plus(Vector2D.cross1x2(wB, rB)).minus(vA.plus(Vector2D.cross1x2(wA, rA)));
 			const vRel = this.normal.dot(rv);
-			if (vRel < -1)
+			if (vRel < -1) {
 				contact.bias = -this.e * vRel;
+			}
 		}
 
 		if (this.contacts.length === 2) {
@@ -371,16 +372,19 @@ class ManifoldMap {
 	}
 	add({a, b}) {
 		let key = `${a.id}:${b.id}`;
-		if (!this.map.has(key))
+		if (!this.map.has(key)) {
 			this.map.set(key, new Manifold(a, b));
+		}
+
 		return this.map.get(key);
 	}
 	delete({key}) {
 		this.map.delete(key);
 	}
 	*[Symbol.iterator]() {
-		for (let kv of this.map)
+		for (let kv of this.map) {
 			yield kv[1];
+		}
 	}
 	get size() {
 		return this.map.size;

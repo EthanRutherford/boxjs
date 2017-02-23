@@ -6,8 +6,10 @@ class RevJoint extends Joint {
 		super({bodyA, bodyB, anchorA, anchorB});
 		this.mass = new Matrix3D();
 
-		if (upperLimit != null && lowerLimit != null)
+		if (upperLimit != null && lowerLimit != null) {
 			this.setLimit(true, upperLimit, lowerLimit);
+		}
+
 		this.refAngle = cleanAngle(bodyB.transform.radians - bodyA.transform.radians);
 		this.cumulativeImpulse = new Vector3D();
 
@@ -36,12 +38,16 @@ class RevJoint extends Joint {
 			let curAngle = this.bodyB.transform.radians - this.bodyA.transform.radians;
 			curAngle = cleanAngle(curAngle - this.refAngle);
 			if (curAngle <= this.lowerLimit) {
-				if (this.state !== RevJoint.atLower)
+				if (this.state !== RevJoint.atLower) {
 					this.cumulativeImpulse.z = 0;
+				}
+
 				this.state = RevJoint.atLower;
 			} else if (curAngle >= this.upperLimit) {
-				if (this.state !== RevJoint.atUpper)
+				if (this.state !== RevJoint.atUpper) {
 					this.cumulativeImpulse.z = 0;
+				}
+
 				this.state = RevJoint.atUpper;
 			} else {
 				this.state = RevJoint.between;
@@ -176,12 +182,18 @@ class RevJoint extends Joint {
 		this.bodyB.transform.radians = aB;
 	}
 	setLimit(on, upper, lower) {
-		if (upper > Math.PI || upper < -Math.PI)
+		if (upper > Math.PI || upper < -Math.PI) {
 			throw new Error("upper limit out of bounts (-pi to pi)");
-		if (lower > Math.PI || lower < -Math.PI)
+		}
+
+		if (lower > Math.PI || lower < -Math.PI) {
 			throw new Error("lower limit out of bounts (-pi to pi)");
-		if (lower > upper)
+		}
+
+		if (lower > upper) {
 			throw new Error("upper limit must be greater than lower limit");
+		}
+
 		this.limitEnabled = on;
 		this.upperLimit = upper;
 		this.lowerLimit = lower;

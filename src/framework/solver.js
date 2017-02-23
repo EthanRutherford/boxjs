@@ -10,8 +10,10 @@ module.exports = class Solver {
 		this.broadPhase = new BroadPhase();
 	}
 	solve(dt) {
-		if (this.applyG)
+		if (this.applyG) {
 			this.applyG([...this.bodies]);
+		}
+
 		solveBroadPhase.call(this);
 		solveNarrowPhase.call(this);
 		applyForces.call(this, dt);
@@ -21,13 +23,15 @@ module.exports = class Solver {
 	}
 	addBody(body) {
 		this.bodies.add(body);
-		for (let shape of body.shapes)
+		for (let shape of body.shapes) {
 			this.broadPhase.insert(shape);
+		}
 	}
 	removeBody(body) {
 		this.bodies.delete(body);
-		for (let shape of body.shapes)
+		for (let shape of body.shapes) {
 			this.broadPhase.remove(shape);
+		}
 	}
 	addJoint(joint) {
 		this.joints.add(joint);
@@ -46,15 +50,17 @@ module.exports = class Solver {
 //private functions, call with function.prototype.call
 function solveBroadPhase() {
 	for (let body of this.bodies) {
-		for (let shape of body.shapes)
+		for (let shape of body.shapes) {
 			shape.setAABB();
+		}
 	}
 	//the broadphase returns a set of unique pairs whose aabbs are overlapping
 	let pairs = this.broadPhase.getPairs();
 	//the manifold map will persist any manifolds that already exist,
 	//and create new manifolds for pairs which don't have one yet
-	for (let pair of pairs)
+	for (let pair of pairs) {
 		this.manifolds.add(pair);
+	}
 }
 
 function solveNarrowPhase() {
@@ -62,8 +68,9 @@ function solveNarrowPhase() {
 	//any that are not collided are removed from the map
 	for (let manifold of this.manifolds) {
 		manifold.solve();
-		if (!manifold.isCollided)
+		if (!manifold.isCollided) {
 			this.manifolds.delete(manifold);
+		}
 	}
 }
 
@@ -75,17 +82,22 @@ function applyForces(dt) {
 }
 
 function solveVelocities(dt) {
-	for (let manifold of this.manifolds)
+	for (let manifold of this.manifolds) {
 		manifold.initialize();
-	for (let manifold of this.manifolds)
+	}
+	for (let manifold of this.manifolds) {
 		manifold.warmStart();
-	for (let joint of this.joints)
+	}
+	for (let joint of this.joints) {
 		joint.initialize(dt);
+	}
 	for (let i = 0; i < 8; i++) {
-		for (let joint of this.joints)
+		for (let joint of this.joints) {
 			joint.applyImpulse(dt);
-		for (let manifold of this.manifolds)
+		}
+		for (let manifold of this.manifolds) {
 			manifold.applyImpulse();
+		}
 	}
 }
 
@@ -96,10 +108,12 @@ function solvePositions(dt) {
 		body.transform.radians += body.angularVelocity * dt;
 	}
 	for (let i = 0; i < 3; i++) {
-		for (let manifold of this.manifolds)
+		for (let manifold of this.manifolds) {
 			manifold.positionalCorrection();
-		for (let joint of this.joints)
+		}
+		for (let joint of this.joints) {
 			joint.positionalCorrection();
+		}
 	}
 }
 

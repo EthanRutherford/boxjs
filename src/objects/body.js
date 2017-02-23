@@ -43,14 +43,16 @@ module.exports = class Body {
 		this.mass.center.mul(this.mass.iM);
 		for (let shape of this.shapes) {
 			//translate each shape
-			if (shape.recenter instanceof Function)
+			if (shape.recenter instanceof Function) {
 				shape.recenter(this.mass.center);
+			}
 			//initialize aabb
 			shape.setAABB();
 		}
 		//set to static?
-		if (isStatic)
+		if (isStatic) {
 			this.setStatic();
+		}
 		//set filter parameters
 		this.setFilter(filterGroup != null ? filterGroup : 1, exclusionList || []);
 	}
@@ -76,14 +78,17 @@ module.exports = class Body {
 		this.mass.iI = 0;
 	}
 	setFilter(filterGroup, exclusionList) {
-		if (filterGroup > 32 || filterGroup < 0)
+		if (filterGroup > 32 || filterGroup < 0) {
 			throw new Error("filter group is out of bounds (0 - 32)");
+		}
 
 		this.filterGroup = filterGroup ? 1 << (filterGroup - 1) : 0;
 		let exclusionMask = 0;
 		for (let exclusion of exclusionList) {
-			if (exclusion > 32 || exclusion < 2)
+			if (exclusion > 32 || exclusion < 2) {
 				throw new Error("exclusion group is out of bounds (2 - 32)");
+			}
+
 			exclusionMask |= 1 << (exclusion - 1);
 		}
 

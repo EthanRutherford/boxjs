@@ -55,8 +55,10 @@ class Vector2D {
 		return Math.sqr(this.x) + Math.sqr(this.y);
 	}
 	normalize() {
-		if (this.length < Number.EPSILON)
+		if (this.length < Number.EPSILON) {
 			return this;
+		}
+
 		let invLength = 1 / this.length;
 		this.mul(invLength);
 		return this;
@@ -175,8 +177,10 @@ class Matrix2D {
 	}
 	get determinant() {
 		let det = this.ii * this.jj - this.ij * this.ji;
-		if (det !== 0)
+		if (det !== 0) {
 			det = 1 / det;
+		}
+
 		return det;
 	}
 	get inverse() {
@@ -218,16 +222,19 @@ class Rotation extends Matrix2D {
 
 class Matrix3D {
 	constructor(a, b, c, d, e, f, g, h, i) {
-		if (a == null)
+		if (a == null) {
 			this.m = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
-		else
+		} else {
 			this.m = [[a, b, c], [d, e, f], [g, h, i]];
+		}
 	}
 	solve2(vec2) {
 		let m = this.m;
 		let det = m[0][0] * m[1][1] - m[0][1] * m[1][0];
-		if (det !== 0)
+		if (det !== 0) {
 			det = 1 / det;
+		}
+
 		return new Vector2D(det * (m[1][1] * vec2.x - m[0][1] * vec2.y),
 			det * (m[0][0] * vec2.y - m[1][0] * vec2.x));
 	}
@@ -238,8 +245,9 @@ class Matrix3D {
 		let ez = new Vector3D(m[0][2], m[1][2], m[2][2]);
 
 		let det = ex.dot(ey.cross(ez));
-		if (det !== 0)
+		if (det !== 0) {
 			det = 1 / det;
+		}
 
 		return new Vector3D(
 			det * vec3.dot(ey.cross(ez)),

@@ -47,8 +47,10 @@ const gl = {
 
 function initGL(canvas, height) {
 	gl.context = canvas.getContext("webgl");
-	if (!gl.context)
+	if (!gl.context) {
 		throw new Error("could not initialize WebGL");
+	}
+
 	gl.height = height;
 	gl.canvas = canvas;
 	gl.context.clearColor(0, 0, 0, 1);
@@ -73,8 +75,10 @@ function getShader(src, isFrag) {
 	let shader = gl.context.createShader(isFrag ? gl.context.FRAGMENT_SHADER : gl.context.VERTEX_SHADER);
 	gl.context.shaderSource(shader, src);
 	gl.context.compileShader(shader);
-	if (!gl.context.getShaderParameter(shader, gl.context.COMPILE_STATUS))
+	if (!gl.context.getShaderParameter(shader, gl.context.COMPILE_STATUS)) {
 		throw new Error(gl.context.getShaderInfoLog(shader));
+	}
+
 	return shader;
 }
 
@@ -87,8 +91,9 @@ function initShaders() {
 	gl.context.attachShader(gl.textureShader, frag);
 	gl.context.linkProgram(gl.textureShader);
 
-	if (!gl.context.getProgramParameter(gl.textureShader, gl.context.LINK_STATUS))
+	if (!gl.context.getProgramParameter(gl.textureShader, gl.context.LINK_STATUS)) {
 		throw new Error("Could not initialize texture shader");
+	}
 
 	gl.context.useProgram(gl.textureShader);
 	gl.textureShader.vertextPositionAttribute =
@@ -112,8 +117,9 @@ function initShaders() {
 	gl.context.attachShader(gl.simpleShader, frag);
 	gl.context.linkProgram(gl.simpleShader);
 
-	if (!gl.context.getProgramParameter(gl.simpleShader, gl.context.LINK_STATUS))
+	if (!gl.context.getProgramParameter(gl.simpleShader, gl.context.LINK_STATUS)) {
 		throw new Error("Could not initialize simple shader");
+	}
 
 	gl.context.useProgram(gl.simpleShader);
 	gl.simpleShader.vertextPositionAttribute =
@@ -180,28 +186,38 @@ const getZIndex = (() => {
 	let zOrder = zMaxValue - 1;
 	return function() {
 		let zIndex = zOrder / zMaxValue;
-		if (--zOrder === 0)
+		if (--zOrder === 0) {
 			zOrder = zMaxValue - 1;
+		}
+
 		return zIndex;
 	};
 })();
 
 function arrayToZArray(array, z) {
 	let zArray = [];
-	for (let i = 0; i < array.length; i += 2)
+	for (let i = 0; i < array.length; i += 2) {
 		zArray.push(array[i], array[i + 1], z);
+	}
+
 	return zArray;
 }
 
 class SimpleRenderable {
 	constructor(verts, colors, drawMode = gl.context.TRIANGLE_FAN, z = getZIndex()) {
 		//create and fill buffers
-		if (verts.length % 2)
+		if (verts.length % 2) {
 			throw new Error("Vertex buffer must have even length");
-		if (verts.length < 6)
+		}
+
+		if (verts.length < 6) {
 			throw new Error("Vertex buffer must have at least 3 points");
-		if (verts.length / 2 !== colors.length / 4)
+		}
+
+		if (verts.length / 2 !== colors.length / 4) {
 			throw new Error("Vertex and color count must match");
+		}
+
 		this.z = z;
 		this.vertCount = verts.length / 2;
 		verts = arrayToZArray(verts, this.z);
@@ -215,26 +231,32 @@ class SimpleRenderable {
 	}
 	updateBuffers({verts, colors}) {
 		//if the buffers have been deleted, we shouldn't be updating
-		if (this.vertBuf == null)
+		if (this.vertBuf == null) {
 			throw new Error("Cannot update deleted buffers");
+		}
 
 		if (verts) {
-			if (verts.length / 2 !== this.vertCount)
+			if (verts.length / 2 !== this.vertCount) {
 				throw new Error("Updated vertex buffer length does not match original length");
+			}
+
 			verts = arrayToZArray(verts, this.z);
 			gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.vertBuf);
 			gl.context.bufferData(gl.context.ARRAY_BUFFER, new Float32Array(verts), gl.context.STATIC_DRAW);
 		}
 		if (colors) {
-			if (colors.length / 4 !== this.vertCount)
+			if (colors.length / 4 !== this.vertCount) {
 				throw new Error("Updated color buffer length does not match original length");
+			}
+
 			gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.colorBuf);
 			gl.context.bufferData(gl.context.ARRAY_BUFFER, new Float32Array(colors), gl.context.STATIC_DRAW);
 		}
 	}
 	deleteBuffers() {
-		if (this.vertBuf == null)
+		if (this.vertBuf == null) {
 			return;
+		}
 
 		gl.context.deleteBuffer(this.vertBuf);
 		gl.context.deleteBuffer(this.colorBuf);
@@ -243,8 +265,9 @@ class SimpleRenderable {
 	}
 	render(pos, r) {
 		//if the buffers have been deleted, we can't draw
-		if (this.vertBuf == null)
+		if (this.vertBuf == null) {
 			throw new Error("Attempt to render deleted buffers");
+		}
 
 		//use the simple program
 		setCurShader(gl.simpleShader);
@@ -301,8 +324,9 @@ class TextureRenderable {
 		});
 	}
 	deleteBuffers() {
-		if (this.vertBuf == null)
+		if (this.vertBuf == null) {
 			return;
+		}
 
 		gl.context.deleteBuffer(this.vertBuf);
 		gl.context.deleteBuffer(this.texBuf);
@@ -313,8 +337,9 @@ class TextureRenderable {
 	}
 	render(pos, r) {
 		//if the buffers have been deleted, we can't draw
-		if (this.vertBuf == null)
+		if (this.vertBuf == null) {
 			throw new Error("Attempt to render deleted buffers");
+		}
 
 		//use the texture program
 		setCurShader(gl.textureShader);
