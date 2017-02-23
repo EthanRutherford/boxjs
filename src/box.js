@@ -7,6 +7,7 @@
 //# preload ../src/joints/revjoint.js
 //# preload ../src/joints/ropejoint.js
 //# preload ../src/joints/springjoint.js
+//# preload ../src/joints/wheeljoint.js
 //# preload ../src/objects/body.js
 //# preload ../src/objects/mass.js
 //# preload ../src/objects/polygon.js
@@ -18,6 +19,7 @@ const Joint = require("./joints/joint.js");
 const RevJoint = require("./joints/revjoint.js");
 const RopeJoint = require("./joints/ropejoint.js");
 const SpringJoint = require("./joints/springjoint.js");
+const WheelJoint = require("./joints/wheeljoint.js");
 const Body = require("./objects/body.js");
 const Circle = require("./objects/circle.js");
 const Polygon = require("./objects/polygon.js");
@@ -38,5 +40,6 @@ module.exports = {
 		RevJoint,
 		RopeJoint,
 		SpringJoint,
+		WheelJoint,
 	},
 };

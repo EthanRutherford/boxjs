@@ -177,11 +177,11 @@ function getBounds() {
 
 const getZIndex = (() => {
 	const zMaxValue = 16000000;
-	let zOrder = 0;
+	let zOrder = zMaxValue - 1;
 	return function() {
 		let zIndex = zOrder / zMaxValue;
-		if (++zOrder === zMaxValue)
-			zOrder = 0;
+		if (--zOrder === 0)
+			zOrder = zMaxValue - 1;
 		return zIndex;
 	};
 })();
@@ -194,7 +194,7 @@ function arrayToZArray(array, z) {
 }
 
 class SimpleRenderable {
-	constructor(verts, colors, drawMode = gl.context.TRIANGLE_FAN) {
+	constructor(verts, colors, drawMode = gl.context.TRIANGLE_FAN, z = getZIndex()) {
 		//create and fill buffers
 		if (verts.length % 2)
 			throw new Error("Vertex buffer must have even length");
@@ -202,7 +202,7 @@ class SimpleRenderable {
 			throw new Error("Vertex buffer must have at least 3 points");
 		if (verts.length / 2 !== colors.length / 4)
 			throw new Error("Vertex and color count must match");
-		this.z = getZIndex();
+		this.z = z;
 		this.vertCount = verts.length / 2;
 		verts = arrayToZArray(verts, this.z);
 		this.vertBuf = gl.context.createBuffer();

@@ -15,7 +15,7 @@ const {
 	Body,
 	AABB,
 	Shapes: {Polygon, Circle},
-	Joints: {RevJoint, RopeJoint, SpringJoint},
+	Joints: {RevJoint, RopeJoint, SpringJoint, WheelJoint},
 
 } = require("../src/box.js");
 
@@ -54,7 +54,8 @@ let renderables = [];
 let debugBoxRenderable = new SimpleRenderable(
 	[0, 0, 0, 0, 0, 0, 0, 0],
 	[1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1],
-	gl.LINE_LOOP
+	gl.LINE_LOOP,
+	0
 );
 
 function render() {
@@ -260,9 +261,79 @@ function createSpringTest() {
 	);
 }
 
+function createCarTest() {
+	let verts = [
+		new Vector2D(-2, -.8),
+		new Vector2D(2, -.8),
+		new Vector2D(2, -.2),
+		new Vector2D(0, .8),
+		new Vector2D(-1.5, .8),
+		new Vector2D(-2, 0),
+	];
+	let frame = new Body({
+		position: new Vector2D(-3, 2),
+		shapes: [new Polygon().set(verts)],
+		filterGroup: 3,
+		exclusionList: [3],
+	});
+	let wheel1 = new Body({
+		position: new Vector2D(-3, 1),
+		shapes: [new Circle(.5)],
+		filterGroup: 3,
+		exclusionList: [3],
+	});
+	let wheel2 = new Body({
+		position: new Vector2D(-3, 1),
+		shapes: [new Circle(.5)],
+		filterGroup: 3,
+		exclusionList: [3],
+	});
+
+	let joint1 = new WheelJoint({
+		bodyA: frame,
+		bodyB: wheel1,
+		anchorA: new Vector2D(-1.4, -.9),
+		anchorB: new Vector2D(),
+		axis: new Vector2D(0, 1),
+		frequency: 4,
+		damping: .7,
+	});
+	let joint2 = new WheelJoint({
+		bodyA: frame,
+		bodyB: wheel2,
+		anchorA: new Vector2D(1.3, -.9),
+		anchorB: new Vector2D(),
+		axis: new Vector2D(0, 1),
+		frequency: 4,
+		damping: .7,
+	});
+
+	solver.addBody(frame);
+	solver.addBody(wheel1);
+	solver.addBody(wheel2);
+	solver.addJoint(joint1);
+	solver.addJoint(joint2);
+
+	frame.shapes[0].renderable = new SimpleRenderable(
+		serializePoints(frame.shapes[0].points),
+		[0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1]
+	);
+
+	wheel1.shapes[0].renderable = new SimpleRenderable(
+		serializePoints(generateCircle(wheel1.shapes[0].radius, 20)),
+		generateCircleColors(20)
+	);
+
+	wheel2.shapes[0].renderable = new SimpleRenderable(
+		serializePoints(generateCircle(wheel2.shapes[0].radius, 20)),
+		generateCircleColors(20)
+	);
+}
+
 createBasicTest();
 createRopeTest();
 createSpringTest();
+createCarTest();
 startLoop();
 
 function startEvent(eventItem) {
