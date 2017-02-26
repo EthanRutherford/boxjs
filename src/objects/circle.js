@@ -19,6 +19,28 @@ module.exports = class Circle extends Shape {
 			y: this.body.position.y - this.radius,
 		});
 	}
+	raycast({p1, p2, maxFraction}) {
+		let s = p1.minus(this.body.position);
+		let b = s.dot(s) - Math.sqr(this.radius);
+		let r = p2.minus(p1);
+		let c = s.dot(r);
+		let rr = r.dot(r);
+		let sigma = c * c - rr * b;
+
+		if (sigma < 0 || rr < Number.EPSILON) {
+			return null;
+		}
+
+		let fraction = -(c + Math.sqrt(sigma));
+
+		if (fraction >= 0 && fraction <= maxFraction * rr) {
+			fraction /= rr;
+			let normal = s.plus(r.times(fraction)).normalize();
+			return {fraction, normal};
+		}
+
+		return null;
+	}
 	computeMass(density) {
 		let mass = new MassData();
 		mass.center = new Vector2D(0, 0);

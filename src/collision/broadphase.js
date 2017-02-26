@@ -16,6 +16,7 @@ class Node {
 		this.parent = parent;
 		this.children = [];
 		this.height = height;
+		this.shape = null;
 	}
 	get isLeaf() {
 		return this.children.length === 0;
@@ -418,8 +419,10 @@ module.exports = class BroadPhase {
 			return true;
 		});
 	}
-	raycast({p1, p2, maxFraction}, callback) {
-		this.tree.rayCast({p1, p2, maxFraction}, callback);
+	raycast(inputRay, callback) {
+		this.tree.rayCast(inputRay, (ray, node) => {
+			return callback(ray, node.shape);
+		});
 	}
 	debugGetNodes() {
 		return [...this.shapeToNode].map((kv) => kv[1].aabb.clone());

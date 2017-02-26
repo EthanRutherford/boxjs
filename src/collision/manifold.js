@@ -52,6 +52,7 @@ class Manifold {
 		this.ltangent = new Vector2D();
 		this.k = new Matrix2D();
 		this.nMass = null;
+		this.hasSensor = a.body.sensor || b.body.sensor;
 	}
 	solve() {
 		let a = this.shapeA;
@@ -66,6 +67,10 @@ class Manifold {
 		return this.contacts.length > 0;
 	}
 	initialize() {
+		if (this.hasSensor) {
+			return;
+		}
+
 		const mA = this.shapeA.body.mass.iM;
 		const iA = this.shapeA.body.mass.iI;
 		const mB = this.shapeB.body.mass.iM;
@@ -124,6 +129,10 @@ class Manifold {
 		}
 	}
 	warmStart() {
+		if (this.hasSensor) {
+			return;
+		}
+
 		const mA = this.shapeA.body.mass.iM;
 		const iA = this.shapeA.body.mass.iI;
 		const mB = this.shapeB.body.mass.iM;
@@ -152,6 +161,10 @@ class Manifold {
 		this.shapeB.body.angularVelocity = wB;
 	}
 	applyImpulse() {
+		if (this.hasSensor) {
+			return;
+		}
+
 		const mA = this.shapeA.body.mass.iM;
 		const iA = this.shapeA.body.mass.iI;
 		const mB = this.shapeB.body.mass.iM;
@@ -291,6 +304,10 @@ class Manifold {
 		this.shapeB.body.angularVelocity = wB;
 	}
 	positionalCorrection() {
+		if (this.hasSensor) {
+			return;
+		}
+
 		const percent = .2;
 		const kSlop = .005;
 

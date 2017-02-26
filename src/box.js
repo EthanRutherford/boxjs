@@ -1,5 +1,6 @@
 //# preload ../src/collision/broadphase.js
 //# preload ../src/collision/collision.js
+//# preload ../src/collision/contactdata.js
 //# preload ../src/collision/manifold.js
 //# preload ../src/framework/math.js
 //# preload ../src/framework/solver.js

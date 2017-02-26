@@ -11,9 +11,11 @@ module.exports = class Body {
 		friction,
 		restitution,
 		density,
+		sensor,
 		static: isStatic,
 		filterGroup,
 		exclusionList,
+		onCollide,
 	}) {
 		this.position = Vector2D.clone(position);
 		this.prevPos = Vector2D.clone(position);
@@ -53,8 +55,12 @@ module.exports = class Body {
 		if (isStatic) {
 			this.setStatic();
 		}
+		//set to sensor
+		this.sensor = sensor || false;
 		//set filter parameters
 		this.setFilter(filterGroup != null ? filterGroup : 1, exclusionList || []);
+		//set collision callback
+		this.onCollide = onCollide;
 	}
 	applyForce(force) {
 		this.force.add(force);

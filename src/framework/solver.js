@@ -1,4 +1,5 @@
 const BroadPhase = require("../collision/broadphase.js");
+const ContactData = require("../collision/contactdata.js");
 const {ManifoldMap} = require("../collision/manifold.js");
 
 module.exports = class Solver {
@@ -20,6 +21,7 @@ module.exports = class Solver {
 		solveVelocities.call(this, dt);
 		solvePositions.call(this, dt);
 		clearForces.call(this);
+		collisionCallbacks.call(this, dt);
 	}
 	addBody(body) {
 		this.bodies.add(body);
@@ -41,6 +43,22 @@ module.exports = class Solver {
 	}
 	query(aabb, callback) {
 		this.broadPhase.query(aabb, callback);
+	}
+	raycast({p1, p2, callback, shouldCheck = null}) {
+		let inputRay = {p1, p2, maxFraction: 1};
+		this.broadPhase.raycast(inputRay, (ray, shape) => {
+			if (shouldCheck instanceof Function && !shouldCheck(shape)) {
+				return -1;	//skip this shape
+			}
+
+			let castData = shape.raycast(ray);
+			if (castData) {
+				callback(shape, castData);
+				return castData.fraction;
+			}
+
+			return -1;
+		});
 	}
 	debugGetNodes() {
 		return this.broadPhase.debugGetNodes();
@@ -121,5 +139,18 @@ function clearForces() {
 	for (let body of this.bodies) {
 		body.force.set({x: 0, y: 0});
 		body.torque = 0;
+	}
+}
+
+function collisionCallbacks(dt) {
+	for (let manifold of this.manifolds) {
+		let shapeA = manifold.shapeA;
+		let shapeB = manifold.shapeB;
+		if (shapeA.body.onCollide instanceof Function) {
+			shapeA.body.onCollide(new ContactData(manifold, false, dt));
+		}
+		if (shapeB.body.onCollide instanceof Function) {
+			shapeB.body.onCollide(new ContactData(manifold, true, dt));
+		}
 	}
 }

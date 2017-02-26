@@ -84,6 +84,41 @@ module.exports = class Polygon extends Shape {
 			if (v.y > this.aabb.max.y) this.aabb.max.y = v.y;
 		}
 	}
+	raycast({p1, p2, maxFraction}) {
+		p1 = this.body.transform.transpose.times(p1.minus(this.body.position));
+		p2 = this.body.transform.transpose.times(p2.minus(this.body.position));
+		let d = p2.minus(p1);
+
+		let low = 0;
+		let hi = maxFraction;
+		let index = -1;
+
+		for (let i = 0; i < this.points.length; i++) {
+			let numer = this.norms[i].dot(this.points[i].minus(p1));
+			let denom = this.norms[i].dot(d);
+
+			if (denom === 0 && numer < 0) {
+				return null;
+			} else if (denom < 0 && numer < low * denom) {
+				low = numer / denom;
+				index = i;
+			} else if (denom > 0 && numer < hi * denom) {
+				hi = numer / denom;
+			}
+
+			if (hi < low) {
+				return null;
+			}
+		}
+
+		if (index >= 0) {
+			let fraction = low;
+			let normal = this.body.transform.translate.times(this.norms[index]);
+			return {fraction, normal};
+		}
+
+		return null;
+	}
 	computeMass(density) {
 		let mass = new MassData();
 		let area = 0;
