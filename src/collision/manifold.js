@@ -398,6 +398,9 @@ class ManifoldMap {
 	delete({key}) {
 		this.map.delete(key);
 	}
+	clear() {
+		this.map.clear();
+	}
 	*[Symbol.iterator]() {
 		for (let kv of this.map) {
 			yield kv[1];

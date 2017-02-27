@@ -41,6 +41,14 @@ module.exports = class Solver {
 	removeJoint(joint) {
 		this.joints.delete(joint);
 	}
+	flush() {
+		let bodies = [...this.bodies];
+		this.bodies.clear();
+		this.joints.clear();
+		this.manifolds.clear();
+		this.broadPhase.flush();
+		return bodies;
+	}
 	query(aabb, callback) {
 		this.broadPhase.query(aabb, callback);
 	}

@@ -36,6 +36,10 @@ class AABBTree {
 	remove(node) {
 		removeLeaf(node);
 	}
+	clear() {
+		this.count = 0;
+		this.root = null;
+	}
 	checkMove(node, aabb, displacement) {
 		if (node.aabb.contains(aabb)) {
 			return false;
@@ -335,6 +339,9 @@ class PairSet {
 		let key = `${a.id}:${b.id}`;
 		this.map.delete(key);
 	}
+	clear() {
+		this.map.clear();
+	}
 	*[Symbol.iterator]() {
 		for (let kv of this.map) {
 			yield kv[1];
@@ -383,6 +390,11 @@ module.exports = class BroadPhase {
 	remove(shape) {
 		this.tree.remove(this.shapeToNode.get(shape));
 		this.shapeToNode.delete(shape);
+	}
+	flush() {
+		this.tree.clear();
+		this.shapeToNode.clear();
+		this.pairs.clear();
 	}
 	collectMovedNodes() {
 		let moved = [];
