@@ -352,8 +352,6 @@ class PairSet {
 	}
 }
 
-const pairs = new PairSet();
-
 function queryCallback(nodeA, nodeB) {
 	//don't collide if on same body
 	if (nodeA.shape.body === nodeB.shape.body) {
@@ -371,7 +369,7 @@ function queryCallback(nodeA, nodeB) {
 
 	//use standard order and add to pairs
 	[a, b] = Shape.order(nodeA.shape, nodeB.shape);
-	pairs.add({a, b});
+	this.pairs.add({a, b});
 	return true;
 }
 
@@ -380,12 +378,13 @@ module.exports = class BroadPhase {
 		this.tree = new AABBTree();
 		this.shapeToNode = new Map();
 		this.pairs = new PairSet();
+		this.queryCallback = queryCallback.bind(this);
 	}
 	insert(shape) {
 		let node = this.tree.insert(shape.aabb);
 		node.shape = shape;
 		this.shapeToNode.set(shape, node);
-		this.tree.query(node, queryCallback);
+		this.tree.query(node, this.queryCallback);
 	}
 	remove(shape) {
 		this.tree.remove(this.shapeToNode.get(shape));
@@ -411,19 +410,19 @@ module.exports = class BroadPhase {
 	getPairs() {
 		let movedNodes = this.collectMovedNodes();
 		for (let node of movedNodes) {
-			this.tree.query(node, queryCallback);
+			this.tree.query(node, this.queryCallback);
 		}
 
-		let oldPairs = [...pairs];
+		let oldPairs = [...this.pairs];
 		for (let pair of oldPairs) {
 			let fatA = this.shapeToNode.get(pair.a).aabb;
 			let fatB = this.shapeToNode.get(pair.b).aabb;
 			if (!fatA.test(fatB)) {
-				pairs.delete(pair);
+				this.pairs.delete(pair);
 			}
 		}
 
-		return pairs;
+		return this.pairs;
 	}
 	query(aabb, callback) {
 		this.tree.query({aabb}, (_, nodeB) => {
