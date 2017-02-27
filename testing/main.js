@@ -283,13 +283,13 @@ function createCarTest() {
 		exclusionList: [3],
 	});
 	let wheel1 = new Body({
-		position: new Vector2D(-3, 1),
+		position: new Vector2D(-4.4, 1.1),
 		shapes: [new Circle(.5)],
 		filterGroup: 3,
 		exclusionList: [3],
 	});
 	let wheel2 = new Body({
-		position: new Vector2D(-3, 1),
+		position: new Vector2D(-1.7, 1.1),
 		shapes: [new Circle(.5)],
 		filterGroup: 3,
 		exclusionList: [3],
@@ -336,12 +336,24 @@ function createCarTest() {
 	);
 }
 
+function cleanupTests() {
+	let bodies = solver.flush();
+	for (let body of bodies) {
+		for (let shape of body.shapes) {
+			if (shape.renderable) {
+				shape.renderable.deleteBuffers();
+			}
+		}
+	}
+}
+
 createBasicTest();
 createRopeTest();
 createSpringTest();
 createCarTest();
 startLoop();
 
+//fun box throwing code
 function startEvent(eventItem) {
 	let origin = viewportToWorld({x: eventItem.clientX, y: eventItem.clientY});
 	return {origin, endPoint: origin, v: new Vector2D(0, 0), index: null};
@@ -471,6 +483,17 @@ window.addEventListener("mousedown", (event) => {
 
 	window.addEventListener("mousemove", mouseMove);
 	window.addEventListener("mouseup", mouseUp);
+});
+
+//use number keys (for now) to switch tests
+window.addEventListener("keydown", (event) => {
+	if (event.key === "1") {
+		cleanupTests();
+		createBasicTest();
+		createRopeTest();
+		createSpringTest();
+		createCarTest();
+	}
 });
 
 //external debug flags
