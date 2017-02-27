@@ -51,6 +51,7 @@ module.exports = class Body {
 			//initialize aabb
 			shape.setAABB();
 		}
+		this.position.add(this.mass.center);
 		//set to static?
 		if (isStatic) {
 			this.setStatic();
