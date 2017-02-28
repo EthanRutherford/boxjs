@@ -333,7 +333,7 @@ class Manifold {
 				const pA = this.lpoint.plus(this.shapeA.body.position);
 				const pB = this.contacts[0].lpoint.plus(this.shapeB.body.position);
 				normal = (pB.minus(pA)).normalize();
-				point = (pA.plus(pB)).times(.5);
+				point = pA.plus(pB).times(.5);
 				separation = pB.minus(pA).dot(normal) - r;
 			} else if (this.type === Manifold.faceA) {
 				normal = this.shapeA.body.transform.times(this.lnormal);

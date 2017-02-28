@@ -196,7 +196,7 @@ function polyToPoly(m, a, b) {
 
 function circleToCircle(m, a, b) {
 	m.contacts = [];
-	m.normal = a.body.position.minus(b.body.position);
+	m.normal = b.body.position.minus(a.body.position);
 	let dist = m.normal.lsqr;
 	let radius = a.radius + b.radius;
 	if (dist > Math.sqr(radius)) {
@@ -204,7 +204,7 @@ function circleToCircle(m, a, b) {
 	}
 
 	m.contacts.push(new ManifoldPoint(
-		new Vector2D(b.body.position + a.body.position).mul(.5)
+		b.body.position.plus(a.body.position).mul(.5)
 	));
 	m.type = Manifold.circles;
 	m.normal.normalize();
