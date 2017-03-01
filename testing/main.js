@@ -16,7 +16,6 @@ const {
 	AABB,
 	Shapes: {Polygon, Circle},
 	Joints: {RevJoint, RopeJoint, SpringJoint, WheelJoint},
-
 } = require("../src/box.js");
 
 const gl = initGL(document.getElementById("canvas"), 20);
