@@ -57,7 +57,7 @@ solver.applyG = (bodies) => {
 	}
 };
 
-let renderables = [];
+let renderables = new Set();
 
 let debugBoxRenderable = new SimpleRenderable(
 	[0, 0, 0, 0, 0, 0, 0, 0],
@@ -66,7 +66,7 @@ let debugBoxRenderable = new SimpleRenderable(
 	0
 );
 
-const logicSteps = [];
+const logicSteps = new Set();
 
 function render() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -532,12 +532,12 @@ function createCarTest() {
 		);
 	}
 	{	//register some callbacks
-		let index = logicSteps.length;
-		logicSteps.push(() => {
+		const logicStep = () => {
 			let error = body.position.minus(camera.position);
 			let correction = error.times(.1);
 			camera.position.add(correction);
-		});
+		};
+		logicSteps.add(logicStep);
 
 		motor.setMotor(0, 1);
 
@@ -590,9 +590,100 @@ function createCarTest() {
 		window.addEventListener("keyup", onKeyUp);
 
 		onCleanup.push(() => {
-			logicSteps.splice(index, 1);
+			logicSteps.delete(logicStep);
 			window.removeEventListener("keydown", onKeyDown);
 			window.removeEventListener("keyup", onKeyUp);
+		});
+	}
+}
+
+function createRaycastTest() {
+	{	//create some objects
+		let points = [
+			new Vector2D(Math.cos(0), Math.sin(0)),
+			new Vector2D(Math.cos(2 * Math.PI / 3), Math.sin(2 * Math.PI / 3)),
+			new Vector2D(Math.cos(-2 * Math.PI / 3), Math.sin(-2 * Math.PI / 3)),
+		];
+
+		let box = new Body({
+			position: new Vector2D(4, 0),
+			shapes: [new Polygon().setAsBox(.5, .5)],
+			static: true,
+		});
+
+		let ball = new Body({
+			position: new Vector2D(3, 2),
+			shapes: [new Circle(.5)],
+			static: true,
+		});
+
+		let triangle = new Body({
+			position: new Vector2D(-2, -1),
+			shapes: [new Polygon().set(points)],
+			static: true,
+		});
+
+		let box2 = new Body({
+			position: new Vector2D(-1.2, -2),
+			shapes: [new Polygon().setAsBox(.5, .5)],
+			static: true,
+		});
+
+		solver.addBody(box);
+		solver.addBody(ball);
+		solver.addBody(triangle);
+		solver.addBody(box2);
+
+		box.shapes[0].renderable = new SimpleRenderable(
+			serializePoints(box.shapes[0].points),
+			[0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
+		);
+
+		ball.shapes[0].renderable = new SimpleRenderable(
+			serializePoints(generateCircle(ball.shapes[0].radius, 20)),
+			generateCircleColors(20)
+		);
+
+		triangle.shapes[0].renderable = new SimpleRenderable(
+			serializePoints(triangle.shapes[0].points),
+			[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+		);
+
+		box2.shapes[0].renderable = new SimpleRenderable(
+			serializePoints(box2.shapes[0].points),
+			[0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
+		);
+	}
+	{	//register the raycast method
+		let ray = {
+			renderable: new SimpleRenderable(
+				[0, 0, 0, 0, 0, 0, 0, 0],
+				[1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1]
+			),
+			position: new Vector2D(),
+			radians: 0,
+		};
+		renderables.add(ray);
+
+		let p1 = new Vector2D();
+		let p2 = new Vector2D(50, 0);
+		let angle = 0;
+		let logicStep = () => {
+			let fraction = 1;
+			angle += .01;
+			p2 = new Vector2D(50 * Math.cos(angle), 50 * Math.sin(angle));
+			solver.raycast({p1, p2, callback: (data) => fraction = data.fraction});
+			ray.renderable.updateBuffers({
+				verts: [0, .01, 0, -.01, fraction * 50, -.01, fraction * 50, .01],
+			});
+			ray.radians = angle;
+		};
+		logicSteps.add(logicStep);
+
+		onCleanup.push(() => {
+			ray.renderable.deleteBuffers();
+			renderables.delete(ray);
+			logicSteps.delete(logicStep);
 		});
 	}
 }
@@ -638,22 +729,23 @@ function moveEvent(data, eventItem) {
 	let angle = Math.atan2(data.v.y, data.v.x);
 	let redness = length / 10;
 	let colors = [0, 0, .5, 1, 0, 0, .5, 1, redness, 1 - redness, 0, 1];
-	if (data.index == null) {
-		renderables.push({
+	if (data.arrow == null) {
+		data.arrow = {
 			renderable: new SimpleRenderable(verts, colors),
 			position: data.origin,
 			radians: angle,
-		});
-		data.index = renderables.length - 1;
+		};
+		renderables.add(data.arrow);
 	} else {
-		renderables[data.index].renderable.updateBuffers({verts, colors});
-		renderables[data.index].radians = angle;
+		data.arrow.renderable.updateBuffers({verts, colors});
+		data.arrow.radians = angle;
 	}
 }
 
 function removeRenderable(data) {
-	if (data.index != null) {
-		renderables.splice(data.index, 1)[0].renderable.deleteBuffers();
+	if (data.arrow != null) {
+		data.arrow.renderable.deleteBuffers();
+		renderables.delete(data.arrow);
 	}
 }
 
@@ -759,6 +851,9 @@ window.addEventListener("keydown", (event) => {
 	} else if (event.key === "2") {
 		cleanupTests();
 		createCarTest();
+	} else if (event.key === "3") {
+		cleanupTests();
+		createRaycastTest();
 	}
 });
 

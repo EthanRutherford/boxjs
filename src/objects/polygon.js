@@ -113,7 +113,7 @@ module.exports = class Polygon extends Shape {
 
 		if (index >= 0) {
 			let fraction = low;
-			let normal = this.body.transform.translate.times(this.norms[index]);
+			let normal = this.body.transform.transpose.times(this.norms[index]);
 			return {fraction, normal};
 		}
 

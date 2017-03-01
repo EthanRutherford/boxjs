@@ -89,13 +89,13 @@ class AABBTree {
 		let stack = [this.root];
 		while (stack.length > 0) {
 			let node = stack.pop();
-			if (!node.aabb.test(aabb)) {
+			if (node == null || !node.aabb.test(aabb)) {
 				continue;
 			}
 
 			let center = node.aabb.min.plus(node.aabb.max).mul(.5);
 			let halfDims = node.aabb.max.minus(node.aabb.min).mul(.5);
-			let separation = Math.abs(v.dot(p1.minus(center)) - absV.dot(halfDims));
+			let separation = Math.abs(v.dot(p1.minus(center))) - absV.dot(halfDims);
 			if (separation > 0) {
 				continue;
 			}

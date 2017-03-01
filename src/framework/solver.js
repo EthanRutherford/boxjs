@@ -61,8 +61,9 @@ module.exports = class Solver {
 
 			let castData = shape.raycast(ray);
 			if (castData) {
-				callback(shape, castData);
-				return castData.fraction;
+				castData.shape = shape;
+				let override = callback(castData);
+				return override != null ? override : castData.fraction;
 			}
 
 			return -1;
