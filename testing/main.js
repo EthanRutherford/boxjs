@@ -10,6 +10,7 @@ const {
 	getBounds,
 } = require("./render.js");
 const {
+	fork,
 	Math: {Vector2D},
 	Solver,
 	Body,
@@ -687,6 +688,94 @@ function createRaycastTest() {
 	}
 }
 
+function createForkTest() {
+	{	//create some objects
+		let box = new Body({
+			position: new Vector2D(0, 5),
+			shapes: [new Polygon().setAsBox(.5, .5)],
+		});
+
+		let box2 = new Body({
+			position: new Vector2D(1, 6),
+			shapes: [new Polygon().setAsBox(.5, .5)],
+		});
+
+		let joint = new RevJoint({
+			bodyA: box,
+			bodyB: box2,
+			anchorA: new Vector2D(.5, .5),
+			anchorB: new Vector2D(-.5, -.5),
+			lowerLimit: -Math.PI / 8,
+			upperLimit: Math.PI / 8,
+		});
+
+		let ball = new Body({
+			position: new Vector2D(0, 10),
+			shapes: [new Circle(.5)],
+		});
+
+		let ground = new Body({
+			position: new Vector2D(0, 0),
+			shapes: [new Polygon().setAsBox(10, .5)],
+			static: true,
+		});
+
+		solver.addBody(ground);
+		solver.addBody(box);
+		solver.addBody(box2);
+		solver.addJoint(joint);
+		solver.addBody(ball);
+
+		box.shapes[0].renderable = new SimpleRenderable(
+			serializePoints(box.shapes[0].points),
+			[0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1]
+		);
+
+		box2.shapes[0].renderable = new SimpleRenderable(
+			serializePoints(box2.shapes[0].points),
+			[1, 1, 0, 1, 0, 1, 0, 1, 0, 1, .5, 1, 0, .2, 1, 1]
+		);
+
+		ground.shapes[0].renderable = new SimpleRenderable(
+			serializePoints(ground.shapes[0].points),
+			[1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1]
+		);
+
+		ball.shapes[0].renderable = new SimpleRenderable(
+			serializePoints(generateCircle(ball.shapes[0].radius, 20)),
+			generateCircleColors(20)
+		);
+	}
+	{	//register callbacks
+		let restorePoint = null;
+		const forkAndCopyRenderables = (source) => {
+			let target = fork(source);
+			for (let body of source.bodies) {
+				for (let shape of body.shapes) {
+					target.shapeMap.get(shape).renderable = shape.renderable;
+				}
+			}
+			return target.solver;
+		};
+
+		const onKeyDown = (event) => {
+			if (event.key === "f" || event.key === "F") {
+				restorePoint = forkAndCopyRenderables(solver);
+			} else if (event.key === "r" || event.key === "R") {
+				if (restorePoint != null) {
+					solver = forkAndCopyRenderables(restorePoint);
+				}
+			}
+		};
+
+		window.addEventListener("keydown", onKeyDown);
+
+		onCleanup.push(() => {
+			window.removeEventListener("keydown", onKeyDown);
+		});
+	}
+}
+
 function cleanupTests() {
 	let bodies = solver.flush();
 	for (let body of bodies) {
@@ -853,6 +942,9 @@ window.addEventListener("keydown", (event) => {
 	} else if (event.key === "3") {
 		cleanupTests();
 		createRaycastTest();
+	} else if (event.key === "4") {
+		cleanupTests();
+		createForkTest();
 	}
 });
 
