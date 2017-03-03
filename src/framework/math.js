@@ -132,6 +132,9 @@ class Vector3D {
 			this.x * other.y - this.y * other.x
 		);
 	}
+	clone() {
+		return new Vector3D(this.x, this.y, this.z);
+	}
 }
 
 class Matrix2D {
@@ -195,6 +198,9 @@ class Matrix2D {
 		return new Vector2D(d * (this.jj * vector.x - this.ij * vector.y),
 			d * (this.ii * vector.y - this.ji * vector.x));
 	}
+	clone() {
+		return new Matrix2D(this.ii, this.ij, this.ji, this.jj);
+	}
 	static get Identity() {
 		return identity;
 	}
@@ -254,6 +260,9 @@ class Matrix3D {
 			det * ex.dot(vec3.cross(ez)),
 			det * ex.dot(ey.cross(vec3))
 		);
+	}
+	clone() {
+		return new Matrix3D(...this.m[0], ...this.m[1], ...this.m[2]);
 	}
 }
 

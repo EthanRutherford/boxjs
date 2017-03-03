@@ -4,7 +4,7 @@ const Joint = require("./joint.js");
 module.exports = class WheelJoint extends Joint {
 	constructor({bodyA, bodyB, anchorA, anchorB, axis, frequency, damping}) {
 		super({bodyA, bodyB, anchorA, anchorB});
-		this.axis = axis;
+		this.axis = axis.clone();
 		this.frequency = frequency;
 		this.damping = damping;
 
@@ -195,5 +195,29 @@ module.exports = class WheelJoint extends Joint {
 		this.motorOn = speed != null;
 		this.motorSpeed = speed;
 		this.motorTorqueLimit = torque;
+	}
+	clone(bodyA, bodyB) {
+		let clone = Object.create(WheelJoint.prototype);
+		Joint.clone(clone, this, bodyA, bodyB);
+		clone.axis = this.axis.clone();
+		clone.frequency = this.frequency;
+		clone.damping = this.damping;
+		clone.motorOn = this.motorOn;
+		clone.motorSpeed = this.motorSpeed;
+		clone.motorTorqueLimit = this.motorTorqueLimit;
+		clone.ax = this.ax.clone();
+		clone.ay = this.ay.clone();
+		clone.sAx = this.sAx;
+		clone.sAy = this.sAy;
+		clone.sBx = this.sBx;
+		clone.sBy = this.sBy;
+		clone.impulse = this.impulse;
+		clone.motorImpulse = this.motorImpulse;
+		clone.springImpulse = this.springImpulse;
+		clone.mass = this.mass;
+		clone.motorMass = this.motorMass;
+		clone.springMass = this.springMass;
+		clone.bias = this.bias;
+		clone.gamma = this.gamma;
 	}
 };

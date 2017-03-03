@@ -1,4 +1,4 @@
-const BroadPhase = require("../collision/broadphase.js");
+const {BroadPhase} = require("../collision/broadphase.js");
 const ContactData = require("../collision/contactdata.js");
 const {ManifoldMap} = require("../collision/manifold.js");
 

@@ -123,4 +123,16 @@ module.exports = class SpringJoint extends Joint {
 		this.bodyA.transform.radians -= iA * rA.cross(p);
 		this.bodyB.transform.radians += iB * rB.cross(p);
 	}
+	clone(bodyA, bodyB) {
+		let clone = Object.create(SpringJoint.prototype);
+		Joint.clone(clone, this, bodyA, bodyB);
+		clone.length = this.length;
+		clone.frequency = this.frequency;
+		clone.damping = this.damping;
+		clone.u = this.u.clone();
+		clone.mass = this.mass;
+		clone.impulse = this.impulse;
+		clone.gamma = this.gamma;
+		clone.bias = this.bias;
+	}
 };

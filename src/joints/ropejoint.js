@@ -107,4 +107,14 @@ module.exports = class RopeJoint extends Joint {
 		this.bodyA.transform.radians -= iA * rA.cross(p);
 		this.bodyB.transform.radians += iB * rB.cross(p);
 	}
+	clone(bodyA, bodyB) {
+		let clone = Object.create(RopeJoint.prototype);
+		Joint.clone(clone, this, bodyA, bodyB);
+		clone.limit = this.limit;
+		clone.u = this.u.clone();
+		clone.mass = this.mass;
+		clone.impulse = this.impulse;
+		clone.distance = this.distance;
+		return clone;
+	}
 };

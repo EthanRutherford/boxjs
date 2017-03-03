@@ -8,6 +8,8 @@ class RevJoint extends Joint {
 
 		if (upperLimit != null && lowerLimit != null) {
 			this.setLimit(true, upperLimit, lowerLimit);
+		} else {
+			this.setLimit(false);
 		}
 
 		this.refAngle = cleanAngle(bodyB.transform.radians - bodyA.transform.radians);
@@ -182,6 +184,13 @@ class RevJoint extends Joint {
 		this.bodyB.transform.radians = aB;
 	}
 	setLimit(on, upper, lower) {
+		if (!on) {
+			this.limitEnabled = false;
+			this.upperLimit = null;
+			this.lowerLimit = null;
+			return;
+		}
+
 		if (upper > Math.PI || upper < -Math.PI) {
 			throw new Error("upper limit out of bounts (-pi to pi)");
 		}
@@ -197,6 +206,18 @@ class RevJoint extends Joint {
 		this.limitEnabled = on;
 		this.upperLimit = upper;
 		this.lowerLimit = lower;
+	}
+	clone(bodyA, bodyB) {
+		let clone = Object.create(RevJoint.prototype);
+		Joint.clone(clone, this, bodyA, bodyB);
+		clone.mass = this.mass.clone();
+		clone.limitEnabled = this.limitEnabled;
+		clone.upperLimit = this.upperLimit;
+		clone.lowerLimit = this.lowerLimit;
+		clone.refAngle = this.refAngle;
+		clone.cumulativeImpulse = this.cumulativeImpulse.clone();
+		clone.state = this.state;
+		return clone;
 	}
 }
 

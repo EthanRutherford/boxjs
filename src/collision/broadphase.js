@@ -373,7 +373,7 @@ function queryCallback(nodeA, nodeB) {
 	return true;
 }
 
-module.exports = class BroadPhase {
+class BroadPhase {
 	constructor() {
 		this.tree = new AABBTree();
 		this.shapeToNode = new Map();
@@ -438,4 +438,11 @@ module.exports = class BroadPhase {
 	debugGetNodes() {
 		return [...this.shapeToNode].map((kv) => kv[1].aabb.clone());
 	}
+}
+
+module.exports = {
+	Node,
+	AABBTree,
+	PairSet,
+	BroadPhase,
 };

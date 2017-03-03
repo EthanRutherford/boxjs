@@ -2,6 +2,7 @@
 //# preload ../src/collision/collision.js
 //# preload ../src/collision/contactdata.js
 //# preload ../src/collision/manifold.js
+//# preload ../src/framework/fork.js
 //# preload ../src/framework/math.js
 //# preload ../src/framework/solver.js
 //# preload ../src/joints/joint.js
@@ -14,6 +15,7 @@
 //# preload ../src/objects/polygon.js
 //# preload ../src/objects/circle.js
 //# preload ../src/objects/shape.js
+const fork = require("./framework/fork.js");
 const Math = require("./framework/math.js");
 const Solver = require("./framework/solver.js");
 const Joint = require("./joints/joint.js");
@@ -27,6 +29,7 @@ const Polygon = require("./objects/polygon.js");
 const {Shape, AABB} = require("./objects/shape.js");
 
 module.exports = {
+	fork,
 	Math,
 	Solver,
 	Body,
