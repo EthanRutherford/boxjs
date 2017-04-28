@@ -64,7 +64,7 @@ function initGL(canvas, height) {
 }
 
 function resize() {
-	let style = window.getComputedStyle(gl.canvas);
+	const style = window.getComputedStyle(gl.canvas);
 	gl.canvas.width = parseInt(style.width, 10);
 	gl.canvas.height = parseInt(style.height, 10);
 	gl.context.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -72,7 +72,7 @@ function resize() {
 }
 
 function getShader(src, isFrag) {
-	let shader = gl.context.createShader(isFrag ? gl.context.FRAGMENT_SHADER : gl.context.VERTEX_SHADER);
+	const shader = gl.context.createShader(isFrag ? gl.context.FRAGMENT_SHADER : gl.context.VERTEX_SHADER);
 	gl.context.shaderSource(shader, src);
 	gl.context.compileShader(shader);
 	if (!gl.context.getShaderParameter(shader, gl.context.COMPILE_STATUS)) {
@@ -156,8 +156,8 @@ function setModelView() {
 
 function setOrtho(x, y, zoom) {
 	zoom = 1 / zoom;
-	let w = (gl.height * gl.aspect / 2) * zoom;
-	let h = (gl.height / 2) * zoom;
+	const w = (gl.height * gl.aspect / 2) * zoom;
+	const h = (gl.height / 2) * zoom;
 	Mat4.ortho(gl.pMatrix, x - w, x + w, y - h, y + h, 0, -1);
 	setProjectionDirty();
 	gl.bounds.x0 = x - w;
@@ -167,10 +167,10 @@ function setOrtho(x, y, zoom) {
 }
 
 function viewportToWorld(pos) {
-	let x = pos.x / gl.canvas.width - .5;
-	let y = .5 - pos.y / gl.canvas.height;
+	const x = pos.x / gl.canvas.width - .5;
+	const y = .5 - pos.y / gl.canvas.height;
 
-	let ans = {};
+	const ans = {};
 	ans.x = x / gl.pMatrix[0] * 2 - gl.pMatrix[12] / gl.pMatrix[0];
 	ans.y = y / gl.pMatrix[5] * 2 - gl.pMatrix[13] / gl.pMatrix[5];
 
@@ -185,7 +185,7 @@ const getZIndex = (() => {
 	const zMaxValue = 16000000;
 	let zOrder = zMaxValue - 1;
 	return function() {
-		let zIndex = zOrder / zMaxValue;
+		const zIndex = zOrder / zMaxValue;
 		if (--zOrder === 0) {
 			zOrder = zMaxValue - 1;
 		}
@@ -195,7 +195,7 @@ const getZIndex = (() => {
 })();
 
 function arrayToZArray(array, z) {
-	let zArray = [];
+	const zArray = [];
 	for (let i = 0; i < array.length; i += 2) {
 		zArray.push(array[i], array[i + 1], z);
 	}
@@ -292,7 +292,7 @@ class TextureRenderable {
 		width /= 2;
 		height /= 2;
 		let verts = [width, height, -width, height, width, -height, -width, -height];
-		let tex = [1, 1, 0, 1, 1, 0, 0, 0];
+		const tex = [1, 1, 0, 1, 1, 0, 0, 0];
 		this.z = getZIndex();
 		verts = arrayToZArray(verts, this.z);
 		this.vertBuf = gl.context.createBuffer();
@@ -303,10 +303,10 @@ class TextureRenderable {
 		gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.texBuf);
 		gl.context.bufferData(gl.context.ARRAY_BUFFER, new Float32Array(tex), gl.context.STATIC_DRAW);
 		this.promise = new Promise((resolve, reject) => {
-			let img = new Image();
+			const img = new Image();
 			img.src = imageSrc;
 			img.onload = () => {
-				gl.context.bindTexture(gl.context.Texture_2D, this.texture);
+				gl.context.bindTexture(gl.context.TEXTURE_2D, this.texture);
 				gl.context.pixelStorei(gl.context.UNPACK_FLIP_Y_WEBGL, true);
 				gl.context.texImage2D(gl.context.TEXTURE_2D, 0, gl.context.RGBA,
 					gl.context.RGBA, gl.context.UNSIGNED_BYTE, img);
@@ -318,9 +318,7 @@ class TextureRenderable {
 				gl.context.bindTexture(gl.context.TEXTURE_2D, null);
 				resolve(this);
 			};
-			img.onerror = () => {
-				reject("image failed to load");
-			};
+			img.onerror = () => reject("image failed to load");
 		});
 	}
 	deleteBuffers() {

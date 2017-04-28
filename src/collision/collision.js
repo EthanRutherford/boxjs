@@ -3,7 +3,7 @@ const {Manifold, ManifoldPoint} = require("./manifold.js");
 const Polygon = require("../objects/polygon.js");
 const Circle = require("../objects/circle.js");
 
-let baseMap = new Map();
+const baseMap = new Map();
 
 class Collision {
 	static getCollider(type1, type2) {
@@ -40,15 +40,15 @@ function findSeparatingAxis(a, b) {
 	let bestDistance = -Number.MAX_VALUE;
 	let bestIndex = 0;
 	for (let i = 0; i < a.points.length; i++) {
-		let nw = a.body.transform.times(a.norms[i]);
-		let btT = b.body.transform.transpose;
-		let n = btT.times(nw);
+		const nw = a.body.transform.times(a.norms[i]);
+		const btT = b.body.transform.transpose;
+		const n = btT.times(nw);
 
-		let s = b.getSupport(n.neg());
+		const s = b.getSupport(n.neg());
 		let v = a.body.transform.times(a.points[i]).plus(a.body.position);
 		v = btT.times(v.minus(b.body.position));
 
-		let d = n.dot(s.minus(v));
+		const d = n.dot(s.minus(v));
 		if (d > bestDistance) {
 			bestDistance = d;
 			bestIndex = i;
@@ -64,15 +64,15 @@ function findIncidentEdge(ref, inc, index) {
 	let edge1 = 0;
 	let minDot = Number.MAX_VALUE;
 	for (let i = 0; i < inc.points.length; i++) {
-		let d = refNormal.dot(inc.norms[i]);
+		const d = refNormal.dot(inc.norms[i]);
 		if (d < minDot) {
 			minDot = d;
 			edge1 = i;
 		}
 	}
-	let edge2 = edge1 + 1 >= inc.points.length ? 0 : edge1 + 1;
+	const edge2 = edge1 + 1 >= inc.points.length ? 0 : edge1 + 1;
 
-	let r1 = new ManifoldPoint(
+	const r1 = new ManifoldPoint(
 		inc.body.transform.times(inc.points[edge1]).plus(inc.body.position),
 		inc.points[edge1],
 		index,
@@ -80,7 +80,7 @@ function findIncidentEdge(ref, inc, index) {
 		ManifoldPoint.face,
 		ManifoldPoint.vert
 	);
-	let r2 = new ManifoldPoint(
+	const r2 = new ManifoldPoint(
 		inc.body.transform.times(inc.points[edge2]).plus(inc.body.position),
 		inc.points[edge2],
 		index,
@@ -93,9 +93,9 @@ function findIncidentEdge(ref, inc, index) {
 }
 
 function clipPoints(input, n, c, index) {
-	let output = [];
-	let dist0 = n.dot(input[0].point) - c;
-	let dist1 = n.dot(input[1].point) - c;
+	const output = [];
+	const dist0 = n.dot(input[0].point) - c;
+	const dist1 = n.dot(input[1].point) - c;
 	if (dist0 <= 0) {
 		output.push(input[0]);
 	}
@@ -103,7 +103,7 @@ function clipPoints(input, n, c, index) {
 		output.push(input[1]);
 	}
 	if (dist0 * dist1 < 0) {
-		let interp = dist0 / (dist0 - dist1);
+		const interp = dist0 / (dist0 - dist1);
 		output.push(new ManifoldPoint(
 			input[0].point.plus(input[1].point.minus(input[0].point).times(interp)),
 			input[0].lpoint.plus(input[1].lpoint.minus(input[0].lpoint).times(interp)),
@@ -117,14 +117,14 @@ function clipPoints(input, n, c, index) {
 }
 
 function polyToPoly(m, a, b) {
-	let oldContacts = m.contacts;
+	const oldContacts = m.contacts;
 	m.contacts = [];
-	let {index: edgeA, distance: separationA} = findSeparatingAxis(a, b);
+	const {index: edgeA, distance: separationA} = findSeparatingAxis(a, b);
 	if (separationA > 0) {
 		return;
 	}
 
-	let {index: edgeB, distance: separationB} = findSeparatingAxis(b, a);
+	const {index: edgeB, distance: separationB} = findSeparatingAxis(b, a);
 	if (separationB > 0) {
 		return;
 	}
@@ -147,23 +147,23 @@ function polyToPoly(m, a, b) {
 		flip = false;
 	}
 
-	let incidentEdge = findIncidentEdge(refPoly, incPoly, refIndex);
-	let iv1 = refIndex;
-	let iv2 = iv1 + 1 >= refPoly.points.length ? 0 : iv1 + 1;
+	const incidentEdge = findIncidentEdge(refPoly, incPoly, refIndex);
+	const iv1 = refIndex;
+	const iv2 = iv1 + 1 >= refPoly.points.length ? 0 : iv1 + 1;
 	let v1 = refPoly.points[iv1];
 	let v2 = refPoly.points[iv2];
 	m.ltangent = v2.minus(v1).normalize();
 	m.lnormal = Vector2D.cross2x1(m.ltangent, 1);
 	m.lpoint = v1.plus(v2).times(.5);
 
-	let tangent = refPoly.body.transform.times(m.ltangent);
-	let normal = Vector2D.cross2x1(tangent, 1);
+	const tangent = refPoly.body.transform.times(m.ltangent);
+	const normal = Vector2D.cross2x1(tangent, 1);
 	v1 = refPoly.body.transform.times(v1).plus(refPoly.body.position);
 	v2 = refPoly.body.transform.times(v2).plus(refPoly.body.position);
 
-	let refC = normal.dot(v1);
-	let negSide = -tangent.dot(v1);
-	let posSide = tangent.dot(v2);
+	const refC = normal.dot(v1);
+	const negSide = -tangent.dot(v1);
+	const posSide = tangent.dot(v2);
 
 	let clip = clipPoints(incidentEdge, tangent.neg(), negSide, iv1);
 	if (clip.length < 2) {
@@ -175,14 +175,14 @@ function polyToPoly(m, a, b) {
 		return;
 	}
 
-	for (let point of clip) {
-		let separation = normal.dot(point.point) - refC;
+	for (const point of clip) {
+		const separation = normal.dot(point.point) - refC;
 		if (separation <= 0) {
 			if (flip) {
 				point.flip();
 			}
 
-			for (let old of oldContacts) {
+			for (const old of oldContacts) {
 				if (point.equals(old)) {
 					point.absorb(old);
 				}
@@ -197,8 +197,8 @@ function polyToPoly(m, a, b) {
 function circleToCircle(m, a, b) {
 	m.contacts = [];
 	m.normal = b.body.position.minus(a.body.position);
-	let dist = m.normal.lsqr;
-	let radius = a.radius + b.radius;
+	const dist = m.normal.lsqr;
+	const radius = a.radius + b.radius;
 	if (dist > Math.sqr(radius)) {
 		return;
 	}
@@ -213,11 +213,11 @@ function circleToCircle(m, a, b) {
 
 function circleToPoly(m, a, b) {
 	m.contacts = [];
-	let center = b.body.transform.transpose.times(a.body.position.minus(b.body.position));
+	const center = b.body.transform.transpose.times(a.body.position.minus(b.body.position));
 	let separation = -Number.MAX_VALUE;
 	let i1 = 0;
 	for (let i = 0; i < b.points.length; i++) {
-		let s = b.norms[i].dot(center.minus(b.points[i]));
+		const s = b.norms[i].dot(center.minus(b.points[i]));
 		if (s > a.radius) {
 			return;
 		}
@@ -227,9 +227,9 @@ function circleToPoly(m, a, b) {
 			i1 = i;
 		}
 	}
-	let i2 = i1 + 1 < b.points.length ? i1 + 1 : 0;
-	let v1 = b.points[i1];
-	let v2 = b.points[i2];
+	const i2 = i1 + 1 < b.points.length ? i1 + 1 : 0;
+	const v1 = b.points[i1];
+	const v2 = b.points[i2];
 	if (separation < Number.EPSILON) {
 		m.type = Manifold.faceB;
 		m.lnormal = b.norms[i1];
@@ -239,8 +239,8 @@ function circleToPoly(m, a, b) {
 			m.normal.times(a.radius).plus(a.body.position)
 		));
 	} else {
-		let dot1 = center.minus(v1).dot(v2.minus(v1));
-		let dot2 = center.minus(v2).dot(v1.minus(v2));
+		const dot1 = center.minus(v1).dot(v2.minus(v1));
+		const dot2 = center.minus(v2).dot(v1.minus(v2));
 		if (dot1 <= 0) {
 			if (center.minus(v1).lsqr > Math.sqr(a.radius)) {
 				return;

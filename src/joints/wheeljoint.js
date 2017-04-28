@@ -28,18 +28,18 @@ module.exports = class WheelJoint extends Joint {
 		this.gamma = 0;
 	}
 	initialize(dt) {
-		let rA = this.bodyA.transform.times(this.anchorA);
-		let rB = this.bodyB.transform.times(this.anchorB);
+		const rA = this.bodyA.transform.times(this.anchorA);
+		const rB = this.bodyB.transform.times(this.anchorB);
 
-		let cA = this.bodyA.position;
-		let cB = this.bodyB.position;
+		const cA = this.bodyA.position;
+		const cB = this.bodyB.position;
 
-		let mA = this.bodyA.mass.iM;
-		let mB = this.bodyB.mass.iM;
-		let iA = this.bodyA.mass.iI;
-		let iB = this.bodyB.mass.iI;
+		const mA = this.bodyA.mass.iM;
+		const mB = this.bodyB.mass.iM;
+		const iA = this.bodyA.mass.iI;
+		const iB = this.bodyB.mass.iI;
 
-		let d = cB.plus(rB).minus(cA.plus(rA));
+		const d = cB.plus(rB).minus(cA.plus(rA));
 
 		this.ay = this.bodyA.transform.times(Vector2D.cross1x2(1, this.axis));
 		this.sAy = d.plus(rA).cross(this.ay);
@@ -56,14 +56,14 @@ module.exports = class WheelJoint extends Joint {
 			this.ax = this.bodyA.transform.times(this.axis);
 			this.sAx = d.plus(rA).cross(this.ax);
 			this.sBx = rB.cross(this.ax);
-			let invMass = mA + mB + iA * Math.sqr(this.sAx) + iB * Math.sqr(this.sBx);
+			const invMass = mA + mB + iA * Math.sqr(this.sAx) + iB * Math.sqr(this.sBx);
 
 			if (invMass > 0) {
 				this.springMass = 1 / invMass;
-				let c = d.dot(this.ax);
-				let omega = 2 * Math.PI * this.frequency;
-				let damp = 2 * this.springMass * this.damping * omega;
-				let k = this.springMass * Math.sqr(omega);
+				const c = d.dot(this.ax);
+				const omega = 2 * Math.PI * this.frequency;
+				const damp = 2 * this.springMass * this.damping * omega;
+				const k = this.springMass * Math.sqr(omega);
 
 				this.gamma = dt * (damp + dt * k);
 				if (this.gamma > 0) {
@@ -90,9 +90,9 @@ module.exports = class WheelJoint extends Joint {
 			this.motorImpulse = 0;
 		}
 
-		let p = this.ay.times(this.impulse).plus(this.ax.times(this.springImpulse));
-		let lA = this.sAy * this.impulse + this.sAx * this.springImpulse + this.motorImpulse;
-		let lB = this.sBy * this.impulse + this.sBx * this.springImpulse + this.motorImpulse;
+		const p = this.ay.times(this.impulse).plus(this.ax.times(this.springImpulse));
+		const lA = this.sAy * this.impulse + this.sAx * this.springImpulse + this.motorImpulse;
+		const lB = this.sBy * this.impulse + this.sBx * this.springImpulse + this.motorImpulse;
 
 		this.bodyA.velocity.sub(p.times(mA));
 		this.bodyB.velocity.add(p.times(mB));
@@ -100,23 +100,23 @@ module.exports = class WheelJoint extends Joint {
 		this.bodyB.angularVelocity += iB * lB;
 	}
 	applyImpulse(dt) {
-		let vA = this.bodyA.velocity;
-		let vB = this.bodyB.velocity;
+		const vA = this.bodyA.velocity;
+		const vB = this.bodyB.velocity;
 		let wA = this.bodyA.angularVelocity;
 		let wB = this.bodyB.angularVelocity;
 
-		let mA = this.bodyA.mass.iM;
-		let mB = this.bodyB.mass.iM;
-		let iA = this.bodyA.mass.iI;
-		let iB = this.bodyB.mass.iI;
+		const mA = this.bodyA.mass.iM;
+		const mB = this.bodyB.mass.iM;
+		const iA = this.bodyA.mass.iI;
+		const iB = this.bodyB.mass.iI;
 
 		{ //spring constraint
-			let cDot = this.ax.dot(vB.minus(vA)) + this.sBx * wB - this.sAx * wA;
-			let impulse = -(cDot + this.bias + this.gamma * this.springImpulse) * this.springMass;
+			const cDot = this.ax.dot(vB.minus(vA)) + this.sBx * wB - this.sAx * wA;
+			const impulse = -(cDot + this.bias + this.gamma * this.springImpulse) * this.springMass;
 			this.springImpulse += impulse;
-			let p = this.ax.times(impulse);
-			let lA = impulse * this.sAx;
-			let lB = impulse * this.sBx;
+			const p = this.ax.times(impulse);
+			const lA = impulse * this.sAx;
+			const lB = impulse * this.sBx;
 
 			vA.sub(p.times(mA));
 			vB.add(p.times(mB));
@@ -125,11 +125,11 @@ module.exports = class WheelJoint extends Joint {
 		}
 
 		{ //motor constraint
-			let cDot = wB - wA - this.motorSpeed;
+			const cDot = wB - wA - this.motorSpeed;
 			let impulse = -this.motorMass * cDot;
 
-			let oldImpulse = this.motorImpulse;
-			let maxImpulse = dt * this.motorTorqueLimit;
+			const oldImpulse = this.motorImpulse;
+			const maxImpulse = dt * this.motorTorqueLimit;
 			this.motorImpulse = Math.clamp(this.motorImpulse + impulse, -maxImpulse, maxImpulse);
 			impulse = this.motorImpulse - oldImpulse;
 
@@ -138,12 +138,12 @@ module.exports = class WheelJoint extends Joint {
 		}
 
 		{ //axis constraint
-			let cDot = this.ay.dot(vB.minus(vA)) + this.sBy * wB - this.sAy * wA;
-			let impulse = -this.mass * cDot;
+			const cDot = this.ay.dot(vB.minus(vA)) + this.sBy * wB - this.sAy * wA;
+			const impulse = -this.mass * cDot;
 			this.impulse += impulse;
-			let p = this.ay.times(impulse);
-			let lA = impulse * this.sAy;
-			let lB = impulse * this.sBy;
+			const p = this.ay.times(impulse);
+			const lA = impulse * this.sAy;
+			const lB = impulse * this.sBy;
 
 			vA.sub(p.times(mA));
 			vB.add(p.times(mB));
@@ -157,34 +157,34 @@ module.exports = class WheelJoint extends Joint {
 		this.bodyB.angularVelocity = wB;
 	}
 	positionalCorrection() {
-		let rA = this.bodyA.transform.times(this.anchorA);
-		let rB = this.bodyB.transform.times(this.anchorB);
+		const rA = this.bodyA.transform.times(this.anchorA);
+		const rB = this.bodyB.transform.times(this.anchorB);
 
-		let cA = this.bodyA.position;
-		let cB = this.bodyB.position;
+		const cA = this.bodyA.position;
+		const cB = this.bodyB.position;
 
-		let mA = this.bodyA.mass.iM;
-		let mB = this.bodyB.mass.iM;
-		let iA = this.bodyA.mass.iI;
-		let iB = this.bodyB.mass.iI;
+		const mA = this.bodyA.mass.iM;
+		const mB = this.bodyB.mass.iM;
+		const iA = this.bodyA.mass.iI;
+		const iB = this.bodyB.mass.iI;
 
-		let d = cB.plus(rB).minus(cA.plus(rA));
+		const d = cB.plus(rB).minus(cA.plus(rA));
 
-		let ay = this.bodyA.transform.times(Vector2D.cross1x2(1, this.axis));
-		let sAy = d.plus(rA).cross(this.ay);
-		let sBy = rB.cross(this.ay);
+		const ay = this.bodyA.transform.times(Vector2D.cross1x2(1, this.axis));
+		const sAy = d.plus(rA).cross(this.ay);
+		const sBy = rB.cross(this.ay);
 
-		let c = d.dot(ay);
-		let k = mA + mB + iA * Math.sqr(this.sAy) + iB * Math.sqr(this.sBy);
+		const c = d.dot(ay);
+		const k = mA + mB + iA * Math.sqr(this.sAy) + iB * Math.sqr(this.sBy);
 
 		let impulse = 0;
 		if (k !== 0) {
 			impulse = -c / k;
 		}
 
-		let p = ay.times(impulse);
-		let lA = impulse * sAy;
-		let lB = impulse * sBy;
+		const p = ay.times(impulse);
+		const lA = impulse * sAy;
+		const lB = impulse * sBy;
 
 		this.bodyA.position.sub(p.times(mA));
 		this.bodyB.position.add(p.times(mB));
@@ -197,7 +197,7 @@ module.exports = class WheelJoint extends Joint {
 		this.motorTorqueLimit = torque;
 	}
 	clone(bodyA, bodyB) {
-		let clone = Object.create(WheelJoint.prototype);
+		const clone = Object.create(WheelJoint.prototype);
 		Joint.clone(clone, this, bodyA, bodyB);
 		clone.axis = this.axis.clone();
 		clone.frequency = this.frequency;

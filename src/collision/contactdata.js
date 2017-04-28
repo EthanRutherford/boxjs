@@ -5,7 +5,7 @@ module.exports = class ContactData {
 		this.normalForces = [];
 		this.tangentForces = [];
 		if (!manifold.hasSensor) {
-			for (let contact of manifold.contacts) {
+			for (const contact of manifold.contacts) {
 				let normalForce = manifold.normal.times(contact.normalImpulse / dt);
 				let tangentForce = manifold.tangent.times(contact.tangentImpulse / dt);
 				if (flipped) {

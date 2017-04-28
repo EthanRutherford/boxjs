@@ -55,8 +55,8 @@ class Manifold {
 		this.hasSensor = a.body.sensor || b.body.sensor;
 	}
 	solve() {
-		let a = this.shapeA;
-		let b = this.shapeB;
+		const a = this.shapeA;
+		const b = this.shapeB;
 		if (!a.aabb.test(b.aabb)) {
 			this.contacts = [];
 			return;
@@ -138,8 +138,8 @@ class Manifold {
 		const mB = this.shapeB.body.mass.iM;
 		const iB = this.shapeB.body.mass.iI;
 
-		let vA = this.shapeA.body.velocity;
-		let vB = this.shapeB.body.velocity;
+		const vA = this.shapeA.body.velocity;
+		const vB = this.shapeB.body.velocity;
 
 		let wA = this.shapeA.body.angularVelocity;
 		let wB = this.shapeB.body.angularVelocity;
@@ -170,8 +170,8 @@ class Manifold {
 		const mB = this.shapeB.body.mass.iM;
 		const iB = this.shapeB.body.mass.iI;
 
-		let vA = this.shapeA.body.velocity;
-		let vB = this.shapeB.body.velocity;
+		const vA = this.shapeA.body.velocity;
+		const vB = this.shapeB.body.velocity;
 
 		let wA = this.shapeA.body.angularVelocity;
 		let wB = this.shapeB.body.angularVelocity;
@@ -220,16 +220,16 @@ class Manifold {
 			const rA1 = contact1.point.minus(this.shapeA.body.position);
 			const rB1 = contact1.point.minus(this.shapeB.body.position);
 
-			let a = new Vector2D(contact0.normalImpulse, contact1.normalImpulse);
+			const a = new Vector2D(contact0.normalImpulse, contact1.normalImpulse);
 			const dv0 = vB.plus(Vector2D.cross1x2(wB, rB0)).minus(vA.plus(Vector2D.cross1x2(wA, rA0)));
 			const dv1 = vB.plus(Vector2D.cross1x2(wB, rB1)).minus(vA.plus(Vector2D.cross1x2(wA, rA1)));
 			let vn0 = dv0.dot(this.normal);
 			let vn1 = dv1.dot(this.normal);
-			let b = new Vector2D(vn0 - contact0.bias, vn1 - contact1.bias).sub(this.k.times(a));
+			const b = new Vector2D(vn0 - contact0.bias, vn1 - contact1.bias).sub(this.k.times(a));
 
 			//block solver, taken from Box2D
 			while (true) {
-				let x = this.nMass.times(b).neg();
+				const x = this.nMass.times(b).neg();
 				if (x.x >= 0 && x.y >= 0) {
 					const d = x.minus(a);
 					const p0 = this.normal.times(d.x);
@@ -316,8 +316,8 @@ class Manifold {
 		const mB = this.shapeB.body.mass.iM;
 		const iB = this.shapeB.body.mass.iI;
 
-		let cA = this.shapeA.body.position;
-		let cB = this.shapeB.body.position;
+		const cA = this.shapeA.body.position;
+		const cB = this.shapeB.body.position;
 		let aA = this.shapeA.body.transform.radians;
 		let aB = this.shapeB.body.transform.radians;
 
@@ -388,7 +388,7 @@ class ManifoldMap {
 		return this.map.get(key);
 	}
 	add({a, b}) {
-		let key = `${a.id}:${b.id}`;
+		const key = `${a.id}:${b.id}`;
 		if (!this.map.has(key)) {
 			this.map.set(key, new Manifold(a, b));
 		}
@@ -402,7 +402,7 @@ class ManifoldMap {
 		this.map.clear();
 	}
 	*[Symbol.iterator]() {
-		for (let kv of this.map) {
+		for (const kv of this.map) {
 			yield kv[1];
 		}
 	}

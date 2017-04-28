@@ -27,17 +27,17 @@ const camera = {
 };
 
 function generateCircle(radius, count) {
-	let points = [];
-	let sector = 2 * Math.PI / count;
+	const points = [];
+	const sector = 2 * Math.PI / count;
 	for (let i = 0; i < count; i++) {
-		let angle = sector * i;
+		const angle = sector * i;
 		points.push(new Vector2D(Math.cos(angle) * radius, Math.sin(angle) * radius));
 	}
 	return points;
 }
 
 function generateCircleColors(count) {
-	let colors = [];
+	const colors = [];
 	for (let i = 0; i < count; i++) {
 		colors.push(i / 40 + .5, i / 40 + .5, i / 40 + .5, 1);
 	}
@@ -52,14 +52,14 @@ function serializePoints(array) {
 let solver = new Solver();
 const gravityAcceleration = new Vector2D(0, -9.8);
 solver.applyG = (bodies) => {
-	for (let body of bodies) {
+	for (const body of bodies) {
 		body.applyForce(gravityAcceleration.times(body.mass.m));
 	}
 };
 
-let renderables = new Set();
+const renderables = new Set();
 
-let debugBoxRenderable = new SimpleRenderable(
+const debugBoxRenderable = new SimpleRenderable(
 	[0, 0, 0, 0, 0, 0, 0, 0],
 	[1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1],
 	gl.LINE_LOOP,
@@ -72,16 +72,16 @@ function render() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	setOrtho(camera.position.x, camera.position.y, camera.zoom);
 
-	let {x0, x1, y0, y1} = getBounds();
+	const {x0, x1, y0, y1} = getBounds();
 
 	solver.query(new AABB(x0, y0, x1, y1), (shape) => {
-		let body = shape.body;
+		const body = shape.body;
 		if (shape.renderable) {
 			shape.renderable.render(body.position, body.transform.radians);
 		}
 	});
 
-	for (let item of renderables) {
+	for (const item of renderables) {
 		item.renderable.render(item.position, item.radians);
 	}
 
@@ -89,9 +89,9 @@ function render() {
 		return;
 	}
 
-	let nodes = solver.debugGetNodes();
+	const nodes = solver.debugGetNodes();
 
-	for (let node of nodes) {
+	for (const node of nodes) {
 		debugBoxRenderable.updateBuffers({
 			verts: [
 				node.min.x, node.min.y,
@@ -110,7 +110,7 @@ function startLoop() {
 
 	(function step(stamp) {
 		window.requestAnimationFrame(step);
-		let elapsed = (stamp - timestamp) / 1000 || 0;
+		const elapsed = (stamp - timestamp) / 1000 || 0;
 		timestamp = stamp;
 
 		render();
@@ -123,17 +123,17 @@ const onCleanup = [];
 
 function createBasicTest() {
 	{	//ground, ball, joint with angle limits
-		let box = new Body({
+		const box = new Body({
 			position: new Vector2D(0, 5),
 			shapes: [new Polygon().setAsBox(.5, .5)],
 		});
 
-		let box2 = new Body({
+		const box2 = new Body({
 			position: new Vector2D(1, 6),
 			shapes: [new Polygon().setAsBox(.5, .5)],
 		});
 
-		let joint = new RevJoint({
+		const joint = new RevJoint({
 			bodyA: box,
 			bodyB: box2,
 			anchorA: new Vector2D(.5, .5),
@@ -142,12 +142,12 @@ function createBasicTest() {
 			upperLimit: Math.PI / 8,
 		});
 
-		let ball = new Body({
+		const ball = new Body({
 			position: new Vector2D(0, 10),
 			shapes: [new Circle(.5)],
 		});
 
-		let ground = new Body({
+		const ground = new Body({
 			position: new Vector2D(0, 0),
 			shapes: [new Polygon().setAsBox(10, .5)],
 			static: true,
@@ -180,8 +180,8 @@ function createBasicTest() {
 		);
 	}
 	{	//rope with dense mass on the bottom
-		let position = new Vector2D(10, 5);
-		let anchorPoint = new Body({
+		const position = new Vector2D(10, 5);
+		const anchorPoint = new Body({
 			position,
 			shapes: [new Polygon().setAsBox(.5, .1)],
 			static: true,
@@ -192,7 +192,7 @@ function createBasicTest() {
 		position.x += .5;
 		let lastBox = anchorPoint;
 		for (let i = 0; i < 10; i++) {
-			let box = new Body({
+			const box = new Body({
 				position,
 				shapes: [new Polygon().setAsBox(.5, .1)],
 				filterGroup: 2,
@@ -200,7 +200,7 @@ function createBasicTest() {
 			});
 			position.x += 1;
 			solver.addBody(box);
-			let joint = new RevJoint({
+			const joint = new RevJoint({
 				bodyA: lastBox,
 				bodyB: box,
 				anchorA: new Vector2D(.5, 0),
@@ -214,7 +214,7 @@ function createBasicTest() {
 			lastBox = box;
 		}
 
-		let superDense = new Body({
+		const superDense = new Body({
 			position,
 			shapes: [new Polygon().setAsBox(.5, .5)],
 			density: 10,
@@ -228,7 +228,7 @@ function createBasicTest() {
 			[0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1]
 		);
 
-		let joint = new RevJoint({
+		const joint = new RevJoint({
 			bodyA: lastBox,
 			bodyB: superDense,
 			anchorA: new Vector2D(.5, 0),
@@ -236,7 +236,7 @@ function createBasicTest() {
 		});
 
 		solver.addJoint(joint);
-		let rope = new RopeJoint({
+		const rope = new RopeJoint({
 			bodyA: anchorPoint,
 			bodyB: superDense,
 			anchorA: new Vector2D(.5, 0),
@@ -247,17 +247,17 @@ function createBasicTest() {
 		solver.addJoint(rope);
 	}
 	{	//spring joint test
-		let box = new Body({
+		const box = new Body({
 			position: new Vector2D(5, 1),
 			shapes: [new Polygon().setAsBox(.5, .5)],
 		});
 
-		let box2 = new Body({
+		const box2 = new Body({
 			position: new Vector2D(5, 4),
 			shapes: [new Polygon().setAsBox(.5, .5)],
 		});
 
-		let joint = new SpringJoint({
+		const joint = new SpringJoint({
 			bodyA: box,
 			bodyB: box2,
 			anchorA: new Vector2D(),
@@ -287,7 +287,7 @@ function createCarTest() {
 	let body;
 	let motor;
 	{	//create the car
-		let verts = [
+		const verts = [
 			new Vector2D(-2, -.8),
 			new Vector2D(2, -.8),
 			new Vector2D(2, -.2),
@@ -295,26 +295,26 @@ function createCarTest() {
 			new Vector2D(-1.5, .8),
 			new Vector2D(-2, 0),
 		];
-		let frame = new Body({
+		const frame = new Body({
 			position: new Vector2D(0, 2),
 			shapes: [new Polygon().set(verts)],
 			filterGroup: 3,
 			exclusionList: [3],
 		});
-		let wheel1 = new Body({
+		const wheel1 = new Body({
 			position: new Vector2D(-1.4, 1.1),
 			shapes: [new Circle(.5)],
 			filterGroup: 3,
 			exclusionList: [3],
 		});
-		let wheel2 = new Body({
+		const wheel2 = new Body({
 			position: new Vector2D(1.3, 1.1),
 			shapes: [new Circle(.5)],
 			filterGroup: 3,
 			exclusionList: [3],
 		});
 
-		let joint1 = new WheelJoint({
+		const joint1 = new WheelJoint({
 			bodyA: frame,
 			bodyB: wheel1,
 			anchorA: new Vector2D(-1.4, -.9),
@@ -323,7 +323,7 @@ function createCarTest() {
 			frequency: 4,
 			damping: .7,
 		});
-		let joint2 = new WheelJoint({
+		const joint2 = new WheelJoint({
 			bodyA: frame,
 			bodyB: wheel2,
 			anchorA: new Vector2D(1.3, -.9),
@@ -358,21 +358,21 @@ function createCarTest() {
 		motor = joint1;
 	}
 	{	//create some terrain
-		let ground1 = new Body({
+		const ground1 = new Body({
 			position: new Vector2D(40, 0),
 			shapes: [new Polygon().setAsBox(50, .5)],
 			static: true,
 			filterGroup: 2,
 			exclusionList: [2],
 		});
-		let ground2 = new Body({
+		const ground2 = new Body({
 			position: new Vector2D(135, 0),
 			shapes: [new Polygon().setAsBox(25, .5)],
 			static: true,
 			filterGroup: 2,
 			exclusionList: [2],
 		});
-		let ground3 = new Body({
+		const ground3 = new Body({
 			position: new Vector2D(170, 2),
 			angle: Math.PI / 16,
 			shapes: [new Polygon().setAsBox(10.4, .5)],
@@ -380,28 +380,28 @@ function createCarTest() {
 			filterGroup: 2,
 			exclusionList: [2],
 		});
-		let ground4 = new Body({
+		const ground4 = new Body({
 			position: new Vector2D(190, 4),
 			shapes: [new Polygon().setAsBox(10, .5)],
 			static: true,
 			filterGroup: 2,
 			exclusionList: [2],
 		});
-		let ground5 = new Body({
+		const ground5 = new Body({
 			position: new Vector2D(200, -1),
 			shapes: [new Polygon().setAsBox(.5, 5)],
 			static: true,
 			filterGroup: 2,
 			exclusionList: [2],
 		});
-		let ground6 = new Body({
+		const ground6 = new Body({
 			position: new Vector2D(210, -6),
 			shapes: [new Polygon().setAsBox(10, .5)],
 			static: true,
 			filterGroup: 2,
 			exclusionList: [2],
 		});
-		let ground7 = new Body({
+		const ground7 = new Body({
 			position: new Vector2D(220, 4),
 			shapes: [new Polygon().setAsBox(.5, 10)],
 			static: true,
@@ -409,8 +409,8 @@ function createCarTest() {
 			exclusionList: [2],
 		});
 
-		let position = new Vector2D(91, .3);
-		let firstBox = new Body({
+		const position = new Vector2D(91, .3);
+		const firstBox = new Body({
 			position,
 			shapes: [new Polygon().setAsBox(1, .2)],
 			filterGroup: 2,
@@ -420,7 +420,7 @@ function createCarTest() {
 		position.x += 1;
 		let lastBox = firstBox;
 		for (let i = 0; i < 9; i++) {
-			let box = new Body({
+			const box = new Body({
 				position,
 				shapes: [new Polygon().setAsBox(1, .2)],
 				filterGroup: 2,
@@ -428,7 +428,7 @@ function createCarTest() {
 			});
 			position.x += 2;
 			solver.addBody(box);
-			let joint = new RevJoint({
+			const joint = new RevJoint({
 				bodyA: lastBox,
 				bodyB: box,
 				anchorA: new Vector2D(1, 0),
@@ -443,7 +443,7 @@ function createCarTest() {
 		}
 
 		for (let i = 0; i < 10; i++) {
-			let box = new Body({
+			const box = new Body({
 				position: new Vector2D(190, 4 + i),
 				shapes: [new Polygon().setAsBox(.5, .5)],
 			});
@@ -455,7 +455,7 @@ function createCarTest() {
 		}
 
 		for (let i = 0; i < 200; i++) {
-			let ball = new Body({
+			const ball = new Body({
 				position: new Vector2D(210 + (i % 4) / 8, -6 + i),
 				shapes: [new Circle(.5)],
 			});
@@ -466,14 +466,14 @@ function createCarTest() {
 			);
 		}
 
-		let firstJoint = new RevJoint({
+		const firstJoint = new RevJoint({
 			bodyA: ground1,
 			bodyB: firstBox,
 			anchorA: new Vector2D(50, .3),
 			anchorB: new Vector2D(-1, 0),
 		});
 
-		let lastJoint = new RevJoint({
+		const lastJoint = new RevJoint({
 			bodyA: lastBox,
 			bodyB: ground2,
 			anchorA: new Vector2D(1, 0),
@@ -533,8 +533,8 @@ function createCarTest() {
 	}
 	{	//register some callbacks
 		const logicStep = () => {
-			let error = body.position.minus(camera.position);
-			let correction = error.times(.1);
+			const error = body.position.minus(camera.position);
+			const correction = error.times(.1);
 			camera.position.add(correction);
 		};
 		logicSteps.add(logicStep);
@@ -599,31 +599,31 @@ function createCarTest() {
 
 function createRaycastTest() {
 	{	//create some objects
-		let points = [
+		const points = [
 			new Vector2D(Math.cos(0), Math.sin(0)),
 			new Vector2D(Math.cos(2 * Math.PI / 3), Math.sin(2 * Math.PI / 3)),
 			new Vector2D(Math.cos(-2 * Math.PI / 3), Math.sin(-2 * Math.PI / 3)),
 		];
 
-		let box = new Body({
+		const box = new Body({
 			position: new Vector2D(4, 0),
 			shapes: [new Polygon().setAsBox(.5, .5)],
 			static: true,
 		});
 
-		let ball = new Body({
+		const ball = new Body({
 			position: new Vector2D(3, 2),
 			shapes: [new Circle(.5)],
 			static: true,
 		});
 
-		let triangle = new Body({
+		const triangle = new Body({
 			position: new Vector2D(-2, -1),
 			shapes: [new Polygon().set(points)],
 			static: true,
 		});
 
-		let box2 = new Body({
+		const box2 = new Body({
 			position: new Vector2D(-1.2, -2),
 			shapes: [new Polygon().setAsBox(.5, .5)],
 			static: true,
@@ -655,7 +655,7 @@ function createRaycastTest() {
 		);
 	}
 	{	//register the raycast method
-		let ray = {
+		const ray = {
 			renderable: new SimpleRenderable(
 				[0, 0, 0, 0, 0, 0, 0, 0],
 				[1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1]
@@ -665,10 +665,10 @@ function createRaycastTest() {
 		};
 		renderables.add(ray);
 
-		let p1 = new Vector2D();
+		const p1 = new Vector2D();
 		let p2 = new Vector2D(50, 0);
 		let angle = 0;
-		let logicStep = () => {
+		const logicStep = () => {
 			let fraction = 1;
 			angle += .01;
 			p2 = new Vector2D(50 * Math.cos(angle), 50 * Math.sin(angle));
@@ -690,17 +690,17 @@ function createRaycastTest() {
 
 function createForkTest() {
 	{	//create some objects
-		let box = new Body({
+		const box = new Body({
 			position: new Vector2D(0, 5),
 			shapes: [new Polygon().setAsBox(.5, .5)],
 		});
 
-		let box2 = new Body({
+		const box2 = new Body({
 			position: new Vector2D(1, 6),
 			shapes: [new Polygon().setAsBox(.5, .5)],
 		});
 
-		let joint = new RevJoint({
+		const joint = new RevJoint({
 			bodyA: box,
 			bodyB: box2,
 			anchorA: new Vector2D(.5, .5),
@@ -709,12 +709,12 @@ function createForkTest() {
 			upperLimit: Math.PI / 8,
 		});
 
-		let ball = new Body({
+		const ball = new Body({
 			position: new Vector2D(0, 10),
 			shapes: [new Circle(.5)],
 		});
 
-		let ground = new Body({
+		const ground = new Body({
 			position: new Vector2D(0, 0),
 			shapes: [new Polygon().setAsBox(10, .5)],
 			static: true,
@@ -749,9 +749,9 @@ function createForkTest() {
 	{	//register callbacks
 		let restorePoint = null;
 		const forkAndCopyRenderables = (source) => {
-			let target = fork(source);
-			for (let body of source.bodies) {
-				for (let shape of body.shapes) {
+			const target = fork(source);
+			for (const body of source.bodies) {
+				for (const shape of body.shapes) {
 					target.shapeMap.get(shape).renderable = shape.renderable;
 				}
 			}
@@ -777,9 +777,9 @@ function createForkTest() {
 }
 
 function cleanupTests() {
-	let bodies = solver.flush();
-	for (let body of bodies) {
-		for (let shape of body.shapes) {
+	const bodies = solver.flush();
+	for (const body of bodies) {
+		for (const shape of body.shapes) {
 			if (shape.renderable) {
 				shape.renderable.deleteBuffers();
 			}
@@ -800,7 +800,7 @@ startLoop();
 
 //fun box throwing code
 function startEvent(eventItem) {
-	let origin = viewportToWorld({x: eventItem.clientX, y: eventItem.clientY});
+	const origin = viewportToWorld({x: eventItem.clientX, y: eventItem.clientY});
 	return {origin, endPoint: origin, v: new Vector2D(0, 0), index: null};
 }
 
@@ -812,11 +812,11 @@ function moveEvent(data, eventItem) {
 	length = Math.min(length, 10);
 	data.v.mul(length);
 
-	let width = .01 + length / 100;
-	let verts = [0, -width, 0, width, length, 0];
-	let angle = Math.atan2(data.v.y, data.v.x);
-	let redness = length / 10;
-	let colors = [0, 0, .5, 1, 0, 0, .5, 1, redness, 1 - redness, 0, 1];
+	const width = .01 + length / 100;
+	const verts = [0, -width, 0, width, length, 0];
+	const angle = Math.atan2(data.v.y, data.v.x);
+	const redness = length / 10;
+	const colors = [0, 0, .5, 1, 0, 0, .5, 1, redness, 1 - redness, 0, 1];
 	if (data.arrow == null) {
 		data.arrow = {
 			renderable: new SimpleRenderable(verts, colors),
@@ -838,13 +838,13 @@ function removeRenderable(data) {
 }
 
 function endEvent(data) {
-	let box = new Body({
+	const box = new Body({
 		position: new Vector2D(data.origin.x, data.origin.y),
 		shapes: [new Polygon().setAsBox(.5, .5)],
 		velocity: data.v.times(5),
 	});
 	solver.addBody(box);
-	let colors = [];
+	const colors = [];
 	for (let i = 0; i < 4; i++) {
 		colors.push(Math.random(), Math.random(), Math.random(), 1);
 	}
@@ -862,18 +862,18 @@ window.addEventListener("touchstart", (event) => {
 		return;
 	}
 
-	let touch = event.touches[0];
-	let data = startEvent(touch);
+	const touch = event.touches[0];
+	const data = startEvent(touch);
 
 	function touchMove(innerEvent) {
-		let innerTouch = [...innerEvent.changedTouches].find((x) => x.identifier === touch.identifier);
+		const innerTouch = [...innerEvent.changedTouches].find((x) => x.identifier === touch.identifier);
 		if (innerTouch) {
 			moveEvent(data, innerTouch);
 		}
 	}
 
 	function touchEnd(innerEvent) {
-		let innerTouch = [...innerEvent.changedTouches].find((x) => x.identifier === touch.identifier);
+		const innerTouch = [...innerEvent.changedTouches].find((x) => x.identifier === touch.identifier);
 		if (!innerTouch) {
 			return;
 		}
@@ -886,8 +886,8 @@ window.addEventListener("touchstart", (event) => {
 		window.removeEventListener("touchcancel", touchCancel);
 	}
 
-	function touchCancel() {
-		let innerTouch = [...innerEvent.changedTouches].find((x) => x.identifier === touch.identifier);
+	function touchCancel(innerEvent) {
+		const innerTouch = [...innerEvent.changedTouches].find((x) => x.identifier === touch.identifier);
 		if (!innerTouch) {
 			return;
 		}
@@ -909,7 +909,7 @@ window.addEventListener("mousedown", (event) => {
 		return;
 	}
 
-	let data = startEvent(event);
+	const data = startEvent(event);
 
 	function mouseMove(innerEvent) {
 		moveEvent(data, innerEvent);

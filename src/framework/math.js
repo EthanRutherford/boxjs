@@ -59,7 +59,7 @@ class Vector2D {
 			return this;
 		}
 
-		let invLength = 1 / this.length;
+		const invLength = 1 / this.length;
 		this.mul(invLength);
 		return this;
 	}
@@ -164,8 +164,8 @@ class Matrix2D {
 		return this;
 	}
 	setRotation(radians) {
-		let c = Math.cos(radians);
-		let s = Math.sin(radians);
+		const c = Math.cos(radians);
+		const s = Math.sin(radians);
 		this.ii = c;
 		this.ij = -s;
 		this.ji = s;
@@ -187,14 +187,14 @@ class Matrix2D {
 		return det;
 	}
 	get inverse() {
-		let d = this.determinant;
+		const d = this.determinant;
 		return new Matrix2D(d * this.jj, -d * this.ij, -d * this.ji, d * this.ii);
 	}
 	get transpose() {
 		return new Matrix2D(this.ii, this.ji, this.ij, this.jj);
 	}
 	solve(vector) {
-		let d = this.determinant;
+		const d = this.determinant;
 		return new Vector2D(d * (this.jj * vector.x - this.ij * vector.y),
 			d * (this.ii * vector.y - this.ji * vector.x));
 	}
@@ -235,7 +235,7 @@ class Matrix3D {
 		}
 	}
 	solve2(vec2) {
-		let m = this.m;
+		const m = this.m;
 		let det = m[0][0] * m[1][1] - m[0][1] * m[1][0];
 		if (det !== 0) {
 			det = 1 / det;
@@ -245,10 +245,10 @@ class Matrix3D {
 			det * (m[0][0] * vec2.y - m[1][0] * vec2.x));
 	}
 	solve3(vec3) {
-		let m = this.m;
-		let ex = new Vector3D(m[0][0], m[1][0], m[2][0]);
-		let ey = new Vector3D(m[0][1], m[1][1], m[2][1]);
-		let ez = new Vector3D(m[0][2], m[1][2], m[2][2]);
+		const m = this.m;
+		const ex = new Vector3D(m[0][0], m[1][0], m[2][0]);
+		const ey = new Vector3D(m[0][1], m[1][1], m[2][1]);
+		const ez = new Vector3D(m[0][2], m[1][2], m[2][2]);
 
 		let det = ex.dot(ey.cross(ez));
 		if (det !== 0) {

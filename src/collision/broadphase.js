@@ -29,12 +29,12 @@ class AABBTree {
 		this.root = null;
 	}
 	insert(aabb) {
-		let node = new Node(aabb);
+		const node = new Node(aabb);
 		this.insertLeaf(node);
 		return node;
 	}
 	remove(node) {
-		removeLeaf(node);
+		this.removeLeaf(node);
 	}
 	clear() {
 		this.count = 0;
@@ -47,7 +47,7 @@ class AABBTree {
 
 		node.aabb = makeFatAABB(aabb);
 
-		let d = displacement.times(2);
+		const d = displacement.times(2);
 
 		(d.x < 0 ? node.aabb.min : node.aabb.max).x += d.x;
 		(d.y < 0 ? node.aabb.min : node.aabb.max).y += d.y;
@@ -57,9 +57,9 @@ class AABBTree {
 		return true;
 	}
 	query(node, callback) {
-		let stack = [this.root];
+		const stack = [this.root];
 		while (stack.length > 0) {
-			let testNode = stack.pop();
+			const testNode = stack.pop();
 			if (testNode == null) {
 				continue;
 			}
@@ -74,9 +74,9 @@ class AABBTree {
 		}
 	}
 	rayCast({p1, p2, maxFraction}, callback) {
-		let r = p2.minus(p1).normalize();
-		let v = Vector2D.cross1x2(1, r);
-		let absV = new Vector2D(Math.abs(v.x), Math.abs(v.y));
+		const r = p2.minus(p1).normalize();
+		const v = Vector2D.cross1x2(1, r);
+		const absV = new Vector2D(Math.abs(v.x), Math.abs(v.y));
 
 		let t = p1.plus(p2.minus(p1).mul(maxFraction));
 		let aabb = new AABB(
@@ -86,22 +86,22 @@ class AABBTree {
 			Math.max(p1.y, t.y)
 		);
 
-		let stack = [this.root];
+		const stack = [this.root];
 		while (stack.length > 0) {
-			let node = stack.pop();
+			const node = stack.pop();
 			if (node == null || !node.aabb.test(aabb)) {
 				continue;
 			}
 
-			let center = node.aabb.min.plus(node.aabb.max).mul(.5);
-			let halfDims = node.aabb.max.minus(node.aabb.min).mul(.5);
-			let separation = Math.abs(v.dot(p1.minus(center))) - absV.dot(halfDims);
+			const center = node.aabb.min.plus(node.aabb.max).mul(.5);
+			const halfDims = node.aabb.max.minus(node.aabb.min).mul(.5);
+			const separation = Math.abs(v.dot(p1.minus(center))) - absV.dot(halfDims);
 			if (separation > 0) {
 				continue;
 			}
 
 			if (node.isLeaf) {
-				let value = callback({p1, p2, maxFraction}, node);
+				const value = callback({p1, p2, maxFraction}, node);
 				if (value === 0) {
 					return;
 				}
@@ -131,17 +131,17 @@ class AABBTree {
 
 		let walk = this.root;
 		while (!walk.isLeaf) {
-			let perimeter = walk.aabb.perimeter;
-			let combinedPerimeter = leaf.aabb.combine(walk.aabb).perimeter;
-			let cost = combinedPerimeter * 2;
-			let inheritanceCost = 2 * (combinedPerimeter - perimeter);
+			const perimeter = walk.aabb.perimeter;
+			const combinedPerimeter = leaf.aabb.combine(walk.aabb).perimeter;
+			const cost = combinedPerimeter * 2;
+			const inheritanceCost = 2 * (combinedPerimeter - perimeter);
 
 			let cost0;
 			if (walk.children[0].isLeaf) {
 				cost0 = leaf.aabb.combine(walk.children[0].aabb).perimeter + inheritanceCost;
 			} else {
-				let oldArea = walk.children[0].aabb.perimeter;
-				let newArea = leaf.aabb.combine(walk.children[0].aabb).perimeter;
+				const oldArea = walk.children[0].aabb.perimeter;
+				const newArea = leaf.aabb.combine(walk.children[0].aabb).perimeter;
 				cost0 = (newArea - oldArea) + inheritanceCost;
 			}
 
@@ -149,8 +149,8 @@ class AABBTree {
 			if (walk.children[1].isLeaf) {
 				cost1 = leaf.aabb.combine(walk.children[1].aabb).perimeter + inheritanceCost;
 			} else {
-				let oldArea = walk.children[1].aabb.perimeter;
-				let newArea = leaf.aabb.combine(walk.children[1].aabb).perimeter;
+				const oldArea = walk.children[1].aabb.perimeter;
+				const newArea = leaf.aabb.combine(walk.children[1].aabb).perimeter;
 				cost1 = (newArea - oldArea) + inheritanceCost;
 			}
 
@@ -165,8 +165,8 @@ class AABBTree {
 			}
 		}
 
-		let oldParent = walk.parent;
-		let newParent = new Node(leaf.aabb.combine(walk.aabb), oldParent, walk.height + 1);
+		const oldParent = walk.parent;
+		const newParent = new Node(leaf.aabb.combine(walk.aabb), oldParent, walk.height + 1);
 		if (oldParent != null) {
 			if (oldParent.children[0] === walk) {
 				oldParent.children[0] = newParent;
@@ -197,9 +197,9 @@ class AABBTree {
 			return;
 		}
 
-		let parent = leaf.parent;
-		let grandParent = parent.parent;
-		let sibling = parent.children[0] === leaf ? parent.children[1] : parent.children[0];
+		const parent = leaf.parent;
+		const grandParent = parent.parent;
+		const sibling = parent.children[0] === leaf ? parent.children[1] : parent.children[0];
 
 		if (grandParent != null) {
 			if (grandParent.children[0] === parent) {
@@ -226,13 +226,13 @@ class AABBTree {
 			return node;
 		}
 
-		let a = node;
-		let b = node.children[0];
-		let c = node.children[1];
-		let balance = c.height - b.height;
+		const a = node;
+		const b = node.children[0];
+		const c = node.children[1];
+		const balance = c.height - b.height;
 		if (balance > 1) {
-			let f = c.children[0];
-			let g = c.children[1];
+			const f = c.children[0];
+			const g = c.children[1];
 
 			c.children[0] = a;
 			c.parent = a.parent;
@@ -268,8 +268,8 @@ class AABBTree {
 			return c;
 		}
 		if (balance < -1) {
-			let d = b.children[0];
-			let e = b.children[1];
+			const d = b.children[0];
+			const e = b.children[1];
 
 			b.children[0] = a;
 			b.parent = a.parent;
@@ -320,15 +320,15 @@ class PairSet {
 		this.map = new Map();
 	}
 	has({a, b}) {
-		let key = `${a.id}:${b.id}`;
+		const key = `${a.id}:${b.id}`;
 		return this.map.has(key);
 	}
 	get({a, b}) {
-		let key = `${a.id}:${b.id}`;
+		const key = `${a.id}:${b.id}`;
 		return this.map.get(key);
 	}
 	add({a, b}) {
-		let key = `${a.id}:${b.id}`;
+		const key = `${a.id}:${b.id}`;
 		if (!this.map.has(key)) {
 			this.map.set(key, {a, b});
 		}
@@ -336,14 +336,14 @@ class PairSet {
 		return this.map.get(key);
 	}
 	delete({a, b}) {
-		let key = `${a.id}:${b.id}`;
+		const key = `${a.id}:${b.id}`;
 		this.map.delete(key);
 	}
 	clear() {
 		this.map.clear();
 	}
 	*[Symbol.iterator]() {
-		for (let kv of this.map) {
+		for (const kv of this.map) {
 			yield kv[1];
 		}
 	}
@@ -359,16 +359,16 @@ function queryCallback(nodeA, nodeB) {
 	}
 
 	//perform collision filtering
-	let groupA = nodeA.shape.body.filterGroup;
-	let groupB = nodeB.shape.body.filterGroup;
-	let maskA = nodeA.shape.body.exclusionMask;
-	let maskB = nodeB.shape.body.exclusionMask;
+	const groupA = nodeA.shape.body.filterGroup;
+	const groupB = nodeB.shape.body.filterGroup;
+	const maskA = nodeA.shape.body.exclusionMask;
+	const maskB = nodeB.shape.body.exclusionMask;
 	if (!(groupA & maskB && groupB & maskA)) {
 		return true;
 	}
 
 	//use standard order and add to pairs
-	[a, b] = Shape.order(nodeA.shape, nodeB.shape);
+	const [a, b] = Shape.order(nodeA.shape, nodeB.shape);
 	this.pairs.add({a, b});
 	return true;
 }
@@ -381,7 +381,7 @@ class BroadPhase {
 		this.queryCallback = queryCallback.bind(this);
 	}
 	insert(shape) {
-		let node = this.tree.insert(shape.aabb);
+		const node = this.tree.insert(shape.aabb);
 		node.shape = shape;
 		this.shapeToNode.set(shape, node);
 		this.tree.query(node, this.queryCallback);
@@ -396,11 +396,11 @@ class BroadPhase {
 		this.pairs.clear();
 	}
 	collectMovedNodes() {
-		let moved = [];
-		for (let kv of this.shapeToNode) {
-			let shape = kv[0];
-			let node = kv[1];
-			let displacement = shape.body.position.minus(shape.body.prevPos);
+		const moved = [];
+		for (const kv of this.shapeToNode) {
+			const shape = kv[0];
+			const node = kv[1];
+			const displacement = shape.body.position.minus(shape.body.prevPos);
 			if (this.tree.checkMove(node, shape.aabb, displacement)) {
 				moved.push(node);
 			}
@@ -408,15 +408,15 @@ class BroadPhase {
 		return moved;
 	}
 	getPairs() {
-		let movedNodes = this.collectMovedNodes();
-		for (let node of movedNodes) {
+		const movedNodes = this.collectMovedNodes();
+		for (const node of movedNodes) {
 			this.tree.query(node, this.queryCallback);
 		}
 
-		let oldPairs = [...this.pairs];
-		for (let pair of oldPairs) {
-			let fatA = this.shapeToNode.get(pair.a).aabb;
-			let fatB = this.shapeToNode.get(pair.b).aabb;
+		const oldPairs = [...this.pairs];
+		for (const pair of oldPairs) {
+			const fatA = this.shapeToNode.get(pair.a).aabb;
+			const fatB = this.shapeToNode.get(pair.b).aabb;
 			if (!fatA.test(fatB)) {
 				this.pairs.delete(pair);
 			}

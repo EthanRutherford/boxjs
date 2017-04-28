@@ -6,7 +6,7 @@ const MassData = require("../objects/mass.js");
 const {Shape} = require("../objects/shape.js");
 
 function cloneMass(mass) {
-	let clone = new MassData();
+	const clone = new MassData();
 	clone.m = mass.m;
 	clone.iM = mass.iM;
 	clone.i = mass.i;
@@ -16,7 +16,7 @@ function cloneMass(mass) {
 }
 
 function cloneBody(body, map) {
-	let clone = new Body({
+	const clone = new Body({
 		position: body.position,
 		angle: body.transform.radians,
 		velocity: body.velocity,
@@ -29,7 +29,7 @@ function cloneBody(body, map) {
 		onCollide: body.onCollide,
 	});
 	body.shapes.forEach((shape) => {
-		let clonedShape = shape.clone();
+		const clonedShape = shape.clone();
 		clonedShape.body = clone;
 		map.set(shape, clonedShape);
 		clone.shapes.push(clonedShape);
@@ -48,7 +48,7 @@ function cloneJoint(joint, map) {
 }
 
 function cloneManifoldPoint(point) {
-	let clone = new ManifoldPoint(
+	const clone = new ManifoldPoint(
 		point.point.clone(),
 		point.lpoint.clone(),
 		point.indexA,
@@ -65,7 +65,7 @@ function cloneManifoldPoint(point) {
 }
 
 function cloneManifold(manifold, shapeA, shapeB) {
-	let clone = new Manifold(shapeA, shapeB);
+	const clone = new Manifold(shapeA, shapeB);
 	clone.type = manifold.type;
 	manifold.contacts.forEach((point) => clone.contacts.push(cloneManifoldPoint(point)));
 	clone.normal = manifold.normal.clone();
@@ -80,17 +80,17 @@ function cloneManifold(manifold, shapeA, shapeB) {
 }
 
 function cloneManifoldMap(manifolds, map) {
-	let clone = new ManifoldMap();
-	for (let manifold of manifolds) {
-		let [a, b] = Shape.order(map.get(manifold.shapeA), map.get(manifold.shapeB));
-		let key = `${a.id}:${b.id}`;
+	const clone = new ManifoldMap();
+	for (const manifold of manifolds) {
+		const [a, b] = Shape.order(map.get(manifold.shapeA), map.get(manifold.shapeB));
+		const key = `${a.id}:${b.id}`;
 		clone.map.set(key, cloneManifold(manifold, a, b));
 	}
 	return clone;
 }
 
 function cloneNode(parent, node, map, s2n) {
-	let clone = Object.create(Node.prototype);
+	const clone = Object.create(Node.prototype);
 	clone.aabb = node.aabb.clone();
 	clone.parent = parent;
 	clone.children = [];
@@ -107,7 +107,7 @@ function cloneNode(parent, node, map, s2n) {
 }
 
 function cloneAABBTree(tree, map, s2n) {
-	let clone = new AABBTree();
+	const clone = new AABBTree();
 	clone.count = tree.count;
 	if (clone.count === 0) {
 		return clone;
@@ -118,10 +118,10 @@ function cloneAABBTree(tree, map, s2n) {
 }
 
 function clonePairSet(pairs, map) {
-	let clone = new PairSet();
-	for (let pair of pairs) {
-		let [a, b] = Shape.order(map.get(pair.a), map.get(pair.b));
-		let key = `${a.id}:${b.id}`;
+	const clone = new PairSet();
+	for (const pair of pairs) {
+		const [a, b] = Shape.order(map.get(pair.a), map.get(pair.b));
+		const key = `${a.id}:${b.id}`;
 		clone.map.set(key, {a, b});
 	}
 
@@ -129,27 +129,27 @@ function clonePairSet(pairs, map) {
 }
 
 function cloneBroadPhase(broadPhase, map) {
-	let clone = new BroadPhase();
+	const clone = new BroadPhase();
 	clone.tree = cloneAABBTree(broadPhase.tree, map, clone.shapeToNode);
 	clone.pairs = clonePairSet(broadPhase.pairs, map);
 	return clone;
 }
 
 module.exports = function fork(solver) {
-	let clone = Object.create(Solver.prototype);
+	const clone = Object.create(Solver.prototype);
 	clone.applyG = solver.applyG;
 	clone.bodies = new Set();
 	clone.joints = new Set();
-	let shapeMap = new Map();
-	let bodyMap = new Map();
-	let jointMap = new Map();
+	const shapeMap = new Map();
+	const bodyMap = new Map();
+	const jointMap = new Map();
 	solver.bodies.forEach((body) => {
-		let clonedBody = cloneBody(body, shapeMap);
+		const clonedBody = cloneBody(body, shapeMap);
 		bodyMap.set(body, clonedBody);
 		clone.bodies.add(clonedBody);
 	});
 	solver.joints.forEach((joint) => {
-		let clonedJoint = cloneJoint(joint, bodyMap);
+		const clonedJoint = cloneJoint(joint, bodyMap);
 		jointMap.set(joint, clonedJoint);
 		clone.joints.add(clonedJoint);
 	});
