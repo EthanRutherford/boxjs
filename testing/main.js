@@ -8,7 +8,7 @@ const {
 	setOrtho,
 	viewportToWorld,
 	getBounds,
-} = require("./render.js");
+} = require("./render");
 const {
 	fork,
 	Math: {Vector2D},
@@ -17,7 +17,7 @@ const {
 	AABB,
 	Shapes: {Polygon, Circle},
 	Joints: {RevJoint, RopeJoint, SpringJoint, WheelJoint},
-} = require("../src/box.js");
+} = require("../src/box");
 
 const gl = initGL(document.getElementById("canvas"), 20);
 

@@ -1,5 +1,5 @@
-const {Vector2D, Vector3D, Matrix2D, Matrix3D, cleanAngle} = require("../framework/math.js");
-const Joint = require("./joint.js");
+const {Vector2D, Vector3D, Matrix2D, Matrix3D, cleanAngle} = require("../framework/math");
+const Joint = require("./joint");
 
 class RevJoint extends Joint {
 	constructor({bodyA, bodyB, anchorA, anchorB, upperLimit, lowerLimit}) {

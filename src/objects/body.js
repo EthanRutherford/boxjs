@@ -1,5 +1,5 @@
-const {Vector2D, Rotation, bigG} = require("../framework/math.js");
-const MassData = require("./mass.js");
+const {Vector2D, Rotation, bigG} = require("../framework/math");
+const MassData = require("./mass");
 
 module.exports = class Body {
 	constructor({

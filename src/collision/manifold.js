@@ -1,4 +1,4 @@
-const {Vector2D, Matrix2D} = require("../framework/math.js");
+const {Vector2D, Matrix2D} = require("../framework/math");
 
 class ManifoldPoint {
 	constructor(point, lpoint, indexA, indexB, typeA, typeB) {

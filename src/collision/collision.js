@@ -1,7 +1,7 @@
-const {Vector2D} = require("../framework/math.js");
-const {Manifold, ManifoldPoint} = require("./manifold.js");
-const Polygon = require("../objects/polygon.js");
-const Circle = require("../objects/circle.js");
+const {Vector2D} = require("../framework/math");
+const {Manifold, ManifoldPoint} = require("./manifold");
+const Polygon = require("../objects/polygon");
+const Circle = require("../objects/circle");
 
 const baseMap = new Map();
 

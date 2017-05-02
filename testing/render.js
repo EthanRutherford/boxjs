@@ -1,4 +1,4 @@
-const {mat4: Mat4} = require("./gl-matrix.min.js");
+const {mat4: Mat4} = require("./gl-matrix.min");
 
 const fragmentShader = `
 varying highp vec2 vTextureCoord;

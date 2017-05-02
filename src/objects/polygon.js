@@ -1,6 +1,6 @@
-const {Vector2D} = require("../framework/math.js");
-const MassData = require("./mass.js");
-const {AABB, Shape} = require("./shape.js");
+const {Vector2D} = require("../framework/math");
+const MassData = require("./mass");
+const {AABB, Shape} = require("./shape");
 
 const inv3 = 1 / 3;
 

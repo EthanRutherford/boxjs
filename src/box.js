@@ -15,18 +15,18 @@
 //# preload ../src/objects/polygon.js
 //# preload ../src/objects/circle.js
 //# preload ../src/objects/shape.js
-const fork = require("./framework/fork.js");
-const Math = require("./framework/math.js");
-const Solver = require("./framework/solver.js");
-const Joint = require("./joints/joint.js");
-const RevJoint = require("./joints/revjoint.js");
-const RopeJoint = require("./joints/ropejoint.js");
-const SpringJoint = require("./joints/springjoint.js");
-const WheelJoint = require("./joints/wheeljoint.js");
-const Body = require("./objects/body.js");
-const Circle = require("./objects/circle.js");
-const Polygon = require("./objects/polygon.js");
-const {Shape, AABB} = require("./objects/shape.js");
+const fork = require("./framework/fork");
+const Math = require("./framework/math");
+const Solver = require("./framework/solver");
+const Joint = require("./joints/joint");
+const RevJoint = require("./joints/revjoint");
+const RopeJoint = require("./joints/ropejoint");
+const SpringJoint = require("./joints/springjoint");
+const WheelJoint = require("./joints/wheeljoint");
+const Body = require("./objects/body");
+const Circle = require("./objects/circle");
+const Polygon = require("./objects/polygon");
+const {Shape, AABB} = require("./objects/shape");
 
 module.exports = {
 	fork,

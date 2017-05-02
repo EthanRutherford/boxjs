@@ -1,9 +1,9 @@
-const {Node, AABBTree, PairSet, BroadPhase} = require("../collision/broadphase.js");
-const {ManifoldPoint, Manifold, ManifoldMap} = require("../collision/manifold.js");
-const Solver = require("./solver.js");
-const Body = require("../objects/body.js");
-const MassData = require("../objects/mass.js");
-const {Shape} = require("../objects/shape.js");
+const {Node, AABBTree, PairSet, BroadPhase} = require("../collision/broadphase");
+const {ManifoldPoint, Manifold, ManifoldMap} = require("../collision/manifold");
+const Solver = require("./solver");
+const Body = require("../objects/body");
+const MassData = require("../objects/mass");
+const {Shape} = require("../objects/shape");
 
 function cloneMass(mass) {
 	const clone = new MassData();

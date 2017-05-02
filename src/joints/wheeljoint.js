@@ -1,5 +1,5 @@
-const {Vector2D} = require("../framework/math.js");
-const Joint = require("./joint.js");
+const {Vector2D} = require("../framework/math");
+const Joint = require("./joint");
 
 module.exports = class WheelJoint extends Joint {
 	constructor({bodyA, bodyB, anchorA, anchorB, axis, frequency, damping}) {

@@ -1,6 +1,6 @@
-const {BroadPhase} = require("../collision/broadphase.js");
-const ContactData = require("../collision/contactdata.js");
-const {ManifoldMap} = require("../collision/manifold.js");
+const {BroadPhase} = require("../collision/broadphase");
+const ContactData = require("../collision/contactdata");
+const {ManifoldMap} = require("../collision/manifold");
 
 module.exports = class Solver {
 	constructor() {

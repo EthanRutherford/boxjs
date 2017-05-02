@@ -1,4 +1,4 @@
-const {Vector2D} = require("../framework/math.js");
+const {Vector2D} = require("../framework/math");
 let next = 0;
 
 class AABB {

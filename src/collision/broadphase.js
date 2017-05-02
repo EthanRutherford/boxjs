@@ -1,5 +1,5 @@
-const {Vector2D} = require("../framework/math.js");
-const {AABB, Shape} = require("../objects/shape.js");
+const {Vector2D} = require("../framework/math");
+const {AABB, Shape} = require("../objects/shape");
 
 function makeFatAABB(aabb) {
 	return new AABB(
