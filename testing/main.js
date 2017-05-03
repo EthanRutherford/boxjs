@@ -388,14 +388,14 @@ function createCarTest() {
 			exclusionList: [2],
 		});
 		const ground5 = new Body({
-			position: new Vector2D(200, -1),
-			shapes: [new Polygon().setAsBox(.5, 5)],
+			position: new Vector2D(200, 1.5),
+			shapes: [new Polygon().setAsBox(.5, 2.5)],
 			static: true,
 			filterGroup: 2,
 			exclusionList: [2],
 		});
 		const ground6 = new Body({
-			position: new Vector2D(210, -6),
+			position: new Vector2D(210, -1),
 			shapes: [new Polygon().setAsBox(10, .5)],
 			static: true,
 			filterGroup: 2,
@@ -403,7 +403,7 @@ function createCarTest() {
 		});
 		const ground7 = new Body({
 			position: new Vector2D(220, 4),
-			shapes: [new Polygon().setAsBox(.5, 10)],
+			shapes: [new Polygon().setAsBox(.5, 5)],
 			static: true,
 			filterGroup: 2,
 			exclusionList: [2],
@@ -454,7 +454,7 @@ function createCarTest() {
 			);
 		}
 
-		for (let i = 0; i < 200; i++) {
+		for (let i = 0; i < 100; i++) {
 			const ball = new Body({
 				position: new Vector2D(210 + (i % 4) / 8, -6 + i),
 				shapes: [new Circle(.5)],
