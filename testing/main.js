@@ -23,6 +23,7 @@ const gl = initGL(document.getElementById("canvas"), 20);
 
 const camera = {
 	position: new Vector2D(),
+	prevPos: new Vector2D(),
 	zoom: 1,
 };
 
@@ -68,16 +69,37 @@ const debugBoxRenderable = new SimpleRenderable(
 
 const logicSteps = new Set();
 
-function render() {
+function lerp(a, b, ratio) {
+	return (a * (1 - ratio)) + (b * ratio);
+}
+function vlerp(a, b, ratio) {
+	return new Vector2D(lerp(a.x, b.x, ratio), lerp(a.y, b.y, ratio));
+}
+function alerp(a, b, ratio) {
+	const diff = Math.abs(a - b);
+	if (diff > Math.PI) {
+		if (a > b) {
+			b += 2 * Math.PI;
+		} else {
+			a += 2 * Math.PI;
+		}
+	}
+	return lerp(a, b, ratio);
+}
+
+function render(lerpRatio) {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	setOrtho(camera.position.x, camera.position.y, camera.zoom);
+	const camPos = vlerp(camera.prevPos, camera.position, lerpRatio);
+	setOrtho(camPos.x, camPos.y, camera.zoom);
 
 	const {x0, x1, y0, y1} = getBounds();
 
 	solver.query(new AABB(x0, y0, x1, y1), (shape) => {
 		const body = shape.body;
 		if (shape.renderable) {
-			shape.renderable.render(body.position, body.transform.radians);
+			const pos = vlerp(body.prevPos, body.position, lerpRatio);
+			const angle = alerp(body.prevAngle, body.transform.radians, lerpRatio);
+			shape.renderable.render(pos, angle);
 		}
 	});
 
@@ -105,18 +127,29 @@ function render() {
 }
 
 function startLoop() {
-	const minPhysicsElapsedTime = 1 / 30;
+	const physTarget = 1 / 45;
+	const maxSteps = 5;
 	let timestamp;
+	let acc = 0;
 
-	(function step(stamp) {
+	function step(stamp) {
 		window.requestAnimationFrame(step);
-		const elapsed = (stamp - timestamp) / 1000 || 0;
+		acc += (stamp - timestamp) / 1000 || 0;
 		timestamp = stamp;
 
-		render();
-		solver.solve(Math.min(elapsed, minPhysicsElapsedTime));
-		logicSteps.forEach((step) => step());
-	})();
+		let steps = Math.floor(acc / physTarget);
+		if (steps > 0) acc -= steps * physTarget;
+		steps = Math.min(steps, maxSteps);
+
+		for (let i = 0; i < steps; i++) {
+			solver.solve(physTarget);
+			logicSteps.forEach((step) => step());
+		}
+
+		render(acc / physTarget);
+	}
+
+	window.requestAnimationFrame(step);
 }
 
 const onCleanup = [];
@@ -533,6 +566,7 @@ function createCarTest() {
 	}
 	{	//register some callbacks
 		const logicStep = () => {
+			camera.prevPos.set(camera.position);
 			const error = body.position.minus(camera.position);
 			const correction = error.times(.1);
 			camera.position.add(correction);
@@ -792,6 +826,7 @@ function cleanupTests() {
 	}
 
 	camera.position.set({x: 0, y: 0});
+	camera.prevPos.set({x: 0, y: 0});
 	camera.zoom = 1;
 }
 

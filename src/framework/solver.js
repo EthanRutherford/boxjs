@@ -132,6 +132,7 @@ function solvePositions(dt) {
 	for (const body of this.bodies) {
 		body.prevPos = body.position.clone();
 		body.position.add(body.velocity.times(dt));
+		body.prevAngle = body.transform.radians;
 		body.transform.radians += body.angularVelocity * dt;
 	}
 	for (let i = 0; i < 3; i++) {

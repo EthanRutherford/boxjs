@@ -20,6 +20,7 @@ module.exports = class Body {
 		this.position = Vector2D.clone(position);
 		this.prevPos = Vector2D.clone(position);
 		this.transform = new Rotation(angle || 0);
+		this.prevAngle = angle || 0;
 		this.velocity = Vector2D.clone(velocity);
 		this.angularVelocity = angularVelocity || 0;
 		this.force = new Vector2D(0, 0);
