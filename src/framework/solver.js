@@ -135,7 +135,7 @@ function solvePositions(dt) {
 		body.prevAngle = body.transform.radians;
 		body.transform.radians += body.angularVelocity * dt;
 	}
-	for (let i = 0; i < 3; i++) {
+	for (let i = 0; i < 4; i++) {
 		for (const manifold of this.manifolds) {
 			manifold.positionalCorrection();
 		}
