@@ -31,11 +31,11 @@ module.exports = class Body {
 		//set mass data
 		density = density != null ? density : 1;
 		this.mass = new MassData();
-		for (let shape of this.shapes) {
+		for (const shape of this.shapes) {
 			//set body of shape
 			shape.body = this;
 			//sum mass data
-			let mass = shape.computeMass(density);
+			const mass = shape.computeMass(density);
 			this.mass.m += mass.m;
 			this.mass.center.add(mass.center.times(mass.m));
 			this.mass.i += mass.i;
@@ -44,7 +44,7 @@ module.exports = class Body {
 		this.mass.iM = this.mass.m ? 1 / this.mass.m : 0;
 		this.mass.iI = this.mass.i ? 1 / this.mass.i : 0;
 		this.mass.center.mul(this.mass.iM);
-		for (let shape of this.shapes) {
+		for (const shape of this.shapes) {
 			//translate each shape
 			if (shape.recenter instanceof Function) {
 				shape.recenter(this.mass.center);
@@ -71,8 +71,8 @@ module.exports = class Body {
 		this.torque += torque;
 	}
 	applyGravity(mass, direction, distance) {
-		let g = bigG * mass * this.mass.m / Math.sqr(distance);
-		let f = direction.times(g);
+		const g = bigG * mass * this.mass.m / Math.sqr(distance);
+		const f = direction.times(g);
 		this.applyForce(f);
 	}
 	applyImpules(impulse, contact) {
@@ -92,7 +92,7 @@ module.exports = class Body {
 
 		this.filterGroup = filterGroup ? 1 << (filterGroup - 1) : 0;
 		let exclusionMask = 0;
-		for (let exclusion of exclusionList) {
+		for (const exclusion of exclusionList) {
 			if (exclusion > 32 || exclusion < 2) {
 				throw new Error("exclusion group is out of bounds (2 - 32)");
 			}

@@ -31,7 +31,7 @@ module.exports = class Polygon extends Shape {
 		let rightmost = 0;
 		let maxX = points[0].x;
 		for (let i = 1; i < points.length; i++) {
-			let x = points[i].x;
+			const x = points[i].x;
 			if (x > maxX) {
 				maxX = x;
 				rightmost = i;
@@ -39,7 +39,7 @@ module.exports = class Polygon extends Shape {
 				rightmost = i;
 			}
 		}
-		let hull = [];
+		const hull = [];
 		let index = rightmost;
 		while (true) {
 			hull.push(index);
@@ -49,9 +49,9 @@ module.exports = class Polygon extends Shape {
 					nextIndex = i;
 					continue;
 				}
-				let e1 = points[nextIndex].minus(points[index]);
-				let e2 = points[i].minus(points[index]);
-				let c = e1.cross(e2);
+				const e1 = points[nextIndex].minus(points[index]);
+				const e2 = points[i].minus(points[index]);
+				const c = e1.cross(e2);
 				if (c < 0 || (c === 0 && e2.lsqr > e1.lsqr)) {
 					nextIndex = i;
 				}
@@ -61,12 +61,12 @@ module.exports = class Polygon extends Shape {
 				break;
 			}
 		}
-		for (let i of hull) {
+		for (const i of hull) {
 			this.points.push(points[i].clone());
 		}
 		for (let i = 0; i < this.points.length; i++) {
-			let j = i + 1 < this.points.length ? i + 1 : 0;
-			let edge = this.points[j].minus(this.points[i]);
+			const j = i + 1 < this.points.length ? i + 1 : 0;
+			const edge = this.points[j].minus(this.points[i]);
 			this.norms.push(edge.nskew.normalize());
 		}
 		return this;
@@ -76,8 +76,8 @@ module.exports = class Polygon extends Shape {
 		this.aabb.min.y = Number.MAX_VALUE;
 		this.aabb.max.x = -Number.MAX_VALUE;
 		this.aabb.max.y = -Number.MAX_VALUE;
-		for (let point of this.points) {
-			let v = this.body.position.plus(this.body.transform.times(point));
+		for (const point of this.points) {
+			const v = this.body.position.plus(this.body.transform.times(point));
 			if (v.x < this.aabb.min.x) this.aabb.min.x = v.x;
 			if (v.y < this.aabb.min.y) this.aabb.min.y = v.y;
 			if (v.x > this.aabb.max.x) this.aabb.max.x = v.x;
@@ -87,15 +87,15 @@ module.exports = class Polygon extends Shape {
 	raycast({p1, p2, maxFraction}) {
 		p1 = this.body.transform.transpose.times(p1.minus(this.body.position));
 		p2 = this.body.transform.transpose.times(p2.minus(this.body.position));
-		let d = p2.minus(p1);
+		const d = p2.minus(p1);
 
 		let low = 0;
 		let hi = maxFraction;
 		let index = -1;
 
 		for (let i = 0; i < this.points.length; i++) {
-			let numer = this.norms[i].dot(this.points[i].minus(p1));
-			let denom = this.norms[i].dot(d);
+			const numer = this.norms[i].dot(this.points[i].minus(p1));
+			const denom = this.norms[i].dot(d);
 
 			if (denom === 0 && numer < 0) {
 				return null;
@@ -112,27 +112,27 @@ module.exports = class Polygon extends Shape {
 		}
 
 		if (index >= 0) {
-			let fraction = low;
-			let normal = this.body.transform.transpose.times(this.norms[index]);
+			const fraction = low;
+			const normal = this.body.transform.transpose.times(this.norms[index]);
 			return {fraction, normal};
 		}
 
 		return null;
 	}
 	computeMass(density) {
-		let mass = new MassData();
+		const mass = new MassData();
 		let area = 0;
 		let inertia = 0;
 		for (let i = 0; i < this.points.length; i++) {
-			let j = i + 1 < this.points.length ? i + 1 : 0;
-			let p1 = this.points[i];
-			let p2 = this.points[j];
-			let d = p1.cross(p2);
-			let triangleArea = d * .5;
+			const j = i + 1 < this.points.length ? i + 1 : 0;
+			const p1 = this.points[i];
+			const p2 = this.points[j];
+			const d = p1.cross(p2);
+			const triangleArea = d * .5;
 			area += triangleArea;
-			mass.center.add(p1.plus(p2).times(triangleArea * inv3));
-			let intx2 = Math.sqr(p1.x) + Math.sqr(p2.x) + p1.x * p2.x;
-			let inty2 = Math.sqr(p1.y) + Math.sqr(p2.y) + p1.y * p2.y;
+			mass.center.add(p1.plus(p2).mul(triangleArea * inv3));
+			const intx2 = Math.sqr(p1.x) + Math.sqr(p2.x) + p1.x * p2.x;
+			const inty2 = Math.sqr(p1.y) + Math.sqr(p2.y) + p1.y * p2.y;
 			inertia += (.25 * inv3 * d) * (intx2 + inty2);
 		}
 		mass.center.mul(1 / area);
@@ -145,8 +145,8 @@ module.exports = class Polygon extends Shape {
 	getSupport(direction) {
 		let bestProjection = -Number.MAX_VALUE;
 		let bestVertex;
-		for (let vertex of this.points) {
-			let projection = vertex.dot(direction);
+		for (const vertex of this.points) {
+			const projection = vertex.dot(direction);
 			if (projection > bestProjection) {
 				bestProjection = projection;
 				bestVertex = vertex;
@@ -155,17 +155,17 @@ module.exports = class Polygon extends Shape {
 		return bestVertex;
 	}
 	clone() {
-		let copy = new Polygon();
-		for (let point of this.points) {
+		const copy = new Polygon();
+		for (const point of this.points) {
 			copy.points.push(point.clone());
 		}
-		for (let norm of this.norms) {
+		for (const norm of this.norms) {
 			copy.norms.push(norm.clone());
 		}
 		return copy;
 	}
 	recenter(offset) {
-		for (let point of this.points) {
+		for (const point of this.points) {
 			point.sub(offset);
 		}
 	}

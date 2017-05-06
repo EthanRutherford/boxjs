@@ -97,7 +97,7 @@ class Manifold {
 			contact.tangentMass = kt > 0 ? 1 / kt : 0;
 
 			contact.bias = 0;
-			const rv = vB.plus(Vector2D.cross1x2(wB, rB)).minus(vA.plus(Vector2D.cross1x2(wA, rA)));
+			const rv = vB.plus(Vector2D.cross1x2(wB, rB)).sub(vA.plus(Vector2D.cross1x2(wA, rA)));
 			const vRel = this.normal.dot(rv);
 			if (vRel < -1) {
 				contact.bias = -this.e * vRel;
@@ -148,15 +148,15 @@ class Manifold {
 			const rA = contact.point.minus(this.shapeA.body.position);
 			const rB = contact.point.minus(this.shapeB.body.position);
 
-			const p = this.normal.times(contact.normalImpulse).plus(this.tangent.times(contact.tangentImpulse));
+			const p = this.normal.times(contact.normalImpulse).add(this.tangent.times(contact.tangentImpulse));
 			vA.sub(p.times(mA));
 			vB.add(p.times(mB));
 			wA -= iA * rA.cross(p);
 			wB += iB * rB.cross(p);
 		}
 
-		this.shapeA.body.velocity = vA;
-		this.shapeB.body.velocity = vB;
+		this.shapeA.body.velocity.set(vA);
+		this.shapeB.body.velocity.set(vB);
 		this.shapeA.body.angularVelocity = wA;
 		this.shapeB.body.angularVelocity = wB;
 	}
@@ -180,7 +180,7 @@ class Manifold {
 			const rA = contact.point.minus(this.shapeA.body.position);
 			const rB = contact.point.minus(this.shapeB.body.position);
 
-			const dv = vB.plus(Vector2D.cross1x2(wB, rB)).minus(vA.plus(Vector2D.cross1x2(wA, rA)));
+			const dv = vB.plus(Vector2D.cross1x2(wB, rB)).sub(vA.plus(Vector2D.cross1x2(wA, rA)));
 			const vt = dv.dot(this.tangent);
 			let lambda = contact.tangentMass * -vt;
 			const mf = contact.normalImpulse * this.df;
@@ -200,7 +200,7 @@ class Manifold {
 			const rA = contact.point.minus(this.shapeA.body.position);
 			const rB = contact.point.minus(this.shapeB.body.position);
 
-			const dv = vB.plus(Vector2D.cross1x2(wB, rB)).minus(vA.plus(Vector2D.cross1x2(wA, rA)));
+			const dv = vB.plus(Vector2D.cross1x2(wB, rB)).sub(vA.plus(Vector2D.cross1x2(wA, rA)));
 			const vn = dv.dot(this.normal);
 			let lambda = -contact.normalMass * (vn - contact.bias);
 			const newImpulse = Math.max(contact.normalImpulse + lambda, 0);
@@ -221,8 +221,8 @@ class Manifold {
 			const rB1 = contact1.point.minus(this.shapeB.body.position);
 
 			const a = new Vector2D(contact0.normalImpulse, contact1.normalImpulse);
-			const dv0 = vB.plus(Vector2D.cross1x2(wB, rB0)).minus(vA.plus(Vector2D.cross1x2(wA, rA0)));
-			const dv1 = vB.plus(Vector2D.cross1x2(wB, rB1)).minus(vA.plus(Vector2D.cross1x2(wA, rA1)));
+			const dv0 = vB.plus(Vector2D.cross1x2(wB, rB0)).sub(vA.plus(Vector2D.cross1x2(wA, rA0)));
+			const dv1 = vB.plus(Vector2D.cross1x2(wB, rB1)).sub(vA.plus(Vector2D.cross1x2(wA, rA1)));
 			let vn0 = dv0.dot(this.normal);
 			let vn1 = dv1.dot(this.normal);
 			const b = new Vector2D(vn0 - contact0.bias, vn1 - contact1.bias).sub(this.k.times(a));
@@ -234,8 +234,8 @@ class Manifold {
 					const d = x.minus(a);
 					const p0 = this.normal.times(d.x);
 					const p1 = this.normal.times(d.y);
-					vA.sub(p0.plus(p1).times(mA));
-					vB.add(p0.plus(p1).times(mB));
+					vA.sub(p0.plus(p1).mul(mA));
+					vB.add(p0.plus(p1).mul(mB));
 					wA -= iA * (rA0.cross(p0) + rA1.cross(p1));
 					wB += iB * (rB0.cross(p0) + rB1.cross(p1));
 					contact0.normalImpulse = x.x;
@@ -251,8 +251,8 @@ class Manifold {
 					const d = x.minus(a);
 					const p0 = this.normal.times(d.x);
 					const p1 = this.normal.times(d.y);
-					vA.sub(p0.plus(p1).times(mA));
-					vB.add(p0.plus(p1).times(mB));
+					vA.sub(p0.plus(p1).mul(mA));
+					vB.add(p0.plus(p1).mul(mB));
 					wA -= iA * (rA0.cross(p0) + rA1.cross(p1));
 					wB += iB * (rB0.cross(p0) + rB1.cross(p1));
 					contact0.normalImpulse = x.x;
@@ -268,8 +268,8 @@ class Manifold {
 					const d = x.minus(a);
 					const p0 = this.normal.times(d.x);
 					const p1 = this.normal.times(d.y);
-					vA.sub(p0.plus(p1).times(mA));
-					vB.add(p0.plus(p1).times(mB));
+					vA.sub(p0.plus(p1).mul(mA));
+					vB.add(p0.plus(p1).mul(mB));
 					wA -= iA * (rA0.cross(p0) + rA1.cross(p1));
 					wB += iB * (rB0.cross(p0) + rB1.cross(p1));
 					contact0.normalImpulse = x.x;
@@ -285,8 +285,8 @@ class Manifold {
 					const d = x.minus(a);
 					const p0 = this.normal.times(d.x);
 					const p1 = this.normal.times(d.y);
-					vA.sub(p0.plus(p1).times(mA));
-					vB.add(p0.plus(p1).times(mB));
+					vA.sub(p0.plus(p1).mul(mA));
+					vB.add(p0.plus(p1).mul(mB));
 					wA -= iA * (rA0.cross(p0) + rA1.cross(p1));
 					wB += iB * (rB0.cross(p0) + rB1.cross(p1));
 					contact0.normalImpulse = x.x;
@@ -298,8 +298,8 @@ class Manifold {
 			}
 		}
 
-		this.shapeA.body.velocity = vA;
-		this.shapeB.body.velocity = vB;
+		this.shapeA.body.velocity.set(vA);
+		this.shapeB.body.velocity.set(vB);
 		this.shapeA.body.angularVelocity = wA;
 		this.shapeB.body.angularVelocity = wB;
 	}
@@ -316,8 +316,8 @@ class Manifold {
 		const mB = this.shapeB.body.mass.iM;
 		const iB = this.shapeB.body.mass.iI;
 
-		const cA = this.shapeA.body.position;
-		const cB = this.shapeB.body.position;
+		const cA = this.shapeA.body.position.clone();
+		const cB = this.shapeB.body.position.clone();
 		let aA = this.shapeA.body.transform.radians;
 		let aB = this.shapeB.body.transform.radians;
 
@@ -333,18 +333,18 @@ class Manifold {
 				const pA = this.lpoint.plus(this.shapeA.body.position);
 				const pB = this.contacts[0].lpoint.plus(this.shapeB.body.position);
 				normal = (pB.minus(pA)).normalize();
-				point = pA.plus(pB).times(.5);
+				point = pA.plus(pB).mul(.5);
 				separation = pB.minus(pA).dot(normal) - r;
 			} else if (this.type === Manifold.faceA) {
 				normal = this.shapeA.body.transform.times(this.lnormal);
-				const plane = this.shapeA.body.transform.times(this.lpoint).plus(this.shapeA.body.position);
-				const clip = this.shapeB.body.transform.times(contact.lpoint).plus(this.shapeB.body.position);
+				const plane = this.shapeA.body.transform.times(this.lpoint).add(this.shapeA.body.position);
+				const clip = this.shapeB.body.transform.times(contact.lpoint).add(this.shapeB.body.position);
 				separation = (clip.minus(plane)).dot(normal) - r;
 				point = clip;
 			} else if (this.type === Manifold.faceB) {
 				normal = this.shapeB.body.transform.times(this.lnormal);
-				const plane = this.shapeB.body.transform.times(this.lpoint).plus(this.shapeB.body.position);
-				const clip = this.shapeA.body.transform.times(contact.lpoint).plus(this.shapeA.body.position);
+				const plane = this.shapeB.body.transform.times(this.lpoint).add(this.shapeB.body.position);
+				const clip = this.shapeA.body.transform.times(contact.lpoint).add(this.shapeA.body.position);
 				separation = (clip.minus(plane)).dot(normal) - r;
 				point = clip;
 				normal = normal.neg();
@@ -366,8 +366,8 @@ class Manifold {
 			aB += iB * rB.cross(p);
 		}
 
-		this.shapeA.body.position = cA;
-		this.shapeB.body.position = cB;
+		this.shapeA.body.position.set(cA);
+		this.shapeB.body.position.set(cB);
 		this.shapeA.body.transform.radians = aA;
 		this.shapeB.body.transform.radians = aB;
 	}

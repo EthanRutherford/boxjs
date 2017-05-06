@@ -20,12 +20,12 @@ module.exports = class Circle extends Shape {
 		});
 	}
 	raycast({p1, p2, maxFraction}) {
-		let s = p1.minus(this.body.position);
-		let b = s.dot(s) - Math.sqr(this.radius);
-		let r = p2.minus(p1);
-		let c = s.dot(r);
-		let rr = r.dot(r);
-		let sigma = c * c - rr * b;
+		const s = p1.minus(this.body.position);
+		const b = s.dot(s) - Math.sqr(this.radius);
+		const r = p2.minus(p1);
+		const c = s.dot(r);
+		const rr = r.dot(r);
+		const sigma = c * c - rr * b;
 
 		if (sigma < 0 || rr < Number.EPSILON) {
 			return null;
@@ -35,14 +35,14 @@ module.exports = class Circle extends Shape {
 
 		if (fraction >= 0 && fraction <= maxFraction * rr) {
 			fraction /= rr;
-			let normal = s.plus(r.times(fraction)).normalize();
+			const normal = s.plus(r.times(fraction)).normalize();
 			return {fraction, normal};
 		}
 
 		return null;
 	}
 	computeMass(density) {
-		let mass = new MassData();
+		const mass = new MassData();
 		mass.center = new Vector2D(0, 0);
 		mass.m = Math.PI * Math.sqr(this.radius) * density;
 		mass.iM = mass.m ? 1 / mass.m : 0;

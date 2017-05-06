@@ -78,7 +78,7 @@ class RevJoint extends Joint {
 		const iB = this.bodyB.mass.iI;
 
 		if (this.limitEnabled && this.state !== RevJoint.between) {
-			const cDot1 = vB.plus(Vector2D.cross1x2(wB, rB)).minus(vA.plus(Vector2D.cross1x2(wA, rA)));
+			const cDot1 = vB.plus(Vector2D.cross1x2(wB, rB)).sub(vA.plus(Vector2D.cross1x2(wA, rA)));
 			const cDot2 = wB - wA;
 			const cDot = new Vector3D(cDot1.x, cDot1.y, cDot2);
 			const impulse = this.mass.solve3(cDot).neg();
@@ -86,7 +86,7 @@ class RevJoint extends Joint {
 			if (this.state === RevJoint.atLower) {
 				const newImpulse = this.cumulativeImpulse.z + impulse.z;
 				if (newImpulse < 0) {
-					const rhs = cDot1.neg().plus({x: this.mass.m[0][2], y: this.mass.m[1][2]})
+					const rhs = cDot1.neg().add({x: this.mass.m[0][2], y: this.mass.m[1][2]})
 						.mul(this.cumulativeImpulse.z);
 					const reduced = this.mass.solve2(rhs);
 					impulse.set(reduced);
@@ -100,7 +100,7 @@ class RevJoint extends Joint {
 			} else /* RevJoint.atUpper */ {
 				const newImpulse = this.cumulativeImpulse.z + impulse.z;
 				if (newImpulse > 0) {
-					const rhs = cDot1.neg().plus({x: this.mass.m[0][2], y: this.mass.m[1][2]})
+					const rhs = cDot1.neg().add({x: this.mass.m[0][2], y: this.mass.m[1][2]})
 						.mul(this.cumulativeImpulse.z);
 					const reduced = this.mass.solve2(rhs);
 					impulse.set(reduced);
@@ -119,7 +119,7 @@ class RevJoint extends Joint {
 			wA -= iA * (rA.cross(p) + impulse.z);
 			wB += iB * (rB.cross(p) + impulse.z);
 		} else {
-			const cDot = vB.plus(Vector2D.cross1x2(wB, rB)).minus(vA.plus(Vector2D.cross1x2(wA, rA)));
+			const cDot = vB.plus(Vector2D.cross1x2(wB, rB)).sub(vA.plus(Vector2D.cross1x2(wA, rA)));
 			const impulse = this.mass.solve2(cDot.neg());
 			this.cumulativeImpulse.x += impulse.x;
 			this.cumulativeImpulse.y += impulse.y;
@@ -129,8 +129,8 @@ class RevJoint extends Joint {
 			wB += iB * rB.cross(impulse);
 		}
 
-		this.bodyA.velocity = vA;
-		this.bodyB.velocity = vB;
+		this.bodyA.velocity.set(vA);
+		this.bodyB.velocity.set(vB);
 		this.bodyA.angularVelocity = wA;
 		this.bodyB.angularVelocity = wB;
 	}
@@ -164,7 +164,7 @@ class RevJoint extends Joint {
 			aB += iB * limitImpulse;
 		}
 
-		const c = cB.plus(rB).minus(cA.plus(rA));
+		const c = cB.plus(rB).sub(cA.plus(rA));
 		const k = new Matrix2D(
 			mA + mB + iA * rA.y * rA.y + iB * rB.y * rB.y,
 			-iA * rA.x * rA.y - iB * rB.x * rB.y,

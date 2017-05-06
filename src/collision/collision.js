@@ -45,7 +45,7 @@ function findSeparatingAxis(a, b) {
 		const n = btT.times(nw);
 
 		const s = b.getSupport(n.neg());
-		let v = a.body.transform.times(a.points[i]).plus(a.body.position);
+		let v = a.body.transform.times(a.points[i]).add(a.body.position);
 		v = btT.times(v.minus(b.body.position));
 
 		const d = n.dot(s.minus(v));
@@ -73,7 +73,7 @@ function findIncidentEdge(ref, inc, index) {
 	const edge2 = edge1 + 1 >= inc.points.length ? 0 : edge1 + 1;
 
 	const r1 = new ManifoldPoint(
-		inc.body.transform.times(inc.points[edge1]).plus(inc.body.position),
+		inc.body.transform.times(inc.points[edge1]).add(inc.body.position),
 		inc.points[edge1],
 		index,
 		edge1,
@@ -81,7 +81,7 @@ function findIncidentEdge(ref, inc, index) {
 		ManifoldPoint.vert
 	);
 	const r2 = new ManifoldPoint(
-		inc.body.transform.times(inc.points[edge2]).plus(inc.body.position),
+		inc.body.transform.times(inc.points[edge2]).add(inc.body.position),
 		inc.points[edge2],
 		index,
 		edge2,
@@ -105,8 +105,8 @@ function clipPoints(input, n, c, index) {
 	if (dist0 * dist1 < 0) {
 		const interp = dist0 / (dist0 - dist1);
 		output.push(new ManifoldPoint(
-			input[0].point.plus(input[1].point.minus(input[0].point).times(interp)),
-			input[0].lpoint.plus(input[1].lpoint.minus(input[0].lpoint).times(interp)),
+			input[0].point.plus(input[1].point.minus(input[0].point).mul(interp)),
+			input[0].lpoint.plus(input[1].lpoint.minus(input[0].lpoint).mul(interp)),
 			index,
 			input[0].indexB,
 			ManifoldPoint.vert,
@@ -154,12 +154,12 @@ function polyToPoly(m, a, b) {
 	let v2 = refPoly.points[iv2];
 	m.ltangent = v2.minus(v1).normalize();
 	m.lnormal = Vector2D.cross2x1(m.ltangent, 1);
-	m.lpoint = v1.plus(v2).times(.5);
+	m.lpoint = v1.plus(v2).mul(.5);
 
 	const tangent = refPoly.body.transform.times(m.ltangent);
 	const normal = Vector2D.cross2x1(tangent, 1);
-	v1 = refPoly.body.transform.times(v1).plus(refPoly.body.position);
-	v2 = refPoly.body.transform.times(v2).plus(refPoly.body.position);
+	v1 = refPoly.body.transform.times(v1).add(refPoly.body.position);
+	v2 = refPoly.body.transform.times(v2).add(refPoly.body.position);
 
 	const refC = normal.dot(v1);
 	const negSide = -tangent.dot(v1);
@@ -236,7 +236,7 @@ function circleToPoly(m, a, b) {
 		m.lpoint = v1.plus(v2).mul(.5);
 		m.normal = b.body.transform.times(b.norms[i1]).neg();
 		m.contacts.push(new ManifoldPoint(
-			m.normal.times(a.radius).plus(a.body.position)
+			m.normal.times(a.radius).add(a.body.position)
 		));
 	} else {
 		const dot1 = center.minus(v1).dot(v2.minus(v1));
@@ -251,7 +251,7 @@ function circleToPoly(m, a, b) {
 			m.normal = b.body.transform.times(m.lnormal).neg().normalize();
 			m.lpoint = v1;
 			m.contacts.push(new ManifoldPoint(
-				b.body.transform.times(v1).plus(b.body.position)
+				b.body.transform.times(v1).add(b.body.position)
 			));
 		} else if (dot2 <= 0) {
 			if (center.minus(v2).lsqr > Math.sqr(a.radius)) {
@@ -263,7 +263,7 @@ function circleToPoly(m, a, b) {
 			m.normal = b.body.transform.times(m.lnormal).neg().normalize();
 			m.lpoint = v2;
 			m.contacts.push(new ManifoldPoint(
-				b.body.transform.times(v2).plus(b.body.position)
+				b.body.transform.times(v2).add(b.body.position)
 			));
 		} else {
 			m.lpoint = v1.plus(v2).mul(.5);
@@ -275,7 +275,7 @@ function circleToPoly(m, a, b) {
 			m.normal = b.body.transform.times(m.lnormal).neg().normalize();
 			m.type = Manifold.faceB;
 			m.contacts.push(new ManifoldPoint(
-				m.normal.times(a.radius).plus(a.body.position)
+				m.normal.times(a.radius).add(a.body.position)
 			));
 		}
 	}

@@ -26,7 +26,7 @@ module.exports = class SpringJoint extends Joint {
 		const iA = this.bodyA.mass.iI;
 		const iB = this.bodyB.mass.iI;
 
-		this.u = cB.plus(rB).minus(cA.plus(rA));
+		this.u = cB.plus(rB).sub(cA.plus(rA));
 		const length = this.u.length;
 
 		if (length > .005) {
@@ -90,8 +90,8 @@ module.exports = class SpringJoint extends Joint {
 		wA -= iA * rA.cross(p);
 		wB += iB * rB.cross(p);
 
-		this.bodyA.velocity = vA;
-		this.bodyB.velocity = vB;
+		this.bodyA.velocity.set(vA);
+		this.bodyB.velocity.set(vB);
 		this.bodyA.angularVelocity = wA;
 		this.bodyB.angularVelocity = wB;
 	}
@@ -111,7 +111,7 @@ module.exports = class SpringJoint extends Joint {
 		const iA = this.bodyA.mass.iI;
 		const iB = this.bodyB.mass.iI;
 
-		const u = cB.plus(rB).minus(cA.plus(rA));
+		const u = cB.plus(rB).sub(cA.plus(rA));
 		const length = u.length;
 		u.mul(1 / length);
 		const c = Math.clamp(length - this.length, -.2, .2);

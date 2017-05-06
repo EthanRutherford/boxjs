@@ -39,7 +39,7 @@ module.exports = class WheelJoint extends Joint {
 		const iA = this.bodyA.mass.iI;
 		const iB = this.bodyB.mass.iI;
 
-		const d = cB.plus(rB).minus(cA.plus(rA));
+		const d = cB.plus(rB).sub(cA.plus(rA));
 
 		this.ay = this.bodyA.transform.times(Vector2D.cross1x2(1, this.axis));
 		this.sAy = d.plus(rA).cross(this.ay);
@@ -90,7 +90,7 @@ module.exports = class WheelJoint extends Joint {
 			this.motorImpulse = 0;
 		}
 
-		const p = this.ay.times(this.impulse).plus(this.ax.times(this.springImpulse));
+		const p = this.ay.times(this.impulse).add(this.ax.times(this.springImpulse));
 		const lA = this.sAy * this.impulse + this.sAx * this.springImpulse + this.motorImpulse;
 		const lB = this.sBy * this.impulse + this.sBx * this.springImpulse + this.motorImpulse;
 
@@ -151,8 +151,8 @@ module.exports = class WheelJoint extends Joint {
 			wB += iB * lB;
 		}
 
-		this.bodyA.velocity = vA;
-		this.bodyB.velocity = vB;
+		this.bodyA.velocity.set(vA);
+		this.bodyB.velocity.set(vB);
 		this.bodyA.angularVelocity = wA;
 		this.bodyB.angularVelocity = wB;
 	}
@@ -168,7 +168,7 @@ module.exports = class WheelJoint extends Joint {
 		const iA = this.bodyA.mass.iI;
 		const iB = this.bodyB.mass.iI;
 
-		const d = cB.plus(rB).minus(cA.plus(rA));
+		const d = cB.plus(rB).sub(cA.plus(rA));
 
 		const ay = this.bodyA.transform.times(Vector2D.cross1x2(1, this.axis));
 		const sAy = d.plus(rA).cross(this.ay);
