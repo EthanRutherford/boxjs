@@ -104,7 +104,9 @@ function render(lerpRatio) {
 	});
 
 	for (const item of renderables) {
-		item.renderable.render(item.position, item.radians);
+		const pos = vlerp(item.prevPos, item.position, lerpRatio);
+		const angle = alerp(item.prevAngle, item.radians, lerpRatio);
+		item.renderable.render(pos, angle);
 	}
 
 	if (!window.debugDraw) {
@@ -695,6 +697,7 @@ function createRaycastTest() {
 				[1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1]
 			),
 			position: new Vector2D(),
+			prevPos: new Vector2D(),
 			radians: 0,
 		};
 		renderables.add(ray);
@@ -710,6 +713,7 @@ function createRaycastTest() {
 			ray.renderable.updateBuffers({
 				verts: [0, .01, 0, -.01, fraction * 50, -.01, fraction * 50, .01],
 			});
+			ray.prevAngle = ray.radians;
 			ray.radians = angle;
 		};
 		logicSteps.add(logicStep);
@@ -856,12 +860,14 @@ function moveEvent(data, eventItem) {
 		data.arrow = {
 			renderable: new SimpleRenderable(verts, colors),
 			position: data.origin,
+			prevPos: data.origin,
 			radians: angle,
 		};
 		renderables.add(data.arrow);
 	} else {
 		data.arrow.renderable.updateBuffers({verts, colors});
 		data.arrow.radians = angle;
+		data.arrow.prevAngle = angle;
 	}
 }
 
