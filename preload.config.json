@@ -1,0 +1,5 @@
+{
+	"webroot": "../",
+	"outputDir": "./testing",
+	"entryPoints": ["/boxjs/testing/main"]
+}

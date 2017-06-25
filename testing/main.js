@@ -1,7 +1,3 @@
-//# preload ../src/box.js
-//# preload ./gl-matrix.min.js
-//# preload ./render.js
-
 const {
 	initGL,
 	SimpleRenderable,

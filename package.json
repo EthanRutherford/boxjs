@@ -1,0 +1,24 @@
+{
+  "name": "boxjs",
+  "version": "1.0.1",
+  "description": "2D physics engine based on Box2D",
+  "main": "src/box.js",
+  "scripts": {
+    "build": "preload build",
+    "start": "start http-server ../",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EthanRutherford/boxjs.git"
+  },
+  "author": "Ethan Rutherford",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EthanRutherford/boxjs/issues"
+  },
+  "homepage": "https://github.com/EthanRutherford/boxjs#readme",
+  "devDependencies": {
+    "pre-req": "^1.1.2"
+  }
+}
