@@ -12,8 +12,8 @@ module.exports = class WheelJoint extends Joint {
 		this.motorSpeed = 0;
 		this.motorTorqueLimit = 0;
 
-		this.ax = new Vector2D();
-		this.ay = new Vector2D();
+		this.ax = new Vector2D(0, 0);
+		this.ay = new Vector2D(0, 0);
 		this.sAx = 0;
 		this.sAy = 0;
 		this.sBx = 0;

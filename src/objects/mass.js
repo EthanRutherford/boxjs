@@ -6,6 +6,6 @@ module.exports = class MassData {
 		this.iM = 0;
 		this.i = 0;
 		this.iI = 0;
-		this.center = new Vector2D();
+		this.center = new Vector2D(0, 0);
 	}
 };

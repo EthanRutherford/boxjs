@@ -2,8 +2,8 @@ const {Vector2D, Matrix2D} = require("../framework/math");
 
 class ManifoldPoint {
 	constructor(point, lpoint, indexA, indexB, typeA, typeB) {
-		this.point = point || new Vector2D();
-		this.lpoint = lpoint || new Vector2D();
+		this.point = point || new Vector2D(0, 0);
+		this.lpoint = lpoint || new Vector2D(0, 0);
 		this.bias = 0;
 		this.normalImpulse = 0;
 		this.tangentImpulse = 0;
@@ -45,12 +45,12 @@ class Manifold {
 		this.e = Math.max(a.body.restitution, b.body.restitution);
 		this.df = Math.sqrt(a.body.friction, b.body.friction);
 		this.contacts = [];
-		this.normal = new Vector2D();
-		this.tangent = new Vector2D();
-		this.lpoint = new Vector2D();
-		this.lnormal = new Vector2D();
-		this.ltangent = new Vector2D();
-		this.k = new Matrix2D();
+		this.normal = new Vector2D(0, 0);
+		this.tangent = new Vector2D(0, 0);
+		this.lpoint = new Vector2D(0, 0);
+		this.lnormal = new Vector2D(0, 0);
+		this.ltangent = new Vector2D(0, 0);
+		this.k = new Matrix2D(0, 0, 0, 0);
 		this.nMass = null;
 		this.hasSensor = a.body.sensor || b.body.sensor;
 	}
@@ -121,7 +121,10 @@ class Manifold {
 
 			const maxCondition = 1000;
 			if (k11 * k11 < maxCondition * (k11 * k22 - k12 * k12)) {
-				this.k.set({ii: k11, ij: k12, ji: k12, jj: k22});
+				this.k.ii = k11;
+				this.k.ij = k12;
+				this.k.ji = k12;
+				this.k.jj = k22;
 				this.nMass = this.k.inverse;
 			} else {
 				this.contacts.pop();

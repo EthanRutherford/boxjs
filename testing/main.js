@@ -18,8 +18,8 @@ const {
 const gl = initGL(document.getElementById("canvas"), 20);
 
 const camera = {
-	position: new Vector2D(),
-	prevPos: new Vector2D(),
+	position: new Vector2D(0, 0),
+	prevPos: new Vector2D(0, 0),
 	zoom: 1,
 };
 
@@ -291,8 +291,8 @@ function createBasicTest() {
 		const joint = new SpringJoint({
 			bodyA: box,
 			bodyB: box2,
-			anchorA: new Vector2D(),
-			anchorB: new Vector2D(),
+			anchorA: new Vector2D(0, 0),
+			anchorB: new Vector2D(0, 0),
 			length: 3,
 			frequency: 1,
 			damping: .1,
@@ -349,7 +349,7 @@ function createCarTest() {
 			bodyA: frame,
 			bodyB: wheel1,
 			anchorA: new Vector2D(-1.4, -.9),
-			anchorB: new Vector2D(),
+			anchorB: new Vector2D(0, 0),
 			axis: new Vector2D(0, 1),
 			frequency: 4,
 			damping: .7,
@@ -358,7 +358,7 @@ function createCarTest() {
 			bodyA: frame,
 			bodyB: wheel2,
 			anchorA: new Vector2D(1.3, -.9),
-			anchorB: new Vector2D(),
+			anchorB: new Vector2D(0, 0),
 			axis: new Vector2D(0, 1),
 			frequency: 4,
 			damping: .7,
@@ -692,13 +692,13 @@ function createRaycastTest() {
 				[0, 0, 0, 0, 0, 0, 0, 0],
 				[1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1]
 			),
-			position: new Vector2D(),
-			prevPos: new Vector2D(),
+			position: new Vector2D(0, 0),
+			prevPos: new Vector2D(0, 0),
 			radians: 0,
 		};
 		renderables.add(ray);
 
-		const p1 = new Vector2D();
+		const p1 = new Vector2D(0, 0);
 		let p2 = new Vector2D(50, 0);
 		let angle = 0;
 		const logicStep = () => {

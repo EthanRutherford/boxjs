@@ -4,12 +4,12 @@ Math.clamp = (value, min, max) => Math.max(min, Math.min(value, max));
 
 class Vector2D {
 	constructor(x, y) {
-		this.x = x || 0;
-		this.y = y || 0;
+		this.x = x;
+		this.y = y;
 	}
-	set({x, y}) {
-		if (x != null) this.x = x;
-		if (y != null) this.y = y;
+	set(other) {
+		this.x = other.x;
+		this.y = other.y;
 		return this;
 	}
 	neg() {
@@ -55,11 +55,12 @@ class Vector2D {
 		return Math.sqr(this.x) + Math.sqr(this.y);
 	}
 	normalize() {
-		if (this.length < Number.EPSILON) {
+		const length = this.length;
+		if (length < Number.EPSILON) {
 			return this;
 		}
 
-		const invLength = 1 / this.length;
+		const invLength = 1 / length;
 		this.mul(invLength);
 		return this;
 	}
@@ -72,8 +73,8 @@ class Vector2D {
 	clone() {
 		return new Vector2D(this.x, this.y);
 	}
-	static clone({x, y} = {x: 0, y: 0}) {
-		return new Vector2D(x, y);
+	static clone(other) {
+		return new Vector2D(other.x, other.y);
 	}
 	static cross2x1(a, s) {
 		return new Vector2D(s * a.y, -s * a.x);
@@ -89,16 +90,18 @@ class Vector2D {
 	}
 }
 
+Vector2D.zero = new Vector2D(0, 0);
+
 class Vector3D {
 	constructor(x, y, z) {
-		this.x = x || 0;
-		this.y = y || 0;
-		this.z = z || 0;
+		this.x = x;
+		this.y = y;
+		this.z = z;
 	}
-	set({x, y, z}) {
-		if (x != null) this.x = x;
-		if (y != null) this.y = y;
-		if (z != null) this.z = z;
+	set(other) {
+		this.x = other.x;
+		this.y = other.y;
+		this.z = other.z;
 		return this;
 	}
 	neg() {
@@ -139,28 +142,16 @@ class Vector3D {
 
 class Matrix2D {
 	constructor(a, b, c, d) {
-		if (a == null) {
-			this.ii = 0;
-			this.ij = 0;
-			this.ji = 0;
-			this.jj = 0;
-		} else if (c == null) {
-			this.ii = a.x;
-			this.ij = a.y;
-			this.ji = b.x;
-			this.jj = b.y;
-		} else {
-			this.ii = a;
-			this.ij = b;
-			this.ji = c;
-			this.jj = d;
-		}
+		this.ii = a;
+		this.ij = b;
+		this.ji = c;
+		this.jj = d;
 	}
-	set({ii, ij, ji, jj}) {
-		if (ii != null) this.ii = ii;
-		if (ij != null) this.ij = ij;
-		if (ji != null) this.ji = ji;
-		if (jj != null) this.jj = jj;
+	set(other) {
+		this.ii = other.ii;
+		this.ij = other.ij;
+		this.ji = other.ji;
+		this.jj = other.jj;
 		return this;
 	}
 	setRotation(radians) {
@@ -201,16 +192,17 @@ class Matrix2D {
 	clone() {
 		return new Matrix2D(this.ii, this.ij, this.ji, this.jj);
 	}
-	static get Identity() {
-		return identity;
-	}
 }
+
+Matrix2D.identity = new Matrix2D(1, 0, 0, 1);
 
 //specialization of a Matrix used for rotations
 class Rotation extends Matrix2D {
 	constructor(radians = 0) {
 		super();
-		this.radians = radians;
+		radians = cleanAngle(radians);
+		this._r = radians;
+		this.setRotation(radians);
 	}
 	set(value) {
 		this.radians = value;
@@ -228,11 +220,7 @@ class Rotation extends Matrix2D {
 
 class Matrix3D {
 	constructor(a, b, c, d, e, f, g, h, i) {
-		if (a == null) {
-			this.m = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
-		} else {
-			this.m = [[a, b, c], [d, e, f], [g, h, i]];
-		}
+		this.m = [[a, b, c], [d, e, f], [g, h, i]];
 	}
 	solve2(vec2) {
 		const m = this.m;
@@ -265,9 +253,6 @@ class Matrix3D {
 		return new Matrix3D(...this.m[0], ...this.m[1], ...this.m[2]);
 	}
 }
-
-//matrix identity
-const identity = new Matrix2D(1, 0, 0, 1);
 
 //inverse of 2pi
 const i2pi = 1 / (2 * Math.PI);

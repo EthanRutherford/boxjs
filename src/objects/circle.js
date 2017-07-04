@@ -10,14 +10,10 @@ module.exports = class Circle extends Shape {
 		this.radius = radius;
 	}
 	setAABB() {
-		this.aabb.max.set({
-			x: this.body.position.x + this.radius,
-			y: this.body.position.y + this.radius,
-		});
-		this.aabb.min.set({
-			x: this.body.position.x - this.radius,
-			y: this.body.position.y - this.radius,
-		});
+		this.aabb.max.x = this.body.position.x + this.radius;
+		this.aabb.max.y = this.body.position.y + this.radius;
+		this.aabb.min.x = this.body.position.x - this.radius;
+		this.aabb.min.y = this.body.position.y - this.radius;
 	}
 	raycast({p1, p2, maxFraction}) {
 		const s = p1.minus(this.body.position);

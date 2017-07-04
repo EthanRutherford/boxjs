@@ -3,9 +3,9 @@ const MassData = require("./mass");
 
 module.exports = class Body {
 	constructor({
-		position,
+		position = Vector2D.zero,
 		angle,
-		velocity,
+		velocity = Vector2D.zero,
 		angularVelocity,
 		shapes,
 		friction,

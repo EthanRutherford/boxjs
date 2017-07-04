@@ -6,7 +6,7 @@ module.exports = class RopeJoint extends Joint {
 		super({bodyA, bodyB, anchorA, anchorB});
 		this.limit = limit;
 
-		this.u = new Vector2D();
+		this.u = new Vector2D(0, 0);
 		this.mass = 0;
 		this.impulse = 0;
 		this.distance = 0;
@@ -26,7 +26,8 @@ module.exports = class RopeJoint extends Joint {
 		this.u = cB.plus(rB).sub(cA.plus(rA));
 		this.distance = this.u.length;
 		if (this.distance < .005) {
-			this.u.set(0, 0);
+			this.u.x = 0;
+			this.u.y = 0;
 			this.mass = 0;
 			this.impulse = 0;
 			return;

@@ -8,7 +8,7 @@ module.exports = class SpringJoint extends Joint {
 		this.frequency = frequency;
 		this.damping = damping;
 
-		this.u = new Vector2D();
+		this.u = new Vector2D(0, 0);
 		this.mass = 0;
 		this.impulse = 0;
 		this.gamma = 0;
@@ -32,7 +32,8 @@ module.exports = class SpringJoint extends Joint {
 		if (length > .005) {
 			this.u.mul(1 / length);
 		} else {
-			this.u.set({x: 0, y: 0});
+			this.u.x = 0;
+			this.u.y = 0;
 		}
 
 		const crA = rA.cross(this.u);

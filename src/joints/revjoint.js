@@ -4,7 +4,7 @@ const Joint = require("./joint");
 class RevJoint extends Joint {
 	constructor({bodyA, bodyB, anchorA, anchorB, upperLimit, lowerLimit}) {
 		super({bodyA, bodyB, anchorA, anchorB});
-		this.mass = new Matrix3D();
+		this.mass = new Matrix3D(0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 		if (upperLimit != null && lowerLimit != null) {
 			this.setLimit(true, upperLimit, lowerLimit);
@@ -13,7 +13,7 @@ class RevJoint extends Joint {
 		}
 
 		this.refAngle = cleanAngle(bodyB.transform.radians - bodyA.transform.radians);
-		this.cumulativeImpulse = new Vector3D();
+		this.cumulativeImpulse = new Vector3D(0, 0, 0);
 
 		this.state = -1;
 	}

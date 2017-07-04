@@ -147,7 +147,8 @@ function solvePositions(dt) {
 
 function clearForces() {
 	for (const body of this.bodies) {
-		body.force.set({x: 0, y: 0});
+		body.force.x = 0;
+		body.force.y = 0;
 		body.torque = 0;
 	}
 }
