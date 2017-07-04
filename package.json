@@ -19,6 +19,6 @@
   },
   "homepage": "https://github.com/EthanRutherford/boxjs#readme",
   "devDependencies": {
-    "pre-req": "^1.1.2"
+    "pre-req": "^1.2.4"
   }
 }

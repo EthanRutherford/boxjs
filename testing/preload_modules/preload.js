@@ -106,8 +106,11 @@
 	//looks for a .js or .json path
 	function resolvePath(pack, pathName) {
 		if (!pathName.endsWith(".js") && !pathName.endsWith(".json")) {
+			if (pathName.endsWith("/")) {
+				pathName = pathName.slice(0, -1);
+			}
 			const parts = pathName.split("/");
-			const last = parts.splice(-1)[0];
+			const last = parts.pop();
 			const rest = parts.join("/");
 			const obj = getPath(pack.files, rest);
 			const namejs = `${last}.js`;
@@ -142,6 +145,7 @@
 			}
 			relativeTo = "/";
 			src = file || pack.entry;
+			pack.name = packname;
 		}
 
 		const data = resolveCore(pack, src, relativeTo);
@@ -298,6 +302,9 @@
 			return requireCore(src, this.location.pathname);
 		});
 	};
+	//add a definition for global
+	this.global = this;
+	//export the module to this.preload
 	this.preload = {define, main, require};
 })();
 
