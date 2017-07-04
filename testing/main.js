@@ -214,28 +214,28 @@ function createBasicTest() {
 		const position = new Vector2D(10, 5);
 		const anchorPoint = new Body({
 			position,
-			shapes: [new Polygon().setAsBox(.5, .1)],
+			shapes: [new Polygon().setAsBox(.25, .1)],
 			static: true,
 			filterGroup: 0,
 		});
 
 		solver.addBody(anchorPoint);
-		position.x += .5;
+		position.x += .25;
 		let lastBox = anchorPoint;
-		for (let i = 0; i < 10; i++) {
+		for (let i = 0; i < 20; i++) {
 			const box = new Body({
 				position,
-				shapes: [new Polygon().setAsBox(.5, .1)],
+				shapes: [new Polygon().setAsBox(.275, .1)],
 				filterGroup: 2,
 				exclusionList: [2],
 			});
-			position.x += 1;
+			position.x += .5;
 			solver.addBody(box);
 			const joint = new RevJoint({
 				bodyA: lastBox,
 				bodyB: box,
-				anchorA: new Vector2D(.5, 0),
-				anchorB: new Vector2D(-.5, 0),
+				anchorA: new Vector2D(.25, 0),
+				anchorB: new Vector2D(-.25, 0),
 			});
 			solver.addJoint(joint);
 			box.shapes[0].renderable = new SimpleRenderable(
@@ -262,7 +262,7 @@ function createBasicTest() {
 		const joint = new RevJoint({
 			bodyA: lastBox,
 			bodyB: superDense,
-			anchorA: new Vector2D(.5, 0),
+			anchorA: new Vector2D(.25, 0),
 			anchorB: new Vector2D(-.5, 0),
 		});
 
@@ -272,7 +272,7 @@ function createBasicTest() {
 			bodyB: superDense,
 			anchorA: new Vector2D(.5, 0),
 			anchorB: new Vector2D(-.5, 0),
-			limit: 10,
+			limit: 10.25,
 		});
 
 		solver.addJoint(rope);
