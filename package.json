@@ -5,6 +5,7 @@
   "main": "src/box.js",
   "scripts": {
     "build": "preload build",
+    "rebuild": "preload rebuild",
     "start": "start http-server ../",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,6 +20,6 @@
   },
   "homepage": "https://github.com/EthanRutherford/boxjs#readme",
   "devDependencies": {
-    "pre-req": "^1.2.4"
+    "pre-req": "^1.4.3"
   }
 }

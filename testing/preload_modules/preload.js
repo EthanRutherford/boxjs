@@ -6,8 +6,11 @@
 	//symbols
 	const sDeps = "/deps";
 	const sCode = "/code";
+	const sSheet = "/sheet";
 	const sModule = "/module";
 	const sPromise = "/promise";
+	//css loader
+	let cssLoader = (sheet) => sheet;
 	//add a path to the virtual filesystem
 	function addPath(data, pathName) {
 		pathName = pathName.substr(1);
@@ -87,25 +90,29 @@
 	//executes the code, and sets module exports
 	function execute(code, src, obj, pack) {
 		//initialize the module object
-		const module = {};
-		Object.defineProperty(module, "exports", {
+		const moduleProxy = {};
+		Object.defineProperty(moduleProxy, "exports", {
 			get: () => obj[sModule],
 			set: (value) => obj[sModule] = value,
 		});
 		//create the executor
 		const executor = getModuleExecutor(code, src, pack.name);
 		//construct and execute the function
-		executor((dep) => requireCore(dep, src, pack), module, module.exports);
+		executor((dep) => requireCore(dep, src, pack), moduleProxy, moduleProxy.exports);
 		//return module exports
-		return module.exports;
+		return moduleProxy.exports;
 	}
 	//call to load the resource
 	function load(src) {
 		return fetch(new Request(src, {method: "GET"}));
 	}
-	//looks for a .js or .json path
+	//resolves js, json, or css paths
 	function resolvePath(pack, pathName) {
-		if (!pathName.endsWith(".js") && !pathName.endsWith(".json")) {
+		if (
+			!pathName.endsWith(".js") &&
+			!pathName.endsWith(".json") &&
+			!pathName.endsWith(".css")
+		) {
 			if (pathName.endsWith("/")) {
 				pathName = pathName.slice(0, -1);
 			}
@@ -149,7 +156,7 @@
 		}
 
 		const data = resolveCore(pack, src, relativeTo);
-		if (!data.obj) {
+		if (!data || !data.obj) {
 			throw new Error(`${data.url} was required without being preloaded.`);
 		}
 
@@ -159,8 +166,19 @@
 				execute(data.obj[sCode], data.url, data.obj, pack);
 			} else if (data.url.endsWith(".json")) {
 				data.obj[sModule] = JSON.parse(data.obj[sCode]);
+			} else if (data.url.endsWith(".css")) {
+				if (!data.obj[sSheet]) {
+					const style = document.createElement("style");
+					style.type = "text/css";
+					style.innerText = data.obj[sCode];
+					document.head.appendChild(style);
+					data.obj[sSheet] = style.sheet;
+				}
+
+				data.obj[sModule] = cssLoader(data.obj[sSheet], data.url);
 			}
 		}
+
 		return data.obj[sModule];
 	}
 	function preloadPackage(name, set) {
@@ -192,7 +210,7 @@
 			return obj[sPromise];
 		}
 
-		return new Promise((resolve, reject) => {
+		return obj[sPromise] = new Promise((resolve, reject) => {
 			load(src).then((response) => {
 				if (!response.ok) {
 					reject(response.statusText);
@@ -231,21 +249,33 @@
 	}
 	function preloadCss(src, set) {
 		set.add(src);
-		if (document.querySelectorAll("link[href='" + src + "']").length) {
-			return true;
+		const obj = addPath(cache.files, src);
+		if (obj[sPromise]) {
+			return obj[sPromise];
 		}
-		return new Promise((resolve, reject) => {
+
+		return obj[sPromise] = new Promise((resolve, reject) => {
 			const link = document.createElement("link");
 			link.rel = "stylesheet";
 			link.type = "text/css";
 			link.href = src;
-			document.head.appendChild(link);
-			link.onload = () => {
-				resolve(true);
-			};
-			link.onerror = (event) => {
-				reject(event);
-			};
+
+			const links = document.querySelectorAll("link[rel='stylesheet']");
+			const match = [...links].find((x) => x.href === link.href);
+			if (match != null) {
+				obj[sSheet] = match.sheet;
+				resolve();
+			} else {
+				document.head.appendChild(link);
+
+				link.onload = () => {
+					obj[sSheet] = link.sheet;
+					resolve();
+				};
+				link.onerror = (event) => {
+					reject(event);
+				};
+			}
 		});
 	}
 	//the core preloader
@@ -302,9 +332,15 @@
 			return requireCore(src, this.location.pathname);
 		});
 	};
+	//method which provides support for defining a css loader
+	//the loader function should accept a cssStyleSheet object and url,
+	//and return an object which will be passed into dependent js code
+	const onCss = (loader) => {
+		cssLoader = loader;
+	};
 	//add a definition for global
 	this.global = this;
 	//export the module to this.preload
-	this.preload = {define, main, require};
+	this.preload = {define, main, require, onCss};
 })();
 
