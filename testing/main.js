@@ -2,6 +2,7 @@ const {
 	initGL,
 	SimpleRenderable,
 	setOrtho,
+	TextureRenderable,
 	viewportToWorld,
 	getBounds,
 } = require("./render");
@@ -190,14 +191,12 @@ function createBasicTest() {
 		solver.addJoint(joint);
 		solver.addBody(ball);
 
-		box.shapes[0].renderable = new SimpleRenderable(
-			serializePoints(box.shapes[0].points),
-			[0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1]
+		box.shapes[0].renderable = new TextureRenderable(
+			"/boxjs/testing/images/crate.png", 1, 1
 		);
 
-		box2.shapes[0].renderable = new SimpleRenderable(
-			serializePoints(box2.shapes[0].points),
-			[1, 1, 0, 1, 0, 1, 0, 1, 0, 1, .5, 1, 0, .2, 1, 1]
+		box2.shapes[0].renderable = new TextureRenderable(
+			"/boxjs/testing/images/crate.png", 1, 1
 		);
 
 		ground.shapes[0].renderable = new SimpleRenderable(
@@ -302,14 +301,12 @@ function createBasicTest() {
 		solver.addBody(box2);
 		solver.addJoint(joint);
 
-		box.shapes[0].renderable = new SimpleRenderable(
-			serializePoints(box.shapes[0].points),
-			[0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1]
+		box.shapes[0].renderable = new TextureRenderable(
+			"/boxjs/testing/images/crate.png", 1, 1
 		);
 
-		box2.shapes[0].renderable = new SimpleRenderable(
-			serializePoints(box2.shapes[0].points),
-			[1, 1, 0, 1, 0, 1, 0, 1, 0, 1, .5, 1, 0, .2, 1, 1]
+		box2.shapes[0].renderable = new TextureRenderable(
+			"/boxjs/testing/images/crate.png", 1, 1
 		);
 	}
 }
@@ -479,9 +476,8 @@ function createCarTest() {
 				shapes: [new Polygon().setAsBox(.5, .5)],
 			});
 			solver.addBody(box);
-			box.shapes[0].renderable = new SimpleRenderable(
-				serializePoints(box.shapes[0].points),
-				[.2, .2, .1, 1, .2, .2, .1, 1, .3, .3, .2, 1, .3, .3, .2, 1]
+			box.shapes[0].renderable = new TextureRenderable(
+				"/boxjs/testing/images/crate.png", 1, 1
 			);
 		}
 
@@ -760,14 +756,12 @@ function createForkTest() {
 		solver.addJoint(joint);
 		solver.addBody(ball);
 
-		box.shapes[0].renderable = new SimpleRenderable(
-			serializePoints(box.shapes[0].points),
-			[0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1]
+		box.shapes[0].renderable = new TextureRenderable(
+			"/boxjs/testing/images/crate.png", 1, 1
 		);
 
-		box2.shapes[0].renderable = new SimpleRenderable(
-			serializePoints(box2.shapes[0].points),
-			[1, 1, 0, 1, 0, 1, 0, 1, 0, 1, .5, 1, 0, .2, 1, 1]
+		box2.shapes[0].renderable = new TextureRenderable(
+			"/boxjs/testing/images/crate.png", 1, 1
 		);
 
 		ground.shapes[0].renderable = new SimpleRenderable(
@@ -881,13 +875,13 @@ function endEvent(data) {
 		velocity: data.v.times(5),
 	});
 	solver.addBody(box);
-	const colors = [];
-	for (let i = 0; i < 4; i++) {
-		colors.push(Math.random(), Math.random(), Math.random(), 1);
-	}
+	// const colors = [];
+	// for (let i = 0; i < 4; i++) {
+	// 	colors.push(Math.random(), Math.random(), Math.random(), 1);
+	// }
 
-	box.shapes[0].renderable = new SimpleRenderable(
-		serializePoints(box.shapes[0].points), colors
+	box.shapes[0].renderable = new TextureRenderable(
+		"/boxjs/testing/images/crate.png", 1, 1
 	);
 }
 
