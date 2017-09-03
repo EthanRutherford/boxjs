@@ -302,6 +302,14 @@ class TextureRenderable {
 		gl.context.bufferData(gl.context.ARRAY_BUFFER, new Float32Array(verts), gl.context.STATIC_DRAW);
 		gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.texBuf);
 		gl.context.bufferData(gl.context.ARRAY_BUFFER, new Float32Array(tex), gl.context.STATIC_DRAW);
+
+		//set up fallback shader logic
+		this.fallbackColorBuf = gl.context.createBuffer();
+		gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.fallbackColorBuf);
+		gl.context.bufferData(gl.context.ARRAY_BUFFER, new Float32Array([
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+		]), gl.context.STATIC_DRAW);
+
 		this.promise = new Promise((resolve, reject) => {
 			const img = new Image();
 			img.src = imageSrc;
@@ -320,6 +328,12 @@ class TextureRenderable {
 			};
 			img.onerror = () => reject("image failed to load");
 		});
+		this.promise.then(() => this.onLoaded());
+	}
+	onLoaded() {
+		this.resolved = true;
+		gl.context.deleteBuffer(this.fallbackColorBuf);
+		this.fallbackColorBuf = null;
 	}
 	deleteBuffers() {
 		if (this.vertBuf == null) {
@@ -339,25 +353,43 @@ class TextureRenderable {
 			throw new Error("Attempt to render deleted buffers");
 		}
 
-		//use the texture program
-		setCurShader(gl.textureShader);
-		//set up model view matrix using input values
-		Mat4.identity(gl.mvMatrix);
-		Mat4.translate(gl.mvMatrix, [pos.x, pos.y, 0]);
-		Mat4.rotate(gl.mvMatrix, r, [0, 0, 1]);
-		setModelView();
-		//update the active buffers and texture
-		gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.vertBuf);
-		gl.context.vertexAttribPointer(gl.textureShader.vertexPositionAttribute,
-			3, gl.context.FLOAT, false, 0, 0);
-		gl.conext.bindBuffer(gl.context.ARRAY_BUFFER, this.texBuf);
-		gl.conext.vertexAttribPointer(gl.textureShader.textureCoordAttribute,
-			2, gl.context.FLOAT, false, 0, 0);
-		gl.context.activeTexture(gl.context.TEXTURE0);
-		gl.context.bindTexture(gl.context.TEXTURE_2D, this.texture);
-		gl.context.uniform1i(gl.textureShader.samplerUniform, 0);
-		//finally, actually draw the sprite
-		gl.context.drawArrays(gl.context.TRIANGLE_STRIP, 0, 4);
+		if (this.resolved) {
+			//use the texture program
+			setCurShader(gl.textureShader);
+			//set up model view matrix using input values
+			Mat4.identity(gl.mvMatrix);
+			Mat4.fromTranslation(gl.mvMatrix, [pos.x, pos.y, 0]);
+			Mat4.rotateZ(gl.mvMatrix, gl.mvMatrix, r);
+			setModelView();
+			//update the active buffers and texture
+			gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.vertBuf);
+			gl.context.vertexAttribPointer(gl.textureShader.vertexPositionAttribute,
+				3, gl.context.FLOAT, false, 0, 0);
+			gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.texBuf);
+			gl.context.vertexAttribPointer(gl.textureShader.textureCoordAttribute,
+				2, gl.context.FLOAT, false, 0, 0);
+			gl.context.activeTexture(gl.context.TEXTURE0);
+			gl.context.bindTexture(gl.context.TEXTURE_2D, this.texture);
+			gl.context.uniform1i(gl.textureShader.samplerUniform, 0);
+			//finally, actually draw the sprite
+			gl.context.drawArrays(gl.context.TRIANGLE_STRIP, 0, 4);
+		} else {
+			//use the texture program
+			setCurShader(gl.simpleShader);
+			//set up model view matrix using input values
+			Mat4.identity(gl.mvMatrix);
+			Mat4.fromTranslation(gl.mvMatrix, [pos.x, pos.y, 0]);
+			Mat4.rotateZ(gl.mvMatrix, gl.mvMatrix, r);
+			setModelView();
+			//update active buffers
+			gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.vertBuf);
+			gl.context.vertexAttribPointer(gl.simpleShader.vertextPositionAttribute,
+				3, gl.context.FLOAT, false, 0, 0);
+			gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.fallbackColorBuf);
+			gl.context.vertexAttribPointer(gl.simpleShader.vertextColorAttribute,
+				4, gl.context.FLOAT, false, 0, 0);
+			gl.context.drawArrays(gl.context.TRIANGLE_STRIP, 0, 4);
+		}
 	}
 }
 
