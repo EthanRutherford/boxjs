@@ -181,18 +181,21 @@ function getBounds() {
 	return Object.assign({}, gl.bounds);
 }
 
-const getZIndex = (() => {
-	const zMaxValue = 16000000;
-	let zOrder = zMaxValue - 1;
+const getZOrder = (() => {
+	const zMaxValue = 8000;
+	let zOrder = zMaxValue;
 	return function() {
-		const zIndex = zOrder / zMaxValue;
-		if (--zOrder === 0) {
-			zOrder = zMaxValue - 1;
+		if (--zOrder < 0) {
+			zOrder = zMaxValue;
 		}
 
-		return zIndex;
+		return zOrder;
 	};
 })();
+
+function calcZValue(zIndex, zOrder) {
+	return (((1000 - zIndex) * 2000) + zOrder) / 16000000;
+}
 
 function arrayToZArray(array, z) {
 	const zArray = [];
@@ -204,7 +207,7 @@ function arrayToZArray(array, z) {
 }
 
 class SimpleRenderable {
-	constructor(verts, colors, drawMode = gl.context.TRIANGLE_FAN, z = getZIndex()) {
+	constructor(verts, colors, zIndex = 0) {
 		//create and fill buffers
 		if (verts.length % 2) {
 			throw new Error("Vertex buffer must have even length");
@@ -218,12 +221,14 @@ class SimpleRenderable {
 			throw new Error("Vertex and color count must match");
 		}
 
-		this.z = z;
+		this.zIndex = Math.round(zIndex);
+		this.zOrder = getZOrder();
+		this.z = calcZValue(this.zIndex, this.zOrder);
 		this.vertCount = verts.length / 2;
 		verts = arrayToZArray(verts, this.z);
 		this.vertBuf = gl.context.createBuffer();
 		this.colorBuf = gl.context.createBuffer();
-		this.drawMode = drawMode;
+		this.drawMode = gl.context.TRIANGLE_FAN;
 		gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.vertBuf);
 		gl.context.bufferData(gl.context.ARRAY_BUFFER, new Float32Array(verts), gl.context.STATIC_DRAW);
 		gl.context.bindBuffer(gl.context.ARRAY_BUFFER, this.colorBuf);
@@ -288,12 +293,15 @@ class SimpleRenderable {
 }
 
 class TextureRenderable {
-	constructor(imageSrc, width, height) {
+	constructor(imageSrc, width, height, zIndex = 0) {
 		width /= 2;
 		height /= 2;
 		let verts = [width, height, -width, height, width, -height, -width, -height];
 		const tex = [1, 1, 0, 1, 1, 0, 0, 0];
-		this.z = getZIndex();
+
+		this.zIndex = Math.round(zIndex);
+		this.zOrder = getZOrder();
+		this.z = calcZValue(this.zIndex, this.zOrder);
 		verts = arrayToZArray(verts, this.z);
 		this.vertBuf = gl.context.createBuffer();
 		this.texBuf = gl.context.createBuffer();

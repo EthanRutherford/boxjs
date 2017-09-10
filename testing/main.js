@@ -29,7 +29,7 @@ function generateCircle(radius, count) {
 	const sector = 2 * Math.PI / count;
 	for (let i = 0; i < count; i++) {
 		const angle = sector * i;
-		points.push(new Vector2D(Math.cos(angle) * radius, Math.sin(angle) * radius));
+		points.push(Math.cos(angle) * radius, Math.sin(angle) * radius);
 	}
 	return points;
 }
@@ -57,12 +57,22 @@ solver.applyG = (bodies) => {
 
 const renderables = new Set();
 
-const debugBoxRenderable = new SimpleRenderable(
+const rCrate = new TextureRenderable(
+	"/boxjs/testing/images/crate.png", 1, 1,
+);
+
+const rBall = new SimpleRenderable(
+	generateCircle(.5, 20),
+	generateCircleColors(20),
+	1,
+);
+
+const rDebugBox = new SimpleRenderable(
 	[0, 0, 0, 0, 0, 0, 0, 0],
 	[1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1],
-	gl.LINE_LOOP,
-	0
+	1000,
 );
+rDebugBox.drawMode = gl.LINE_LOOP;
 
 const logicSteps = new Set();
 
@@ -113,7 +123,7 @@ function render(lerpRatio) {
 	const nodes = solver.debugGetNodes();
 
 	for (const node of nodes) {
-		debugBoxRenderable.updateBuffers({
+		rDebugBox.updateBuffers({
 			verts: [
 				node.min.x, node.min.y,
 				node.min.x, node.max.y,
@@ -121,7 +131,7 @@ function render(lerpRatio) {
 				node.max.x, node.min.y,
 			],
 		});
-		debugBoxRenderable.render({x: 0, y: 0}, 0);
+		rDebugBox.render({x: 0, y: 0}, 0);
 	}
 }
 
@@ -191,23 +201,16 @@ function createBasicTest() {
 		solver.addJoint(joint);
 		solver.addBody(ball);
 
-		box.shapes[0].renderable = new TextureRenderable(
-			"/boxjs/testing/images/crate.png", 1, 1
-		);
+		box.shapes[0].renderable = rCrate;
 
-		box2.shapes[0].renderable = new TextureRenderable(
-			"/boxjs/testing/images/crate.png", 1, 1
-		);
+		box2.shapes[0].renderable = rCrate;
 
 		ground.shapes[0].renderable = new SimpleRenderable(
 			serializePoints(ground.shapes[0].points),
-			[1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1]
+			[1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1],
 		);
 
-		ball.shapes[0].renderable = new SimpleRenderable(
-			serializePoints(generateCircle(ball.shapes[0].radius, 20)),
-			generateCircleColors(20)
-		);
+		ball.shapes[0].renderable = rBall;
 	}
 	{	//rope with dense mass on the bottom
 		const position = new Vector2D(10, 5);
@@ -239,7 +242,7 @@ function createBasicTest() {
 			solver.addJoint(joint);
 			box.shapes[0].renderable = new SimpleRenderable(
 				serializePoints(box.shapes[0].points),
-				[0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1]
+				[0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1],
 			);
 			lastBox = box;
 		}
@@ -255,7 +258,7 @@ function createBasicTest() {
 		solver.addBody(superDense);
 		superDense.shapes[0].renderable = new SimpleRenderable(
 			serializePoints(superDense.shapes[0].points),
-			[0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1]
+			[0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1],
 		);
 
 		const joint = new RevJoint({
@@ -301,13 +304,9 @@ function createBasicTest() {
 		solver.addBody(box2);
 		solver.addJoint(joint);
 
-		box.shapes[0].renderable = new TextureRenderable(
-			"/boxjs/testing/images/crate.png", 1, 1
-		);
+		box.shapes[0].renderable = rCrate;
 
-		box2.shapes[0].renderable = new TextureRenderable(
-			"/boxjs/testing/images/crate.png", 1, 1
-		);
+		box2.shapes[0].renderable = rCrate;
 	}
 }
 
@@ -369,18 +368,12 @@ function createCarTest() {
 
 		frame.shapes[0].renderable = new SimpleRenderable(
 			serializePoints(frame.shapes[0].points),
-			[0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1]
+			[0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1],
 		);
 
-		wheel1.shapes[0].renderable = new SimpleRenderable(
-			serializePoints(generateCircle(wheel1.shapes[0].radius, 20)),
-			generateCircleColors(20)
-		);
+		wheel1.shapes[0].renderable = rBall;
 
-		wheel2.shapes[0].renderable = new SimpleRenderable(
-			serializePoints(generateCircle(wheel2.shapes[0].radius, 20)),
-			generateCircleColors(20)
-		);
+		wheel2.shapes[0].renderable = rBall;
 
 		body = frame;
 		motor = joint1;
@@ -465,7 +458,7 @@ function createCarTest() {
 			solver.addJoint(joint);
 			box.shapes[0].renderable = new SimpleRenderable(
 				serializePoints(box.shapes[0].points),
-				[0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1]
+				[0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1],
 			);
 			lastBox = box;
 		}
@@ -476,9 +469,7 @@ function createCarTest() {
 				shapes: [new Polygon().setAsBox(.5, .5)],
 			});
 			solver.addBody(box);
-			box.shapes[0].renderable = new TextureRenderable(
-				"/boxjs/testing/images/crate.png", 1, 1
-			);
+			box.shapes[0].renderable = rCrate;
 		}
 
 		for (let i = 0; i < 100; i++) {
@@ -487,10 +478,7 @@ function createCarTest() {
 				shapes: [new Circle(.5)],
 			});
 			solver.addBody(ball);
-			ball.shapes[0].renderable = new SimpleRenderable(
-				serializePoints(generateCircle(ball.shapes[0].radius, 20)),
-				generateCircleColors(20)
-			);
+			ball.shapes[0].renderable = rBall;
 		}
 
 		const firstJoint = new RevJoint({
@@ -520,42 +508,42 @@ function createCarTest() {
 
 		ground1.shapes[0].renderable = new SimpleRenderable(
 			serializePoints(ground1.shapes[0].points),
-			[1, 1, 0, 1, 1, 1, 0, 1, 1, .5, 0, 1, 1, 0, 0, 1]
+			[1, 1, 0, 1, 1, 1, 0, 1, 1, .5, 0, 1, 1, 0, 0, 1],
 		);
 
 		ground2.shapes[0].renderable = new SimpleRenderable(
 			serializePoints(ground2.shapes[0].points),
-			[1, 1, 0, 1, 1, 1, 0, 1, 1, .5, 0, 1, 1, 0, 0, 1]
+			[1, 1, 0, 1, 1, 1, 0, 1, 1, .5, 0, 1, 1, 0, 0, 1],
 		);
 
 		ground3.shapes[0].renderable = new SimpleRenderable(
 			serializePoints(ground3.shapes[0].points),
-			[1, 1, 0, 1, 1, 1, 0, 1, 1, .5, 0, 1, 1, 0, 0, 1]
+			[1, 1, 0, 1, 1, 1, 0, 1, 1, .5, 0, 1, 1, 0, 0, 1],
 		);
 
 		ground4.shapes[0].renderable = new SimpleRenderable(
 			serializePoints(ground4.shapes[0].points),
-			[1, 1, 0, 1, 1, 1, 0, 1, 1, .5, 0, 1, 1, 0, 0, 1]
+			[1, 1, 0, 1, 1, 1, 0, 1, 1, .5, 0, 1, 1, 0, 0, 1],
 		);
 
 		ground5.shapes[0].renderable = new SimpleRenderable(
 			serializePoints(ground5.shapes[0].points),
-			[1, 1, 0, 1, 1, 1, 0, 1, 1, .5, 0, 1, 1, 0, 0, 1]
+			[1, 1, 0, 1, 1, 1, 0, 1, 1, .5, 0, 1, 1, 0, 0, 1],
 		);
 
 		ground6.shapes[0].renderable = new SimpleRenderable(
 			serializePoints(ground6.shapes[0].points),
-			[1, 1, 0, 1, 1, 1, 0, 1, 1, .5, 0, 1, 1, 0, 0, 1]
+			[1, 1, 0, 1, 1, 1, 0, 1, 1, .5, 0, 1, 1, 0, 0, 1],
 		);
 
 		ground7.shapes[0].renderable = new SimpleRenderable(
 			serializePoints(ground7.shapes[0].points),
-			[1, 1, 0, 1, 1, 1, 0, 1, 1, .5, 0, 1, 1, 0, 0, 1]
+			[1, 1, 0, 1, 1, 1, 0, 1, 1, .5, 0, 1, 1, 0, 0, 1],
 		);
 
 		firstBox.shapes[0].renderable = new SimpleRenderable(
 			serializePoints(firstBox.shapes[0].points),
-			[0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1]
+			[0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1],
 		);
 	}
 	{	//register some callbacks
@@ -664,29 +652,26 @@ function createRaycastTest() {
 
 		box.shapes[0].renderable = new SimpleRenderable(
 			serializePoints(box.shapes[0].points),
-			[0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
+			[0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
 		);
 
-		ball.shapes[0].renderable = new SimpleRenderable(
-			serializePoints(generateCircle(ball.shapes[0].radius, 20)),
-			generateCircleColors(20)
-		);
+		ball.shapes[0].renderable = rBall;
 
 		triangle.shapes[0].renderable = new SimpleRenderable(
 			serializePoints(triangle.shapes[0].points),
-			[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+			[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 		);
 
 		box2.shapes[0].renderable = new SimpleRenderable(
 			serializePoints(box2.shapes[0].points),
-			[0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
+			[0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
 		);
 	}
 	{	//register the raycast method
 		const ray = {
 			renderable: new SimpleRenderable(
 				[0, 0, 0, 0, 0, 0, 0, 0],
-				[1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1]
+				[1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1],
 			),
 			position: new Vector2D(0, 0),
 			prevPos: new Vector2D(0, 0),
@@ -756,23 +741,16 @@ function createForkTest() {
 		solver.addJoint(joint);
 		solver.addBody(ball);
 
-		box.shapes[0].renderable = new TextureRenderable(
-			"/boxjs/testing/images/crate.png", 1, 1
-		);
+		box.shapes[0].renderable = rCrate;
 
-		box2.shapes[0].renderable = new TextureRenderable(
-			"/boxjs/testing/images/crate.png", 1, 1
-		);
+		box2.shapes[0].renderable = rCrate;
 
 		ground.shapes[0].renderable = new SimpleRenderable(
 			serializePoints(ground.shapes[0].points),
-			[1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1]
+			[1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1],
 		);
 
-		ball.shapes[0].renderable = new SimpleRenderable(
-			serializePoints(generateCircle(ball.shapes[0].radius, 20)),
-			generateCircleColors(20)
-		);
+		ball.shapes[0].renderable = rBall;
 	}
 	{	//register callbacks
 		let restorePoint = null;
@@ -808,7 +786,7 @@ function cleanupTests() {
 	const bodies = solver.flush();
 	for (const body of bodies) {
 		for (const shape of body.shapes) {
-			if (shape.renderable) {
+			if (shape.renderable && shape.renderable !== rCrate && shape.renderable !== rBall) {
 				shape.renderable.deleteBuffers();
 			}
 		}
@@ -881,9 +859,7 @@ function endEvent(data) {
 	// 	colors.push(Math.random(), Math.random(), Math.random(), 1);
 	// }
 
-	box.shapes[0].renderable = new TextureRenderable(
-		"/boxjs/testing/images/crate.png", 1, 1
-	);
+	box.shapes[0].renderable = rCrate;
 }
 
 window.addEventListener("touchstart", (event) => {
