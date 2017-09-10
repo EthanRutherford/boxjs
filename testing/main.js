@@ -835,11 +835,12 @@ function startEvent(eventItem) {
 
 function moveEvent(data, eventItem) {
 	data.endPoint = viewportToWorld({x: eventItem.clientX, y: eventItem.clientY});
-	data.v = Vector2D.clone(data.endPoint).minus(data.origin);
+	data.v = Vector2D.clone(data.endPoint).sub(data.origin);
 	let length = data.v.length;
-	data.v.mul(1 / length);
-	length = Math.min(length, 10);
-	data.v.mul(length);
+	if (length > 10) {
+		data.v.mul(10 / length);
+		length = 10;
+	}
 
 	const width = .01 + length / 100;
 	const verts = [0, -width, 0, width, length, 0];
