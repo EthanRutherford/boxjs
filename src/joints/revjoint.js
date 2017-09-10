@@ -169,7 +169,7 @@ class RevJoint extends Joint {
 			mA + mB + iA * rA.y * rA.y + iB * rB.y * rB.y,
 			-iA * rA.x * rA.y - iB * rB.x * rB.y,
 			-iA * rA.x * rA.y - iB * rB.x * rB.y,
-			mA + mB + iA * rA.x * rA.x + iB * rB.x * rB.x
+			mA + mB + iA * rA.x * rA.x + iB * rB.x * rB.x,
 		);
 
 		const impulse = k.solve(c).neg();

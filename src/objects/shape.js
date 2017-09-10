@@ -29,7 +29,7 @@ class AABB {
 			Math.min(this.min.x, other.min.x),
 			Math.min(this.min.y, other.min.y),
 			Math.max(this.max.x, other.max.x),
-			Math.max(this.max.y, other.max.y)
+			Math.max(this.max.y, other.max.y),
 		);
 	}
 	clone() {

@@ -7,6 +7,7 @@
     "build": "preload build",
     "rebuild": "preload rebuild",
     "start": "start http-server ../",
+    "lint": "eslint . --ignore-pattern=*.min.js --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

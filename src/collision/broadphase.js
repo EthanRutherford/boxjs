@@ -6,7 +6,7 @@ function makeFatAABB(aabb) {
 		aabb.min.x - .2,
 		aabb.min.y - .2,
 		aabb.max.x + .2,
-		aabb.max.y + .2
+		aabb.max.y + .2,
 	);
 }
 
@@ -83,7 +83,7 @@ class AABBTree {
 			Math.min(p1.x, t.x),
 			Math.min(p1.y, t.y),
 			Math.max(p1.x, t.x),
-			Math.max(p1.y, t.y)
+			Math.max(p1.y, t.y),
 		);
 
 		const stack = [this.root];
@@ -113,7 +113,7 @@ class AABBTree {
 						Math.min(p1.x, t.x),
 						Math.min(p1.y, t.y),
 						Math.max(p1.x, t.x),
-						Math.max(p1.y, t.y)
+						Math.max(p1.y, t.y),
 					);
 				}
 			} else {

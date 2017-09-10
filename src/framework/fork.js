@@ -54,7 +54,7 @@ function cloneManifoldPoint(point) {
 		point.indexA,
 		point.indexB,
 		point.typeA,
-		point.typeB
+		point.typeB,
 	);
 	clone.bias = point.bias;
 	clone.normalImpulse = point.normalImpulse;

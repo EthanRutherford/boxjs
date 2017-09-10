@@ -78,7 +78,7 @@ function findIncidentEdge(ref, inc, index) {
 		index,
 		edge1,
 		ManifoldPoint.face,
-		ManifoldPoint.vert
+		ManifoldPoint.vert,
 	);
 	const r2 = new ManifoldPoint(
 		inc.body.transform.times(inc.points[edge2]).add(inc.body.position),
@@ -86,7 +86,7 @@ function findIncidentEdge(ref, inc, index) {
 		index,
 		edge2,
 		ManifoldPoint.face,
-		ManifoldPoint.vert
+		ManifoldPoint.vert,
 	);
 
 	return [r1, r2];
@@ -110,7 +110,7 @@ function clipPoints(input, n, c, index) {
 			index,
 			input[0].indexB,
 			ManifoldPoint.vert,
-			ManifoldPoint.face
+			ManifoldPoint.face,
 		));
 	}
 	return output;
@@ -204,7 +204,7 @@ function circleToCircle(m, a, b) {
 	}
 
 	m.contacts.push(new ManifoldPoint(
-		b.body.position.plus(a.body.position).mul(.5)
+		b.body.position.plus(a.body.position).mul(.5),
 	));
 	m.type = Manifold.circles;
 	m.normal.normalize();
@@ -236,7 +236,7 @@ function circleToPoly(m, a, b) {
 		m.lpoint = v1.plus(v2).mul(.5);
 		m.normal = b.body.transform.times(b.norms[i1]).neg();
 		m.contacts.push(new ManifoldPoint(
-			m.normal.times(a.radius).add(a.body.position)
+			m.normal.times(a.radius).add(a.body.position),
 		));
 	} else {
 		const dot1 = center.minus(v1).dot(v2.minus(v1));
@@ -251,7 +251,7 @@ function circleToPoly(m, a, b) {
 			m.normal = b.body.transform.times(m.lnormal).neg().normalize();
 			m.lpoint = v1;
 			m.contacts.push(new ManifoldPoint(
-				b.body.transform.times(v1).add(b.body.position)
+				b.body.transform.times(v1).add(b.body.position),
 			));
 		} else if (dot2 <= 0) {
 			if (center.minus(v2).lsqr > Math.sqr(a.radius)) {
@@ -263,7 +263,7 @@ function circleToPoly(m, a, b) {
 			m.normal = b.body.transform.times(m.lnormal).neg().normalize();
 			m.lpoint = v2;
 			m.contacts.push(new ManifoldPoint(
-				b.body.transform.times(v2).add(b.body.position)
+				b.body.transform.times(v2).add(b.body.position),
 			));
 		} else {
 			m.lpoint = v1.plus(v2).mul(.5);
@@ -275,7 +275,7 @@ function circleToPoly(m, a, b) {
 			m.normal = b.body.transform.times(m.lnormal).neg().normalize();
 			m.type = Manifold.faceB;
 			m.contacts.push(new ManifoldPoint(
-				m.normal.times(a.radius).add(a.body.position)
+				m.normal.times(a.radius).add(a.body.position),
 			));
 		}
 	}

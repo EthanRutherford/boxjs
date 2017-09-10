@@ -132,7 +132,7 @@ class Vector3D {
 		return new Vector3D(
 			this.y * other.z - this.z * other.y,
 			this.z * other.x - this.x * other.z,
-			this.x * other.y - this.y * other.x
+			this.x * other.y - this.y * other.x,
 		);
 	}
 	clone() {
@@ -246,7 +246,7 @@ class Matrix3D {
 		return new Vector3D(
 			det * vec3.dot(ey.cross(ez)),
 			det * ex.dot(vec3.cross(ez)),
-			det * ex.dot(ey.cross(vec3))
+			det * ex.dot(ey.cross(vec3)),
 		);
 	}
 	clone() {
