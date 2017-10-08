@@ -64,6 +64,14 @@ module.exports = class Body {
 		//set collision callback
 		this.onCollide = onCollide;
 	}
+	get originalPosition() {
+		const offset = this.transform.times(this.mass.center);
+		return Object.freeze(this.position.minus(offset));
+	}
+	get originalPrevPos() {
+		const offset = new Rotation(this.prevAngle).times(this.mass.center);
+		return Object.freeze(this.prevPos.minus(offset));
+	}
 	applyForce(force) {
 		this.force.add(force);
 	}

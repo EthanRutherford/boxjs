@@ -21,6 +21,8 @@ module.exports = class Polygon extends Shape {
 		this.norms.push(new Vector2D(1, 0));
 		this.norms.push(new Vector2D(0, 1));
 		this.norms.push(new Vector2D(-1, 0));
+
+		this.originalPoints = this.points.map((point) => point.clone());
 		return this;
 	}
 	set(points) {
@@ -69,6 +71,8 @@ module.exports = class Polygon extends Shape {
 			const edge = this.points[j].minus(this.points[i]);
 			this.norms.push(edge.nskew.normalize());
 		}
+
+		this.originalPoints = this.points.map((point) => point.clone());
 		return this;
 	}
 	setAABB() {

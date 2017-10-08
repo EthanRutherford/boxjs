@@ -21,6 +21,10 @@
   },
   "homepage": "https://github.com/EthanRutherford/boxjs#readme",
   "devDependencies": {
-    "pre-req": "^1.4.3"
+    "2d-gl": "^1.2.1",
+    "pre-req": "^1.4.6"
+  },
+  "dependencies": {
+    "2d-gl": "^1.1.5"
   }
 }
