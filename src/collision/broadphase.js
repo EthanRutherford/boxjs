@@ -436,7 +436,10 @@ class BroadPhase {
 		});
 	}
 	debugGetNodes() {
-		return [...this.shapeToNode].map((kv) => kv[1].aabb.clone());
+		return [...this.shapeToNode].map((kv) => ({
+			shape: kv[0],
+			aabb: kv[1].aabb.clone(),
+		}));
 	}
 }
 

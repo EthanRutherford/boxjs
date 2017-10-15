@@ -56,12 +56,8 @@ solver.applyG = (bodies) => {
 };
 
 // initialize renderer
-const renderer = new Renderer();
-const canvas = renderer.canvas;
-canvas.style.width = "100%";
-canvas.style.height = "100%";
-
-document.body.append(canvas);
+const canvas = document.querySelector("canvas");
+const renderer = new Renderer(canvas);
 
 //set up scene and camera
 const renderObjects = new Set();
@@ -84,15 +80,25 @@ const getVisibleFunc = ({x0, y0, x1, y1}) => {
 		const nodes = solver.debugGetNodes();
 
 		for (const node of nodes) {
-			visible.push(renderer.getInstance(
-				new Shape([
-					{x: node.min.x, y: node.min.y},
-					{x: node.min.x, y: node.max.y},
-					{x: node.max.x, y: node.max.y},
-					{x: node.max.x, y: node.min.y},
-				]),
-				debugMaterial,
-			));
+			const points = [
+				{x: node.aabb.min.x, y: node.aabb.min.y},
+				{x: node.aabb.min.x, y: node.aabb.max.y},
+				{x: node.aabb.max.x, y: node.aabb.max.y},
+				{x: node.aabb.max.x, y: node.aabb.min.y},
+			];
+
+			if (node.shape.debug == null) {
+				node.shape.debug = {shape: new Shape(points)};
+				node.shape.debug.renderable = renderer.getInstance(
+					node.shape.debug.shape,
+					debugMaterial,
+				);
+				node.shape.debug.renderable.zIndex = 10;
+			} else {
+				node.shape.debug.shape.update(points);
+			}
+
+			visible.push(node.shape.debug.renderable);
 		}
 	}
 
@@ -282,6 +288,13 @@ loader.all().then(() => {
 	startLoop();
 });
 
+//test switching
+function setTest(test) {
+	cleanUpTests();
+	test.create(testParams);
+	curTest = test;
+}
+
 // fun box throwing code
 function startEvent(eventItem) {
 	const origin = renderer.viewportToWorld(
@@ -350,7 +363,7 @@ function endEvent(data) {
 	scene.add(box.shapes[0].renderable);
 }
 
-window.addEventListener("touchstart", (event) => {
+canvas.addEventListener("touchstart", (event) => {
 	//prevent mousedown handler from firing
 	event.preventDefault();
 	//only track one touch
@@ -404,7 +417,7 @@ window.addEventListener("touchstart", (event) => {
 	window.addEventListener("touchcancel", touchCancel);
 }, {passive: false});
 
-window.addEventListener("mousedown", (event) => {
+canvas.addEventListener("mousedown", (event) => {
 	if (event.button !== 0) {
 		return;
 	}
@@ -436,21 +449,13 @@ window.addEventListener("mousedown", (event) => {
 // use number keys (for now) to switch tests
 window.addEventListener("keydown", (event) => {
 	if (event.key === "1") {
-		cleanUpTests();
-		basicTest.create(testParams);
-		curTest = basicTest;
+		setTest(basicTest);
 	} else if (event.key === "2") {
-		cleanUpTests();
-		carTest.create(testParams);
-		curTest = carTest;
+		setTest(carTest);
 	} else if (event.key === "3") {
-		cleanUpTests();
-		raycastTest.create(testParams);
-		curTest = raycastTest;
+		setTest(raycastTest);
 	} else if (event.key === "4") {
-		cleanUpTests();
-		forkTest.create(testParams);
-		curTest = forkTest;
+		setTest(forkTest);
 	} else if (event.key === "0") {
 		window.debugDraw = !window.debugDraw;
 	}
