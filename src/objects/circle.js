@@ -47,6 +47,11 @@ module.exports = class Circle extends Shape {
 		return mass;
 	}
 	clone() {
-		return new Circle(this.radius);
+		const clone = Object.create(Circle.prototype);
+		clone.id = this.id;
+		clone.body = null;
+		clone.aabb = new AABB();
+		clone.radius = this.radius;
+		return clone;
 	}
 };

@@ -461,5 +461,6 @@ window.addEventListener("keydown", (event) => {
 	}
 });
 
-// external debug flags
+// external debug stuff
 window.debugDraw = false;
+window.getSolver = () => solver;

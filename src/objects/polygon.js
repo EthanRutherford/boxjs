@@ -158,19 +158,27 @@ module.exports = class Polygon extends Shape {
 		}
 		return bestVertex;
 	}
-	clone() {
-		const copy = new Polygon();
-		for (const point of this.points) {
-			copy.points.push(point.clone());
-		}
-		for (const norm of this.norms) {
-			copy.norms.push(norm.clone());
-		}
-		return copy;
-	}
 	recenter(offset) {
 		for (const point of this.points) {
 			point.sub(offset);
 		}
+	}
+	clone() {
+		const clone = Object.create(Polygon.prototype);
+		clone.id = this.id;
+		clone.body = null;
+		clone.aabb = new AABB();
+		clone.points = [];
+		for (const point of this.points) {
+			clone.points.push(point.clone());
+		}
+		clone.norms = [];
+		for (const norm of this.norms) {
+			clone.norms.push(norm.clone());
+		}
+		clone.originalPoints = this.originalPoints.map(
+			(point) => point.clone(),
+		);
+		return clone;
 	}
 };

@@ -216,6 +216,9 @@ class Rotation extends Matrix2D {
 		this.setRotation(value);
 		this._r = value;
 	}
+	clone() {
+		return new Rotation(this.radians);
+	}
 }
 
 class Matrix3D {

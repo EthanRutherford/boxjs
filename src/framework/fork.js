@@ -16,35 +16,36 @@ function cloneMass(mass) {
 }
 
 function cloneBody(body, map) {
-	const clone = new Body({
-		position: body.position,
-		angle: body.transform.radians,
-		velocity: body.velocity,
-		angularVelocity: body.angularVelocity,
-		shapes: [],
-		friction: body.friction,
-		restitution: body.restitution,
-		density: 0,
-		sensor: body.sensor,
-		onCollide: body.onCollide,
-	});
+	const clone = Object.create(Body.prototype);
+	clone.id = body.id;
+	clone.position = body.position.clone();
+	clone.prevPos = body.prevPos.clone();
+	clone.transform = body.transform.clone();
+	clone.prevAngle = body.prevAngle;
+	clone.velocity = body.velocity.clone();
+	clone.angularVelocity = body.angularVelocity;
+	clone.force = body.force.clone();
+	clone.torque = body.torque;
+	clone.shapes = [];
 	body.shapes.forEach((shape) => {
 		const clonedShape = shape.clone();
 		clonedShape.body = clone;
-		map.set(shape, clonedShape);
+		clonedShape.setAABB();
+		map[shape.id] = clonedShape;
 		clone.shapes.push(clonedShape);
 	});
-	clone.prevPos = body.prevPos.clone();
+	clone.friction = body.friction;
+	clone.restitution = body.restitution;
 	clone.mass = cloneMass(body.mass);
-	clone.force = body.force.clone();
-	clone.torque = body.torque;
+	clone.sensor = body.sensor;
 	clone.filterGroup = body.filterGroup;
 	clone.exclusionMask = body.exclusionMask;
+	clone.onCollide = body.onCollide;
 	return clone;
 }
 
 function cloneJoint(joint, map) {
-	return joint.clone(map.get(joint.bodyA), map.get(joint.bodyB));
+	return joint.clone(map[joint.bodyA.id], map[joint.bodyB.id]);
 }
 
 function cloneManifoldPoint(point) {
@@ -82,7 +83,7 @@ function cloneManifold(manifold, shapeA, shapeB) {
 function cloneManifoldMap(manifolds, map) {
 	const clone = new ManifoldMap();
 	for (const manifold of manifolds) {
-		const [a, b] = Shape.order(map.get(manifold.shapeA), map.get(manifold.shapeB));
+		const [a, b] = Shape.order(map[manifold.shapeA.id], map[manifold.shapeB.id]);
 		const key = `${a.id}:${b.id}`;
 		clone.map.set(key, cloneManifold(manifold, a, b));
 	}
@@ -98,9 +99,11 @@ function cloneNode(parent, node, map, s2n) {
 		clone.children.push(cloneNode(clone, child, map, s2n));
 	});
 	clone.height = node.height;
-	clone.shape = map.get(node.shape);
-	if (clone.shape != null) {
+	if (node.shape != null) {
+		clone.shape = map[node.shape.id];
 		s2n.set(clone.shape, clone);
+	} else {
+		clone.shape = null;
 	}
 
 	return clone;
@@ -120,7 +123,7 @@ function cloneAABBTree(tree, map, s2n) {
 function clonePairSet(pairs, map) {
 	const clone = new PairSet();
 	for (const pair of pairs) {
-		const [a, b] = Shape.order(map.get(pair.a), map.get(pair.b));
+		const [a, b] = Shape.order(map[pair.a.id], map[pair.b.id]);
 		const key = `${a.id}:${b.id}`;
 		clone.map.set(key, {a, b});
 	}
@@ -140,17 +143,17 @@ module.exports = function fork(solver) {
 	clone.applyG = solver.applyG;
 	clone.bodies = new Set();
 	clone.joints = new Set();
-	const shapeMap = new Map();
-	const bodyMap = new Map();
-	const jointMap = new Map();
+	const shapeMap = {};
+	const bodyMap = {};
+	const jointMap = {};
 	solver.bodies.forEach((body) => {
 		const clonedBody = cloneBody(body, shapeMap);
-		bodyMap.set(body, clonedBody);
+		bodyMap[body.id] = clonedBody;
 		clone.bodies.add(clonedBody);
 	});
 	solver.joints.forEach((joint) => {
 		const clonedJoint = cloneJoint(joint, bodyMap);
-		jointMap.set(joint, clonedJoint);
+		jointMap[joint.id] = clonedJoint;
 		clone.joints.add(clonedJoint);
 	});
 	clone.manifolds = cloneManifoldMap(solver.manifolds, shapeMap);

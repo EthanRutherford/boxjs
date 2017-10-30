@@ -31,7 +31,7 @@ const forkAndCopyRenderables = (source) => {
 	const target = fork(source);
 	for (const body of source.bodies) {
 		for (const shape of body.shapes) {
-			target.shapeMap.get(shape).renderable = shape.renderable;
+			target.shapeMap[shape.id].renderable = shape.renderable;
 		}
 	}
 	return target.solver;

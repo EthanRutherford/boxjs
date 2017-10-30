@@ -1,5 +1,6 @@
 const {Vector2D, Rotation, bigG} = require("../framework/math");
 const MassData = require("./mass");
+let next = 0;
 
 module.exports = class Body {
 	constructor({
@@ -17,6 +18,7 @@ module.exports = class Body {
 		exclusionList,
 		onCollide,
 	}) {
+		this.id = next++;
 		this.position = Vector2D.clone(position);
 		this.prevPos = Vector2D.clone(position);
 		this.transform = new Rotation(angle || 0);
