@@ -142,26 +142,21 @@ module.exports = function fork(solver) {
 	const clone = Object.create(Solver.prototype);
 	clone.applyG = solver.applyG;
 	clone.bodies = new Set();
+	clone.bodyMap = {};
 	clone.joints = new Set();
-	const shapeMap = {};
-	const bodyMap = {};
-	const jointMap = {};
+	clone.jointMap = {};
+	clone.shapeMap = {};
 	solver.bodies.forEach((body) => {
-		const clonedBody = cloneBody(body, shapeMap);
-		bodyMap[body.id] = clonedBody;
+		const clonedBody = cloneBody(body, clone.shapeMap);
+		solver.bodyMap[body.id] = clonedBody;
 		clone.bodies.add(clonedBody);
 	});
 	solver.joints.forEach((joint) => {
-		const clonedJoint = cloneJoint(joint, bodyMap);
-		jointMap[joint.id] = clonedJoint;
+		const clonedJoint = cloneJoint(joint, solver.bodyMap);
+		solver.jointMap[joint.id] = clonedJoint;
 		clone.joints.add(clonedJoint);
 	});
-	clone.manifolds = cloneManifoldMap(solver.manifolds, shapeMap);
-	clone.broadPhase = cloneBroadPhase(solver.broadPhase, shapeMap);
-	return {
-		solver: clone,
-		bodyMap,
-		shapeMap,
-		jointMap,
-	};
+	clone.manifolds = cloneManifoldMap(solver.manifolds, clone.shapeMap);
+	clone.broadPhase = cloneBroadPhase(solver.broadPhase, clone.shapeMap);
+	return clone;
 };

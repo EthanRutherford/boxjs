@@ -34,7 +34,7 @@ const forkAndCopyRenderables = (source) => {
 			target.shapeMap[shape.id].renderable = shape.renderable;
 		}
 	}
-	return target.solver;
+	return target;
 };
 
 const onKeyDown = (event) => {

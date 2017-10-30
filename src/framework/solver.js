@@ -6,7 +6,10 @@ module.exports = class Solver {
 	constructor() {
 		this.applyG = null;
 		this.bodies = new Set();
+		this.bodyMap = {};
 		this.joints = new Set();
+		this.jointMap = {};
+		this.shapeMap = {};
 		this.manifolds = new ManifoldMap();
 		this.broadPhase = new BroadPhase();
 	}
@@ -25,21 +28,27 @@ module.exports = class Solver {
 	}
 	addBody(body) {
 		this.bodies.add(body);
+		this.bodyMap[body.id] = body;
 		for (const shape of body.shapes) {
 			this.broadPhase.insert(shape);
+			this.shapeMap[shape.id] = shape;
 		}
 	}
 	removeBody(body) {
 		this.bodies.delete(body);
+		delete this.bodyMap[body.id];
 		for (const shape of body.shapes) {
 			this.broadPhase.remove(shape);
+			delete this.shapeMap[shape.id];
 		}
 	}
 	addJoint(joint) {
 		this.joints.add(joint);
+		this.jointMap[joint.id] = joint;
 	}
 	removeJoint(joint) {
 		this.joints.delete(joint);
+		delete this.jointMap[joint.id];
 	}
 	flush() {
 		const bodies = [...this.bodies];
