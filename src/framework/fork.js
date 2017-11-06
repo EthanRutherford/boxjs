@@ -148,12 +148,12 @@ module.exports = function fork(solver) {
 	clone.shapeMap = {};
 	solver.bodies.forEach((body) => {
 		const clonedBody = cloneBody(body, clone.shapeMap);
-		solver.bodyMap[body.id] = clonedBody;
+		clone.bodyMap[body.id] = clonedBody;
 		clone.bodies.add(clonedBody);
 	});
 	solver.joints.forEach((joint) => {
-		const clonedJoint = cloneJoint(joint, solver.bodyMap);
-		solver.jointMap[joint.id] = clonedJoint;
+		const clonedJoint = cloneJoint(joint, clone.bodyMap);
+		clone.jointMap[joint.id] = clonedJoint;
 		clone.joints.add(clonedJoint);
 	});
 	clone.manifolds = cloneManifoldMap(solver.manifolds, clone.shapeMap);
