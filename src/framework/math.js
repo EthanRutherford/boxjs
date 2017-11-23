@@ -1,7 +1,3 @@
-//extend Math with some convenience functions
-Math.sqr = (x) => x * x;
-Math.clamp = (value, min, max) => Math.max(min, Math.min(value, max));
-
 class Vector2D {
 	constructor(x, y) {
 		this.x = x;
@@ -14,6 +10,11 @@ class Vector2D {
 	}
 	neg() {
 		return new Vector2D(-this.x, -this.y);
+	}
+	negate() {
+		this.x = -this.x;
+		this.y = -this.y;
+		return this;
 	}
 	add(other) {
 		this.x += other.x;
@@ -52,7 +53,7 @@ class Vector2D {
 		return Math.sqrt(this.lsqr);
 	}
 	get lsqr() {
-		return Math.sqr(this.x) + Math.sqr(this.y);
+		return (this.x ** 2) + (this.y ** 2);
 	}
 	normalize() {
 		const length = this.length;
@@ -106,6 +107,12 @@ class Vector3D {
 	}
 	neg() {
 		return new Vector3D(-this.x, -this.y, -this.z);
+	}
+	negate() {
+		this.x = -this.x;
+		this.y = -this.y;
+		this.z = -this.z;
+		return this;
 	}
 	add(other) {
 		this.x += other.x;
@@ -273,4 +280,5 @@ module.exports = {
 	Matrix3D,
 	cleanAngle,
 	bigG: 6.674 * Math.pow(10, -11),
+	clamp: (value, min, max) => Math.max(min, Math.min(value, max)),
 };

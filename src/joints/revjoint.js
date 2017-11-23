@@ -1,4 +1,11 @@
-const {Vector2D, Vector3D, Matrix2D, Matrix3D, cleanAngle} = require("../framework/math");
+const {
+	Vector2D,
+	Vector3D,
+	Matrix2D,
+	Matrix3D,
+	cleanAngle,
+	clamp,
+} = require("../framework/math");
 const Joint = require("./joint");
 
 class RevJoint extends Joint {
@@ -26,11 +33,11 @@ class RevJoint extends Joint {
 		const iA = this.bodyA.mass.iI;
 		const iB = this.bodyB.mass.iI;
 
-		this.mass.m[0][0] = mA + mB + Math.sqr(rA.y) * iA + Math.sqr(rB.y) * iB;
+		this.mass.m[0][0] = mA + mB + (rA.y ** 2) * iA + (rB.y ** 2) * iB;
 		this.mass.m[0][1] = -rA.y * rA.x * iA - rB.y * rB.x * iB;
 		this.mass.m[0][2] = -rA.y * iA - rB.y * iB;
 		this.mass.m[1][0] = this.mass.m[0][1];
-		this.mass.m[1][1] = mA + mB + Math.sqr(rA.x) * iA + Math.sqr(rB.x) * iB;
+		this.mass.m[1][1] = mA + mB + (rA.x ** 2) * iA + (rB.x ** 2) * iB;
 		this.mass.m[1][2] = rA.x * iA + rB.x * iB;
 		this.mass.m[2][0] = this.mass.m[0][2];
 		this.mass.m[2][1] = this.mass.m[1][2];
@@ -81,12 +88,12 @@ class RevJoint extends Joint {
 			const cDot1 = vB.plus(Vector2D.cross1x2(wB, rB)).sub(vA.plus(Vector2D.cross1x2(wA, rA)));
 			const cDot2 = wB - wA;
 			const cDot = new Vector3D(cDot1.x, cDot1.y, cDot2);
-			const impulse = this.mass.solve3(cDot).neg();
+			const impulse = this.mass.solve3(cDot).negate();
 
 			if (this.state === RevJoint.atLower) {
 				const newImpulse = this.cumulativeImpulse.z + impulse.z;
 				if (newImpulse < 0) {
-					const rhs = cDot1.neg().add({x: this.mass.m[0][2], y: this.mass.m[1][2]})
+					const rhs = cDot1.negate().add({x: this.mass.m[0][2], y: this.mass.m[1][2]})
 						.mul(this.cumulativeImpulse.z);
 					const reduced = this.mass.solve2(rhs);
 					impulse.set(reduced);
@@ -100,7 +107,7 @@ class RevJoint extends Joint {
 			} else /* RevJoint.atUpper */ {
 				const newImpulse = this.cumulativeImpulse.z + impulse.z;
 				if (newImpulse > 0) {
-					const rhs = cDot1.neg().add({x: this.mass.m[0][2], y: this.mass.m[1][2]})
+					const rhs = cDot1.negate().add({x: this.mass.m[0][2], y: this.mass.m[1][2]})
 						.mul(this.cumulativeImpulse.z);
 					const reduced = this.mass.solve2(rhs);
 					impulse.set(reduced);
@@ -120,7 +127,7 @@ class RevJoint extends Joint {
 			wB += iB * (rB.cross(p) + impulse.z);
 		} else {
 			const cDot = vB.plus(Vector2D.cross1x2(wB, rB)).sub(vA.plus(Vector2D.cross1x2(wA, rA)));
-			const impulse = this.mass.solve2(cDot.neg());
+			const impulse = this.mass.solve2(cDot.negate());
 			this.cumulativeImpulse.x += impulse.x;
 			this.cumulativeImpulse.y += impulse.y;
 			vA.sub(impulse.times(mA));
@@ -153,11 +160,11 @@ class RevJoint extends Joint {
 			let limitImpulse = 0;
 			if (this.state === RevJoint.atLower) {
 				let c = angle - this.lowerLimit;
-				c = Math.clamp(c + (1 / 90 * Math.PI), -(1 / 22.5 * Math.PI), 0);
+				c = clamp(c + (1 / 90 * Math.PI), -(1 / 22.5 * Math.PI), 0);
 				limitImpulse = -1 / (iA + iB) * c;
 			} else {
 				let c = angle - this.upperLimit;
-				c = Math.clamp(c - (1 / 90 * Math.PI), 0, +(1 / 22.5 * Math.PI));
+				c = clamp(c - (1 / 90 * Math.PI), 0, +(1 / 22.5 * Math.PI));
 				limitImpulse = -1 / (iA + iB) * c;
 			}
 			aA -= iA * limitImpulse;
@@ -172,7 +179,7 @@ class RevJoint extends Joint {
 			mA + mB + iA * rA.x * rA.x + iB * rB.x * rB.x,
 		);
 
-		const impulse = k.solve(c).neg();
+		const impulse = k.solve(c).negate();
 		cA.sub(impulse.times(mA));
 		cB.add(impulse.times(mB));
 		aA -= iA * rA.cross(impulse);

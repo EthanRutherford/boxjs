@@ -190,8 +190,9 @@ function polyToPoly(m, a, b) {
 			m.contacts.push(point);
 		}
 	}
-	m.normal = flip ? normal.neg() : normal;
-	m.tangent = flip ? tangent.neg() : tangent;
+
+	m.normal = flip ? normal.negate() : normal;
+	m.tangent = flip ? tangent.negate() : tangent;
 }
 
 function circleToCircle(m, a, b) {
@@ -199,7 +200,7 @@ function circleToCircle(m, a, b) {
 	m.normal = b.body.position.minus(a.body.position);
 	const dist = m.normal.lsqr;
 	const radius = a.radius + b.radius;
-	if (dist > Math.sqr(radius)) {
+	if (dist > (radius ** 2)) {
 		return;
 	}
 
@@ -234,7 +235,7 @@ function circleToPoly(m, a, b) {
 		m.type = Manifold.faceB;
 		m.lnormal = b.norms[i1];
 		m.lpoint = v1.plus(v2).mul(.5);
-		m.normal = b.body.transform.times(b.norms[i1]).neg();
+		m.normal = b.body.transform.times(b.norms[i1]).negate();
 		m.contacts.push(new ManifoldPoint(
 			m.normal.times(a.radius).add(a.body.position),
 		));
@@ -242,25 +243,25 @@ function circleToPoly(m, a, b) {
 		const dot1 = center.minus(v1).dot(v2.minus(v1));
 		const dot2 = center.minus(v2).dot(v1.minus(v2));
 		if (dot1 <= 0) {
-			if (center.minus(v1).lsqr > Math.sqr(a.radius)) {
+			if (center.minus(v1).lsqr > (a.radius ** 2)) {
 				return;
 			}
 
 			m.type = Manifold.faceB;
 			m.lnormal = center.minus(v1).normalize();
-			m.normal = b.body.transform.times(m.lnormal).neg().normalize();
+			m.normal = b.body.transform.times(m.lnormal).negate().normalize();
 			m.lpoint = v1;
 			m.contacts.push(new ManifoldPoint(
 				b.body.transform.times(v1).add(b.body.position),
 			));
 		} else if (dot2 <= 0) {
-			if (center.minus(v2).lsqr > Math.sqr(a.radius)) {
+			if (center.minus(v2).lsqr > (a.radius ** 2)) {
 				return;
 			}
 
 			m.type = Manifold.faceB;
 			m.lnormal = center.minus(v2).normalize();
-			m.normal = b.body.transform.times(m.lnormal).neg().normalize();
+			m.normal = b.body.transform.times(m.lnormal).negate().normalize();
 			m.lpoint = v2;
 			m.contacts.push(new ManifoldPoint(
 				b.body.transform.times(v2).add(b.body.position),
@@ -272,7 +273,7 @@ function circleToPoly(m, a, b) {
 				return;
 			}
 
-			m.normal = b.body.transform.times(m.lnormal).neg().normalize();
+			m.normal = b.body.transform.times(m.lnormal).negate().normalize();
 			m.type = Manifold.faceB;
 			m.contacts.push(new ManifoldPoint(
 				m.normal.times(a.radius).add(a.body.position),
@@ -285,6 +286,6 @@ function circleToPoly(m, a, b) {
 function polyToCircle(m, a, b) {
 	circleToPoly(m, b, a);
 	m.type = Manifold.faceA;
-	m.normal = m.normal.neg();
-	m.tangent = m.tangent.neg();
+	m.normal.negate();
+	m.tangent.negate();
 }

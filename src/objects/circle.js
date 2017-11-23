@@ -17,7 +17,7 @@ module.exports = class Circle extends Shape {
 	}
 	raycast({p1, p2, maxFraction}) {
 		const s = p1.minus(this.body.position);
-		const b = s.dot(s) - Math.sqr(this.radius);
+		const b = s.dot(s) - (this.radius ** 2);
 		const r = p2.minus(p1);
 		const c = s.dot(r);
 		const rr = r.dot(r);
@@ -40,9 +40,9 @@ module.exports = class Circle extends Shape {
 	computeMass(density) {
 		const mass = new MassData();
 		mass.center = new Vector2D(0, 0);
-		mass.m = Math.PI * Math.sqr(this.radius) * density;
+		mass.m = Math.PI * (this.radius ** 2) * density;
 		mass.iM = mass.m ? 1 / mass.m : 0;
-		mass.i = mass.m * Math.sqr(this.radius);
+		mass.i = mass.m * (this.radius ** 2);
 		mass.iI = mass.i ? 1 / mass.i : 0;
 		return mass;
 	}

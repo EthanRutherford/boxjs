@@ -1,4 +1,4 @@
-const {Vector2D, Matrix2D} = require("../framework/math");
+const {Vector2D, Matrix2D, clamp} = require("../framework/math");
 
 class ManifoldPoint {
 	constructor(point, lpoint, indexA, indexB, typeA, typeB) {
@@ -187,7 +187,7 @@ class Manifold {
 			const vt = dv.dot(this.tangent);
 			let lambda = contact.tangentMass * -vt;
 			const mf = contact.normalImpulse * this.df;
-			const newImpulse = Math.clamp(contact.tangentImpulse + lambda, -mf, mf);
+			const newImpulse = clamp(contact.tangentImpulse + lambda, -mf, mf);
 			lambda = newImpulse - contact.tangentImpulse;
 			contact.tangentImpulse = newImpulse;
 
@@ -232,7 +232,7 @@ class Manifold {
 
 			//block solver, taken from Box2D
 			while (true) {
-				const x = this.nMass.times(b).neg();
+				const x = this.nMass.times(b).negate();
 				if (x.x >= 0 && x.y >= 0) {
 					const d = x.minus(a);
 					const p0 = this.normal.times(d.x);
@@ -350,13 +350,13 @@ class Manifold {
 				const clip = this.shapeA.body.transform.times(contact.lpoint).add(this.shapeA.body.position);
 				separation = (clip.minus(plane)).dot(normal) - r;
 				point = clip;
-				normal = normal.neg();
+				normal.negate();
 			}
 
 			const rA = point.minus(this.shapeA.body.position);
 			const rB = point.minus(this.shapeB.body.position);
 
-			const c = Math.clamp(percent * (separation + kSlop), -percent, 0);
+			const c = clamp(percent * (separation + kSlop), -percent, 0);
 			const rnA = rA.cross(normal);
 			const rnB = rB.cross(normal);
 			const k = mA + mB + iA * rnA * rnA + iB * rnB * rnB;

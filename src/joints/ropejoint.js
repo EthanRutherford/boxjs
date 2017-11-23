@@ -1,4 +1,4 @@
-const {Vector2D} = require("../framework/math");
+const {Vector2D, clamp} = require("../framework/math");
 const Joint = require("./joint");
 
 module.exports = class RopeJoint extends Joint {
@@ -37,7 +37,7 @@ module.exports = class RopeJoint extends Joint {
 
 		const crA = rA.cross(this.u);
 		const crB = rB.cross(this.u);
-		const invMass = mA + iA * Math.sqr(crA) + mB + iB * Math.sqr(crB);
+		const invMass = mA + iA * (crA ** 2) + mB + iB * (crB ** 2);
 		this.mass = invMass !== 0 ? 1 / invMass : 0;
 
 		const p = this.u.times(this.impulse);
@@ -99,7 +99,7 @@ module.exports = class RopeJoint extends Joint {
 		const u = cB.plus(rB).sub(cA.plus(rA));
 		const length = u.length;
 		u.mul(1 / length);
-		const c = Math.clamp(length - this.limit, 0, .2);
+		const c = clamp(length - this.limit, 0, .2);
 		const impulse = -this.mass * c;
 
 		const p = u.times(impulse);

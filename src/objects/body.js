@@ -81,7 +81,7 @@ module.exports = class Body {
 		this.torque += torque;
 	}
 	applyGravity(mass, direction, distance) {
-		const g = bigG * mass * this.mass.m / Math.sqr(distance);
+		const g = bigG * mass * this.mass.m / (distance ** 2);
 		const f = direction.times(g);
 		this.applyForce(f);
 	}

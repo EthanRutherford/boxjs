@@ -9,8 +9,8 @@ module.exports = class ContactData {
 				let normalForce = manifold.normal.times(contact.normalImpulse / dt);
 				let tangentForce = manifold.tangent.times(contact.tangentImpulse / dt);
 				if (flipped) {
-					normalForce = normalForce.neg();
-					tangentForce = tangentForce.neg();
+					normalForce.negate();
+					tangentForce.negate();
 				}
 
 				this.normalForces.push(normalForce);

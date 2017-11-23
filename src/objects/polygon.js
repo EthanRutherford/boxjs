@@ -135,8 +135,8 @@ module.exports = class Polygon extends Shape {
 			const triangleArea = d * .5;
 			area += triangleArea;
 			mass.center.add(p1.plus(p2).mul(triangleArea * inv3));
-			const intx2 = Math.sqr(p1.x) + Math.sqr(p2.x) + p1.x * p2.x;
-			const inty2 = Math.sqr(p1.y) + Math.sqr(p2.y) + p1.y * p2.y;
+			const intx2 = (p1.x ** 2) + (p2.x ** 2) + p1.x * p2.x;
+			const inty2 = (p1.y ** 2) + (p2.y ** 2) + p1.y * p2.y;
 			inertia += (.25 * inv3 * d) * (intx2 + inty2);
 		}
 		mass.center.mul(1 / area);

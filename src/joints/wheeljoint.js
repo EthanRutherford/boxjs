@@ -1,4 +1,4 @@
-const {Vector2D} = require("../framework/math");
+const {Vector2D, clamp} = require("../framework/math");
 const Joint = require("./joint");
 
 module.exports = class WheelJoint extends Joint {
@@ -44,7 +44,7 @@ module.exports = class WheelJoint extends Joint {
 		this.ay = this.bodyA.transform.times(Vector2D.cross1x2(1, this.axis));
 		this.sAy = d.plus(rA).cross(this.ay);
 		this.sBy = rB.cross(this.ay);
-		this.mass = mA + mB + iA * Math.sqr(this.sAy) + iB * Math.sqr(this.sBy);
+		this.mass = mA + mB + iA * (this.sAy ** 2) + iB * (this.sBy ** 2);
 		if (this.mass > 0) {
 			this.mass = 1 / this.mass;
 		}
@@ -56,14 +56,14 @@ module.exports = class WheelJoint extends Joint {
 			this.ax = this.bodyA.transform.times(this.axis);
 			this.sAx = d.plus(rA).cross(this.ax);
 			this.sBx = rB.cross(this.ax);
-			const invMass = mA + mB + iA * Math.sqr(this.sAx) + iB * Math.sqr(this.sBx);
+			const invMass = mA + mB + iA * (this.sAx ** 2) + iB * (this.sBx ** 2);
 
 			if (invMass > 0) {
 				this.springMass = 1 / invMass;
 				const c = d.dot(this.ax);
 				const omega = 2 * Math.PI * this.frequency;
 				const damp = 2 * this.springMass * this.damping * omega;
-				const k = this.springMass * Math.sqr(omega);
+				const k = this.springMass * (omega ** 2);
 
 				this.gamma = dt * (damp + dt * k);
 				if (this.gamma > 0) {
@@ -130,7 +130,7 @@ module.exports = class WheelJoint extends Joint {
 
 			const oldImpulse = this.motorImpulse;
 			const maxImpulse = dt * this.motorTorqueLimit;
-			this.motorImpulse = Math.clamp(this.motorImpulse + impulse, -maxImpulse, maxImpulse);
+			this.motorImpulse = clamp(this.motorImpulse + impulse, -maxImpulse, maxImpulse);
 			impulse = this.motorImpulse - oldImpulse;
 
 			wA -= iA * impulse;
@@ -175,7 +175,7 @@ module.exports = class WheelJoint extends Joint {
 		const sBy = rB.cross(this.ay);
 
 		const c = d.dot(ay);
-		const k = mA + mB + iA * Math.sqr(this.sAy) + iB * Math.sqr(this.sBy);
+		const k = mA + mB + iA * (this.sAy ** 2) + iB * (this.sBy ** 2);
 
 		let impulse = 0;
 		if (k !== 0) {

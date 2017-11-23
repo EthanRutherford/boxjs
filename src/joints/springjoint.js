@@ -1,4 +1,4 @@
-const {Vector2D} = require("../framework/math");
+const {Vector2D, clamp} = require("../framework/math");
 const Joint = require("./joint");
 
 module.exports = class SpringJoint extends Joint {
@@ -38,14 +38,14 @@ module.exports = class SpringJoint extends Joint {
 
 		const crA = rA.cross(this.u);
 		const crB = rB.cross(this.u);
-		let invMass = mA + iA * Math.sqr(crA) + mB + iB * Math.sqr(crB);
+		let invMass = mA + iA * (crA ** 2) + mB + iB * (crB ** 2);
 		this.mass = invMass !== 0 ? 1 / invMass : 0;
 
 		if (this.frequency > 0) {
 			const c = length - this.length;
 			const omega = 2 * Math.PI * this.frequency;
 			const d = 2 * this.mass * this.damping * omega;
-			const k = this.mass * Math.sqr(omega);
+			const k = this.mass * (omega ** 2);
 
 			this.gamma = dt * (d + dt * k);
 			this.gamma = this.gamma !== 0 ? 1 / this.gamma : 0;
@@ -115,7 +115,7 @@ module.exports = class SpringJoint extends Joint {
 		const u = cB.plus(rB).sub(cA.plus(rA));
 		const length = u.length;
 		u.mul(1 / length);
-		const c = Math.clamp(length - this.length, -.2, .2);
+		const c = clamp(length - this.length, -.2, .2);
 		const impulse = -this.mass * c;
 
 		const p = u.times(impulse);

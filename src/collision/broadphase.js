@@ -352,33 +352,31 @@ class PairSet {
 	}
 }
 
-function queryCallback(nodeA, nodeB) {
-	//don't collide if on same body
-	if (nodeA.shape.body === nodeB.shape.body) {
-		return true;
-	}
-
-	//perform collision filtering
-	const groupA = nodeA.shape.body.filterGroup;
-	const groupB = nodeB.shape.body.filterGroup;
-	const maskA = nodeA.shape.body.exclusionMask;
-	const maskB = nodeB.shape.body.exclusionMask;
-	if (!(groupA & maskB && groupB & maskA)) {
-		return true;
-	}
-
-	//use standard order and add to pairs
-	const [a, b] = Shape.order(nodeA.shape, nodeB.shape);
-	this.pairs.add({a, b});
-	return true;
-}
-
 class BroadPhase {
 	constructor() {
 		this.tree = new AABBTree();
 		this.shapeToNode = new Map();
 		this.pairs = new PairSet();
-		this.queryCallback = queryCallback.bind(this);
+		this.queryCallback = (nodeA, nodeB) => {
+			//don't collide if on same body
+			if (nodeA.shape.body === nodeB.shape.body) {
+				return true;
+			}
+
+			//perform collision filtering
+			const groupA = nodeA.shape.body.filterGroup;
+			const groupB = nodeB.shape.body.filterGroup;
+			const maskA = nodeA.shape.body.exclusionMask;
+			const maskB = nodeB.shape.body.exclusionMask;
+			if (!(groupA & maskB && groupB & maskA)) {
+				return true;
+			}
+
+			//use standard order and add to pairs
+			const [a, b] = Shape.order(nodeA.shape, nodeB.shape);
+			this.pairs.add({a, b});
+			return true;
+		};
 	}
 	insert(shape) {
 		const node = this.tree.insert(shape.aabb);

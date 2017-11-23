@@ -18,13 +18,13 @@ module.exports = class Solver {
 			this.applyG([...this.bodies]);
 		}
 
-		solveBroadPhase.call(this);
-		solveNarrowPhase.call(this);
-		applyForces.call(this, dt);
-		solveVelocities.call(this, dt);
-		solvePositions.call(this, dt);
-		clearForces.call(this);
-		collisionCallbacks.call(this, dt);
+		solveBroadPhase(this);
+		solveNarrowPhase(this);
+		applyForces(this, dt);
+		solveVelocities(this, dt);
+		solvePositions(this, dt);
+		clearForces(this);
+		collisionCallbacks(this, dt);
 	}
 	addBody(body) {
 		this.bodies.add(body);
@@ -83,87 +83,87 @@ module.exports = class Solver {
 	}
 };
 
-//private functions, call with function.prototype.call
-function solveBroadPhase() {
-	for (const body of this.bodies) {
+//private functions
+function solveBroadPhase(solver) {
+	for (const body of solver.bodies) {
 		for (const shape of body.shapes) {
 			shape.setAABB();
 		}
 	}
 	//the broadphase returns a set of unique pairs whose aabbs are overlapping
-	const pairs = this.broadPhase.getPairs();
+	const pairs = solver.broadPhase.getPairs();
 	//the manifold map will persist any manifolds that already exist,
 	//and create new manifolds for pairs which don't have one yet
 	for (const pair of pairs) {
-		this.manifolds.add(pair);
+		solver.manifolds.add(pair);
 	}
 }
 
-function solveNarrowPhase() {
+function solveNarrowPhase(solver) {
 	//here we iterate through the manifolds, solving the narrowphase
 	//any that are not collided are removed from the map
-	for (const manifold of this.manifolds) {
+	for (const manifold of solver.manifolds) {
 		manifold.solve();
 		if (!manifold.isCollided) {
-			this.manifolds.delete(manifold);
+			solver.manifolds.delete(manifold);
 		}
 	}
 }
 
-function applyForces(dt) {
-	for (const body of this.bodies) {
+function applyForces(solver, dt) {
+	for (const body of solver.bodies) {
 		body.velocity.add(body.force.times(body.mass.iM).times(dt));
 		body.angularVelocity += body.torque * body.mass.iI * dt;
 	}
 }
 
-function solveVelocities(dt) {
-	for (const manifold of this.manifolds) {
+function solveVelocities(solver, dt) {
+	for (const manifold of solver.manifolds) {
 		manifold.initialize();
 	}
-	for (const manifold of this.manifolds) {
+	for (const manifold of solver.manifolds) {
 		manifold.warmStart();
 	}
-	for (const joint of this.joints) {
+	for (const joint of solver.joints) {
 		joint.initialize(dt);
 	}
 	for (let i = 0; i < 8; i++) {
-		for (const joint of this.joints) {
+		for (const joint of solver.joints) {
 			joint.applyImpulse(dt);
 		}
-		for (const manifold of this.manifolds) {
+		for (const manifold of solver.manifolds) {
 			manifold.applyImpulse();
 		}
 	}
 }
 
-function solvePositions(dt) {
-	for (const body of this.bodies) {
+function solvePositions(solver, dt) {
+	for (const body of solver.bodies) {
 		body.prevPos = body.position.clone();
 		body.position.add(body.velocity.times(dt));
 		body.prevAngle = body.transform.radians;
 		body.transform.radians += body.angularVelocity * dt;
 	}
 	for (let i = 0; i < 4; i++) {
-		for (const manifold of this.manifolds) {
+		for (const manifold of solver.manifolds) {
 			manifold.positionalCorrection();
 		}
-		for (const joint of this.joints) {
+		for (const joint of solver.joints) {
 			joint.positionalCorrection();
 		}
 	}
 }
 
-function clearForces() {
-	for (const body of this.bodies) {
+function clearForces(solver) {
+	for (const body of solver.bodies) {
 		body.force.x = 0;
 		body.force.y = 0;
 		body.torque = 0;
 	}
 }
 
-function collisionCallbacks(dt) {
-	for (const manifold of this.manifolds) {
+function collisionCallbacks(solver, dt) {
+	for (const manifold of solver.manifolds) {
 		const shapeA = manifold.shapeA;
 		const shapeB = manifold.shapeB;
 		if (shapeA.body.onCollide instanceof Function) {
