@@ -21,6 +21,7 @@ const basicTest = require("./tests/basic-test");
 const carTest = require("./tests/car-test");
 const raycastTest = require("./tests/raycast-test");
 const forkTest = require("./tests/fork-test");
+const perfTest = require("./tests/perf-test");
 
 // circle helpers
 function generateCirclePoints(radius, count) {
@@ -456,6 +457,8 @@ window.addEventListener("keydown", (event) => {
 		setTest(raycastTest);
 	} else if (event.key === "4") {
 		setTest(forkTest);
+	} else if (event.key === "5") {
+		setTest(perfTest);
 	} else if (event.key === "0") {
 		window.debugDraw = !window.debugDraw;
 	}
