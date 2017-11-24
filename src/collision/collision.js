@@ -54,6 +54,7 @@ function findSeparatingAxis(a, b) {
 			bestIndex = i;
 		}
 	}
+
 	return {index: bestIndex, distance: bestDistance};
 }
 
@@ -70,6 +71,7 @@ function findIncidentEdge(ref, inc, index) {
 			edge1 = i;
 		}
 	}
+
 	const edge2 = edge1 + 1 >= inc.points.length ? 0 : edge1 + 1;
 
 	const r1 = new ManifoldPoint(

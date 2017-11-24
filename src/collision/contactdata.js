@@ -6,8 +6,8 @@ module.exports = class ContactData {
 		this.tangentForces = [];
 		if (!manifold.hasSensor) {
 			for (const contact of manifold.contacts) {
-				let normalForce = manifold.normal.times(contact.normalImpulse / dt);
-				let tangentForce = manifold.tangent.times(contact.tangentImpulse / dt);
+				const normalForce = manifold.normal.times(contact.normalImpulse / dt);
+				const tangentForce = manifold.tangent.times(contact.tangentImpulse / dt);
 				if (flipped) {
 					normalForce.negate();
 					tangentForce.negate();

@@ -156,6 +156,7 @@ module.exports = class Polygon extends Shape {
 				bestVertex = vertex;
 			}
 		}
+
 		return bestVertex;
 	}
 	recenter(offset) {
