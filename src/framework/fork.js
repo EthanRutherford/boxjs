@@ -65,8 +65,8 @@ function cloneManifoldPoint(point) {
 	return clone;
 }
 
-function cloneManifold(manifold, shapeA, shapeB) {
-	const clone = new Manifold(shapeA, shapeB);
+function cloneManifold(manifold, shapeA, shapeB, key) {
+	const clone = new Manifold(shapeA, shapeB, key);
 	clone.type = manifold.type;
 	manifold.contacts.forEach((point) => clone.contacts.push(cloneManifoldPoint(point)));
 	clone.normal = manifold.normal.clone();
@@ -82,10 +82,10 @@ function cloneManifold(manifold, shapeA, shapeB) {
 
 function cloneManifoldMap(manifolds, map) {
 	const clone = new ManifoldMap();
-	for (const manifold of manifolds) {
-		const [a, b] = Shape.order(map[manifold.shapeA.id], map[manifold.shapeB.id]);
-		const key = `${a.id}:${b.id}`;
-		clone.map.set(key, cloneManifold(manifold, a, b));
+	for (const [key, manifold] of manifolds.map) {
+		const a = map[manifold.shapeA.id];
+		const b = map[manifold.shapeB.id];
+		clone.map.set(key, cloneManifold(manifold, a, b, key));
 	}
 	return clone;
 }
@@ -101,7 +101,7 @@ function cloneNode(parent, node, map, s2n) {
 	clone.height = node.height;
 	if (node.shape != null) {
 		clone.shape = map[node.shape.id];
-		s2n.set(clone.shape, clone);
+		s2n[clone.shape.id] = clone;
 	} else {
 		clone.shape = null;
 	}
@@ -122,9 +122,9 @@ function cloneAABBTree(tree, map, s2n) {
 
 function clonePairSet(pairs, map) {
 	const clone = new PairSet();
-	for (const pair of pairs) {
-		const [a, b] = Shape.order(map[pair.a.id], map[pair.b.id]);
-		const key = `${a.id}:${b.id}`;
+	for (const [key, pair] of pairs.map) {
+		const a = map[pair.a.id];
+		const b = map[pair.b.id];
 		clone.map.set(key, {a, b});
 	}
 

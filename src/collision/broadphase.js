@@ -319,43 +319,19 @@ class PairSet {
 	constructor() {
 		this.map = new Map();
 	}
-	has({a, b}) {
-		const key = `${a.id}:${b.id}`;
-		return this.map.has(key);
-	}
-	get({a, b}) {
-		const key = `${a.id}:${b.id}`;
-		return this.map.get(key);
-	}
-	add({a, b}) {
-		const key = `${a.id}:${b.id}`;
-		if (!this.map.has(key)) {
-			this.map.set(key, {a, b});
-		}
-
-		return this.map.get(key);
-	}
-	delete({a, b}) {
-		const key = `${a.id}:${b.id}`;
-		this.map.delete(key);
+	add(pair) {
+		const key = `${pair.a.id}:${pair.b.id}`;
+		this.map.set(key, pair);
 	}
 	clear() {
 		this.map.clear();
-	}
-	*[Symbol.iterator]() {
-		for (const kv of this.map) {
-			yield kv[1];
-		}
-	}
-	get size() {
-		return this.map.size;
 	}
 }
 
 class BroadPhase {
 	constructor() {
 		this.tree = new AABBTree();
-		this.shapeToNode = new Map();
+		this.shapeToNode = {};
 		this.pairs = new PairSet();
 		this.queryCallback = (nodeA, nodeB) => {
 			//don't collide if on same body
@@ -381,23 +357,23 @@ class BroadPhase {
 	insert(shape) {
 		const node = this.tree.insert(shape.aabb);
 		node.shape = shape;
-		this.shapeToNode.set(shape, node);
+		this.shapeToNode[shape.id] = node;
 		this.tree.query(node, this.queryCallback);
 	}
 	remove(shape) {
-		this.tree.remove(this.shapeToNode.get(shape));
-		this.shapeToNode.delete(shape);
+		this.tree.remove(this.shapeToNode[shape.id]);
+		delete this.shapeToNode[shape.id];
 	}
 	flush() {
 		this.tree.clear();
-		this.shapeToNode.clear();
+		this.shapeToNode = {};
 		this.pairs.clear();
 	}
 	collectMovedNodes() {
 		const moved = [];
-		for (const kv of this.shapeToNode) {
-			const shape = kv[0];
-			const node = kv[1];
+		for (const id of Object.keys(this.shapeToNode)) {
+			const node = this.shapeToNode[id];
+			const shape = node.shape;
 			const displacement = shape.body.position.minus(shape.body.prevPos);
 			if (this.tree.checkMove(node, shape.aabb, displacement)) {
 				moved.push(node);
@@ -406,21 +382,20 @@ class BroadPhase {
 		return moved;
 	}
 	getPairs() {
+		for (const [key, pair] of this.pairs.map) {
+			const fatA = this.shapeToNode[pair.a.id].aabb;
+			const fatB = this.shapeToNode[pair.b.id].aabb;
+			if (!fatA.test(fatB)) {
+				this.pairs.map.delete(key);
+			}
+		}
+
 		const movedNodes = this.collectMovedNodes();
 		for (const node of movedNodes) {
 			this.tree.query(node, this.queryCallback);
 		}
 
-		const oldPairs = [...this.pairs];
-		for (const pair of oldPairs) {
-			const fatA = this.shapeToNode.get(pair.a).aabb;
-			const fatB = this.shapeToNode.get(pair.b).aabb;
-			if (!fatA.test(fatB)) {
-				this.pairs.delete(pair);
-			}
-		}
-
-		return this.pairs;
+		return this.pairs.map.values();
 	}
 	query(aabb, callback) {
 		this.tree.query({aabb}, (_, nodeB) => {
@@ -434,10 +409,13 @@ class BroadPhase {
 		});
 	}
 	debugGetNodes() {
-		return [...this.shapeToNode].map((kv) => ({
-			shape: kv[0],
-			aabb: kv[1].aabb.clone(),
-		}));
+		return Object.keys(this.shapeToNode).map((id) => {
+			const node = this.shapeToNode[id];
+			return {
+				shape: node.shape,
+				aabb: node.aabb.clone(),
+			};
+		});
 	}
 }
 

@@ -84,7 +84,7 @@ module.exports = class Polygon extends Shape {
 		this.aabb.max.x = -Number.MAX_VALUE;
 		this.aabb.max.y = -Number.MAX_VALUE;
 		for (const point of this.points) {
-			const v = this.body.position.plus(this.body.transform.times(point));
+			const v = this.body.transform.times(point).add(this.body.position);
 			if (v.x < this.aabb.min.x) this.aabb.min.x = v.x;
 			if (v.y < this.aabb.min.y) this.aabb.min.y = v.y;
 			if (v.x > this.aabb.max.x) this.aabb.max.x = v.x;

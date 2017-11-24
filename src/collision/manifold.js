@@ -37,10 +37,10 @@ ManifoldPoint.face = 0;
 ManifoldPoint.vert = 1;
 
 class Manifold {
-	constructor(a, b) {
+	constructor(a, b, key) {
 		this.shapeA = a;
 		this.shapeB = b;
-		this.key = `${a.id}:${b.id}`;
+		this.key = key;
 		this.type = -1;
 		this.e = Math.max(a.body.restitution, b.body.restitution);
 		this.df = Math.sqrt(a.body.friction, b.body.friction);
@@ -384,16 +384,10 @@ class ManifoldMap {
 	constructor() {
 		this.map = new Map();
 	}
-	has({key}) {
-		return this.map.has(key);
-	}
-	get({key}) {
-		return this.map.get(key);
-	}
 	add({a, b}) {
 		const key = `${a.id}:${b.id}`;
 		if (!this.map.has(key)) {
-			this.map.set(key, new Manifold(a, b));
+			this.map.set(key, new Manifold(a, b, key));
 		}
 
 		return this.map.get(key);
@@ -404,13 +398,8 @@ class ManifoldMap {
 	clear() {
 		this.map.clear();
 	}
-	*[Symbol.iterator]() {
-		for (const kv of this.map) {
-			yield kv[1];
-		}
-	}
-	get size() {
-		return this.map.size;
+	[Symbol.iterator]() {
+		return this.map.values();
 	}
 }
 
