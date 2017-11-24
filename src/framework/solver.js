@@ -11,7 +11,7 @@ module.exports = class Solver {
 		this.jointMap = {};
 		this.shapeMap = {};
 		this.manifolds = new ManifoldMap();
-		this.broadPhase = new BroadPhase();
+		this.broadPhase = new BroadPhase(this.manifolds);
 	}
 	solve(dt) {
 		if (this.applyG) {
@@ -85,28 +85,21 @@ module.exports = class Solver {
 
 //private functions
 function solveBroadPhase(solver) {
+	//update aabbs
 	for (const body of solver.bodies) {
 		for (const shape of body.shapes) {
 			shape.setAABB();
 		}
 	}
-	//the broadphase returns a set of unique pairs whose aabbs are overlapping
-	const pairs = solver.broadPhase.getPairs();
-	//the manifold map will persist any manifolds that already exist,
-	//and create new manifolds for pairs which don't have one yet
-	for (const pair of pairs) {
-		solver.manifolds.add(pair);
-	}
+	//the broadphase will update unique pairs of overlapping shapes
+	//any manifolds which cease to overlap will be removed
+	solver.broadPhase.updatePairs();
 }
 
 function solveNarrowPhase(solver) {
 	//here we iterate through the manifolds, solving the narrowphase
-	//any that are not collided are removed from the map
 	for (const manifold of solver.manifolds) {
 		manifold.solve();
-		if (!manifold.isCollided) {
-			solver.manifolds.delete(manifold);
-		}
 	}
 }
 

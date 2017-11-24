@@ -1,9 +1,8 @@
-const {Node, AABBTree, PairSet, BroadPhase} = require("../collision/broadphase");
+const {Node, AABBTree, BroadPhase} = require("../collision/broadphase");
 const {ManifoldPoint, Manifold, ManifoldMap} = require("../collision/manifold");
 const Solver = require("./solver");
 const Body = require("../objects/body");
 const MassData = require("../objects/mass");
-const {Shape} = require("../objects/shape");
 
 function cloneMass(mass) {
 	const clone = new MassData();
@@ -120,21 +119,9 @@ function cloneAABBTree(tree, map, s2n) {
 	return clone;
 }
 
-function clonePairSet(pairs, map) {
-	const clone = new PairSet();
-	for (const [key, pair] of pairs.map) {
-		const a = map[pair.a.id];
-		const b = map[pair.b.id];
-		clone.map.set(key, {a, b});
-	}
-
-	return clone;
-}
-
-function cloneBroadPhase(broadPhase, map) {
-	const clone = new BroadPhase();
+function cloneBroadPhase(broadPhase, manifolds, map) {
+	const clone = new BroadPhase(manifolds);
 	clone.tree = cloneAABBTree(broadPhase.tree, map, clone.shapeToNode);
-	clone.pairs = clonePairSet(broadPhase.pairs, map);
 	return clone;
 }
 
@@ -157,6 +144,6 @@ module.exports = function fork(solver) {
 		clone.joints.add(clonedJoint);
 	});
 	clone.manifolds = cloneManifoldMap(solver.manifolds, clone.shapeMap);
-	clone.broadPhase = cloneBroadPhase(solver.broadPhase, clone.shapeMap);
+	clone.broadPhase = cloneBroadPhase(solver.broadPhase, clone.manifolds, clone.shapeMap);
 	return clone;
 };

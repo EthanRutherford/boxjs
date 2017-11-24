@@ -79,12 +79,14 @@ module.exports = class Polygon extends Shape {
 		return this;
 	}
 	setAABB() {
-		this.aabb.min.x = Number.MAX_VALUE;
-		this.aabb.min.y = Number.MAX_VALUE;
-		this.aabb.max.x = -Number.MAX_VALUE;
-		this.aabb.max.y = -Number.MAX_VALUE;
-		for (const point of this.points) {
-			const v = this.body.transform.times(point).add(this.body.position);
+		const transform = this.body.transform;
+		const position = this.body.position;
+		const v1 = transform.times(this.points[0]).add(position);
+
+		this.aabb.min.x = this.aabb.max.x = v1.x;
+		this.aabb.min.y = this.aabb.max.y = v1.y;
+		for (let i = 1; i < this.points.length; i++) {
+			const v = transform.times(this.points[i]).add(position);
 			if (v.x < this.aabb.min.x) this.aabb.min.x = v.x;
 			if (v.y < this.aabb.min.y) this.aabb.min.y = v.y;
 			if (v.x > this.aabb.max.x) this.aabb.max.x = v.x;

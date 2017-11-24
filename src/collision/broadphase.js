@@ -315,24 +315,11 @@ class AABBTree {
 	}
 }
 
-class PairSet {
-	constructor() {
-		this.map = new Map();
-	}
-	add(pair) {
-		const key = `${pair.a.id}:${pair.b.id}`;
-		this.map.set(key, pair);
-	}
-	clear() {
-		this.map.clear();
-	}
-}
-
 class BroadPhase {
-	constructor() {
+	constructor(manifolds) {
 		this.tree = new AABBTree();
 		this.shapeToNode = {};
-		this.pairs = new PairSet();
+		this.pairs = manifolds;
 		this.queryCallback = (nodeA, nodeB) => {
 			//don't collide if on same body
 			if (nodeA.shape.body === nodeB.shape.body) {
@@ -367,7 +354,6 @@ class BroadPhase {
 	flush() {
 		this.tree.clear();
 		this.shapeToNode = {};
-		this.pairs.clear();
 	}
 	collectMovedNodes() {
 		const moved = [];
@@ -381,21 +367,20 @@ class BroadPhase {
 		}
 		return moved;
 	}
-	getPairs() {
+	updatePairs() {
 		for (const [key, pair] of this.pairs.map) {
-			const fatA = this.shapeToNode[pair.a.id].aabb;
-			const fatB = this.shapeToNode[pair.b.id].aabb;
+			const fatA = this.shapeToNode[pair.shapeA.id].aabb;
+			const fatB = this.shapeToNode[pair.shapeB.id].aabb;
 			if (!fatA.test(fatB)) {
-				this.pairs.map.delete(key);
+				this.pairs.delete(key);
 			}
 		}
 
+		// query the tree and add any new manifolds
 		const movedNodes = this.collectMovedNodes();
 		for (const node of movedNodes) {
 			this.tree.query(node, this.queryCallback);
 		}
-
-		return this.pairs.map.values();
 	}
 	query(aabb, callback) {
 		this.tree.query({aabb}, (_, nodeB) => {
@@ -422,6 +407,5 @@ class BroadPhase {
 module.exports = {
 	Node,
 	AABBTree,
-	PairSet,
 	BroadPhase,
 };

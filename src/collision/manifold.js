@@ -64,10 +64,10 @@ class Manifold {
 		Collision.getCollider(a.constructor, b.constructor)(this, a, b);
 	}
 	get isCollided() {
-		return this.contacts.length > 0;
+		return !this.hasSensor && this.contacts.length > 0;
 	}
 	initialize() {
-		if (this.hasSensor) {
+		if (!this.isCollided) {
 			return;
 		}
 
@@ -132,7 +132,7 @@ class Manifold {
 		}
 	}
 	warmStart() {
-		if (this.hasSensor) {
+		if (!this.isCollided) {
 			return;
 		}
 
@@ -164,7 +164,7 @@ class Manifold {
 		this.shapeB.body.angularVelocity = wB;
 	}
 	applyImpulse() {
-		if (this.hasSensor) {
+		if (!this.isCollided) {
 			return;
 		}
 
@@ -307,7 +307,7 @@ class Manifold {
 		this.shapeB.body.angularVelocity = wB;
 	}
 	positionalCorrection() {
-		if (this.hasSensor) {
+		if (!this.isCollided) {
 			return;
 		}
 
@@ -389,14 +389,15 @@ class ManifoldMap {
 		if (!this.map.has(key)) {
 			this.map.set(key, new Manifold(a, b, key));
 		}
-
-		return this.map.get(key);
 	}
-	delete({key}) {
+	delete(key) {
 		this.map.delete(key);
 	}
 	clear() {
 		this.map.clear();
+	}
+	keys() {
+		return this.map.keys();
 	}
 	[Symbol.iterator]() {
 		return this.map.values();
