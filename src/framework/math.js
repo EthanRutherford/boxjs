@@ -65,12 +65,6 @@ class Vector2D {
 		this.mul(invLength);
 		return this;
 	}
-	get skew() {
-		return new Vector2D(-this.y, this.x);
-	}
-	get nskew() {
-		return new Vector2D(this.y, -this.x);
-	}
 	clone() {
 		return new Vector2D(this.x, this.y);
 	}
@@ -184,11 +178,11 @@ class Matrix2D {
 
 		return det;
 	}
-	get inverse() {
+	inverse() {
 		const d = this.determinant;
 		return new Matrix2D(d * this.jj, -d * this.ij, -d * this.ji, d * this.ii);
 	}
-	get transpose() {
+	transpose() {
 		return new Matrix2D(this.ii, this.ji, this.ij, this.jj);
 	}
 	solve(vector) {

@@ -37,11 +37,11 @@ module.exports = Collision;
 })();
 
 function findSeparatingAxis(a, b) {
+	const btT = b.body.transform.transpose();
 	let bestDistance = -Number.MAX_VALUE;
 	let bestIndex = 0;
 	for (let i = 0; i < a.points.length; i++) {
 		const nw = a.body.transform.times(a.norms[i]);
-		const btT = b.body.transform.transpose;
 		const n = btT.times(nw);
 
 		const s = b.getSupport(n.neg());
@@ -61,7 +61,7 @@ function findSeparatingAxis(a, b) {
 function findIncidentEdge(ref, inc, index) {
 	let refNormal = ref.norms[index];
 	refNormal = ref.body.transform.times(refNormal);
-	refNormal = inc.body.transform.transpose.times(refNormal);
+	refNormal = inc.body.transform.transpose().times(refNormal);
 	let edge1 = 0;
 	let minDot = Number.MAX_VALUE;
 	for (let i = 0; i < inc.points.length; i++) {
@@ -216,7 +216,7 @@ function circleToCircle(m, a, b) {
 
 function circleToPoly(m, a, b) {
 	m.contacts = [];
-	const center = b.body.transform.transpose.times(a.body.position.minus(b.body.position));
+	const center = b.body.transform.transpose().times(a.body.position.minus(b.body.position));
 	let separation = -Number.MAX_VALUE;
 	let i1 = 0;
 	for (let i = 0; i < b.points.length; i++) {

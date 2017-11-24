@@ -69,7 +69,10 @@ module.exports = class Polygon extends Shape {
 		for (let i = 0; i < this.points.length; i++) {
 			const j = i + 1 < this.points.length ? i + 1 : 0;
 			const edge = this.points[j].minus(this.points[i]);
-			this.norms.push(edge.nskew.normalize());
+			const y = edge.y;
+			edge.y = -edge.x;
+			edge.x = y;
+			this.norms.push(edge.normalize());
 		}
 
 		this.originalPoints = this.points.map((point) => point.clone());
@@ -89,8 +92,9 @@ module.exports = class Polygon extends Shape {
 		}
 	}
 	raycast({p1, p2, maxFraction}) {
-		p1 = this.body.transform.transpose.times(p1.minus(this.body.position));
-		p2 = this.body.transform.transpose.times(p2.minus(this.body.position));
+		const btT = this.body.transform.transpose();
+		p1 = btT.times(p1.minus(this.body.position));
+		p2 = btT.times(p2.minus(this.body.position));
 		const d = p2.minus(p1);
 
 		let low = 0;
@@ -117,7 +121,7 @@ module.exports = class Polygon extends Shape {
 
 		if (index >= 0) {
 			const fraction = low;
-			const normal = this.body.transform.transpose.times(this.norms[index]);
+			const normal = btT.times(this.norms[index]);
 			return {fraction, normal};
 		}
 

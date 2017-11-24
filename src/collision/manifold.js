@@ -125,7 +125,7 @@ class Manifold {
 				this.k.ij = k12;
 				this.k.ji = k12;
 				this.k.jj = k22;
-				this.nMass = this.k.inverse;
+				this.nMass = this.k.inverse();
 			} else {
 				this.contacts.pop();
 			}
