@@ -61,9 +61,7 @@ class Vector2D {
 			return this;
 		}
 
-		const invLength = 1 / length;
-		this.mul(invLength);
-		return this;
+		return this.mul(1 / length);
 	}
 	clone() {
 		return new Vector2D(this.x, this.y);

@@ -6,7 +6,7 @@ module.exports = class Circle extends Shape {
 	constructor(radius) {
 		super();
 		this.body = null;
-		this.aabb = new AABB();
+		this.aabb = new AABB(0, 0, 0, 0);
 		this.radius = radius;
 	}
 	setAABB() {
@@ -50,7 +50,7 @@ module.exports = class Circle extends Shape {
 		const clone = Object.create(Circle.prototype);
 		clone.id = this.id;
 		clone.body = null;
-		clone.aabb = new AABB();
+		clone.aabb = new AABB(0, 0, 0, 0);
 		clone.radius = this.radius;
 		return clone;
 	}

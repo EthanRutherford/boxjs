@@ -12,7 +12,7 @@ function makeFatAABB(aabb) {
 
 class Node {
 	constructor(aabb, parent = null, height = 0) {
-		this.aabb = makeFatAABB(aabb);
+		this.aabb = aabb;
 		this.parent = parent;
 		this.children = [];
 		this.height = height;
@@ -29,7 +29,7 @@ class AABBTree {
 		this.root = null;
 	}
 	insert(aabb) {
-		const node = new Node(aabb);
+		const node = new Node(makeFatAABB(aabb));
 		this.insertLeaf(node);
 		return node;
 	}
