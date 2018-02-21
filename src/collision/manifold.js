@@ -335,20 +335,20 @@ class Manifold {
 			if (this.type === Manifold.circles) {
 				const pA = this.lpoint.plus(this.shapeA.body.position);
 				const pB = this.contacts[0].lpoint.plus(this.shapeB.body.position);
-				normal = (pB.minus(pA)).normalize();
+				normal = pB.minus(pA).normalize();
 				point = pA.plus(pB).mul(.5);
 				separation = pB.minus(pA).dot(normal) - r;
 			} else if (this.type === Manifold.faceA) {
 				normal = this.shapeA.body.transform.times(this.lnormal);
 				const plane = this.shapeA.body.transform.times(this.lpoint).add(this.shapeA.body.position);
 				const clip = this.shapeB.body.transform.times(contact.lpoint).add(this.shapeB.body.position);
-				separation = (clip.minus(plane)).dot(normal) - r;
+				separation = clip.minus(plane).dot(normal) - r;
 				point = clip;
 			} else if (this.type === Manifold.faceB) {
 				normal = this.shapeB.body.transform.times(this.lnormal);
 				const plane = this.shapeB.body.transform.times(this.lpoint).add(this.shapeB.body.position);
 				const clip = this.shapeA.body.transform.times(contact.lpoint).add(this.shapeA.body.position);
-				separation = (clip.minus(plane)).dot(normal) - r;
+				separation = clip.minus(plane).dot(normal) - r;
 				point = clip;
 				normal.negate();
 			}

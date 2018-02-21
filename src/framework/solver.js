@@ -26,6 +26,32 @@ module.exports = class Solver {
 		clearForces(this);
 		collisionCallbacks(this, dt);
 	}
+	solveWithPerf(dt, perf) {
+		if (this.applyG) {
+			this.applyG([...this.bodies]);
+		}
+
+		let time = performance.now();
+		solveBroadPhase(this);
+		perf.bp = perf.bp * .99 + (performance.now() - time) * .01;
+
+		time = performance.now();
+		solveNarrowPhase(this);
+		perf.np = perf.np * .99 + (performance.now() - time) * .01;
+
+		applyForces(this, dt);
+
+		time = performance.now();
+		solveVelocities(this, dt);
+		perf.sv = perf.sv * .99 + (performance.now() - time) * .01;
+
+		time = performance.now();
+		solvePositions(this, dt);
+		perf.sp = perf.sp * .99 + (performance.now() - time) * .01;
+
+		clearForces(this);
+		collisionCallbacks(this, dt);
+	}
 	addBody(body) {
 		this.bodies.add(body);
 		this.bodyMap[body.id] = body;
