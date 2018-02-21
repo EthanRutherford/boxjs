@@ -350,6 +350,11 @@ class BroadPhase {
 	remove(shape) {
 		this.tree.remove(this.shapeToNode[shape.id]);
 		delete this.shapeToNode[shape.id];
+		for (const [key, pair] of this.pairs.map) {
+			if (pair.shapeA === shape || pair.shapeB === shape) {
+				this.pairs.delete(key);
+			}
+		}
 	}
 	flush() {
 		this.tree.clear();
