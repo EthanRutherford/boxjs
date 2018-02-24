@@ -9,6 +9,9 @@ const {
 		VectorMaterial,
 		SpriteMaterial,
 	},
+	shaders: {
+		MotionBlur,
+	},
 } = require("2d-gl");
 const {
 	Math: {Vector2D},
@@ -107,6 +110,7 @@ const getVisibleFunc = ({x0, y0, x1, y1}) => {
 };
 
 const scene = new Scene({bgColor: rgba(.1, .1, .1, 1), getVisibleFunc});
+scene.addPostProcShader(renderer.createShader(MotionBlur));
 const prevCam = new Vector2D(0, 0);
 const curCam = new Vector2D(0, 0);
 const camera = new OrthoCamera(0, 0, 20);
