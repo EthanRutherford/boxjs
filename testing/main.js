@@ -180,7 +180,7 @@ function render(lerpRatio) {
 
 	for (const body of solver.bodies) {
 		const pos = vlerp(body.originalPrevPos, body.originalPosition, lerpRatio);
-		const angle = alerp(body.prevAngle, body.transform.radians, lerpRatio);
+		const angle = alerp(body.prevTrans.radians, body.transform.radians, lerpRatio);
 		for (const shape of body.shapes) {
 			if (shape.renderable) {
 				shape.renderable.x = pos.x;

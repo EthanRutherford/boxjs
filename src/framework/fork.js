@@ -20,7 +20,7 @@ function cloneBody(body, map) {
 	clone.position = body.position.clone();
 	clone.prevPos = body.prevPos.clone();
 	clone.transform = body.transform.clone();
-	clone.prevAngle = body.prevAngle;
+	clone.prevTrans = body.prevTrans.clone();
 	clone.velocity = body.velocity.clone();
 	clone.angularVelocity = body.angularVelocity;
 	clone.force = body.force.clone();

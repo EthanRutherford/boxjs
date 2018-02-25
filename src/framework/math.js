@@ -153,15 +153,6 @@ class Matrix2D {
 		this.jj = other.jj;
 		return this;
 	}
-	setRotation(radians) {
-		const c = Math.cos(radians);
-		const s = Math.sin(radians);
-		this.ii = c;
-		this.ij = -s;
-		this.ji = s;
-		this.jj = c;
-		return this;
-	}
 	plus(other) {
 		return new Matrix2D(this.ii + other.ii, this.ij + other.ij, this.ji + other.ji, this.jj + other.jj);
 	}
@@ -195,28 +186,35 @@ class Matrix2D {
 
 Matrix2D.identity = new Matrix2D(1, 0, 0, 1);
 
-//specialization of a Matrix used for rotations
-class Rotation extends Matrix2D {
-	constructor(radians = 0) {
-		super();
-		radians = cleanAngle(radians);
-		this._r = radians;
-		this.setRotation(radians);
-	}
-	set(value) {
-		this.radians = value;
-		return this;
+class Rotation {
+	constructor(radians) {
+		this.radians = radians;
 	}
 	get radians() {
-		return this._r;
+		return this.r;
 	}
 	set radians(value) {
 		value = cleanAngle(value);
-		this.setRotation(value);
-		this._r = value;
+		this.r = value;
+		this.c = Math.cos(value);
+		this.s = Math.sin(value);
+	}
+	times(v) {
+		const {s, c} = this;
+		return new Vector2D(c * v.x - s * v.y, s * v.x + c * v.y);
+	}
+	transpose() {
+		return Rotation.from(-this.r, this.c, -this.s);
 	}
 	clone() {
-		return new Rotation(this.radians);
+		return Rotation.from(this.r, this.c, this.s);
+	}
+	static from(r, c, s) {
+		const rot = Object.create(Rotation.prototype);
+		rot.r = r;
+		rot.c = c;
+		rot.s = s;
+		return rot;
 	}
 }
 
