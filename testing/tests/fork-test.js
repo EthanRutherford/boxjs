@@ -14,7 +14,7 @@ const {
 
 const yellow = rgba(1, 1, 0, 1);
 
-//shapes/materials
+// shapes/materials
 const groundShape = new Shape(
 	new Polygon().setAsBox(10, .5).originalPoints,
 );
@@ -22,7 +22,7 @@ const groundMaterial = new VectorMaterial(
 	[yellow, yellow, yellow, yellow],
 );
 
-//variables
+// variables
 let restorePoint;
 let getSolver;
 let setSolver;
@@ -47,10 +47,10 @@ const onKeyDown = (event) => {
 	}
 };
 
-//initialization method
+// initialization method
 function create({getSolver, setSolver, createBody, createCrate, createBall}) {
 	const solver = getSolver();
-	{	//create some objects
+	{	// create some objects
 		const box = createCrate(0, 5);
 
 		const box2 = createCrate(1, 6);
@@ -77,14 +77,14 @@ function create({getSolver, setSolver, createBody, createCrate, createBall}) {
 	registerCallbacks(getSolver, setSolver);
 }
 
-//register some callbacks
+// register some callbacks
 function registerCallbacks(getS, setS) {
 	getSolver = getS;
 	setSolver = setS;
 	window.addEventListener("keydown", onKeyDown);
 }
 
-//clean up the test
+// clean up the test
 function cleanUp() {
 	window.removeEventListener("keydown", onKeyDown);
 }

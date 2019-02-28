@@ -15,7 +15,7 @@ const {
 const yellow = rgba(1, 1, 0, 1);
 const cyan = rgba(0, 1, 1, 1);
 
-//shapes/materials
+// shapes/materials
 const groundShape = new Shape(
 	new Polygon().setAsBox(10, .5).originalPoints,
 );
@@ -37,10 +37,10 @@ const denseMaterial = new VectorMaterial(
 	[cyan, cyan, cyan, cyan],
 );
 
-//initialization method
+// initialization method
 function create({getSolver, createBody, createCrate, createBall}) {
 	const solver = getSolver();
-	{	//ground, ball, joint with angle limits
+	{	// ground, ball, joint with angle limits
 		const box = createCrate(0, 5);
 		const box2 = createCrate(1, 6);
 		const joint = new RevJoint({
@@ -61,7 +61,7 @@ function create({getSolver, createBody, createCrate, createBall}) {
 
 		solver.addJoint(joint);
 	}
-	{	//rope with dense mass on the bottom
+	{	// rope with dense mass on the bottom
 		const position = new Vector2D(10, 5);
 		const anchorPoint = new Body({
 			position,
@@ -117,7 +117,7 @@ function create({getSolver, createBody, createCrate, createBall}) {
 		solver.addJoint(joint);
 		solver.addJoint(rope);
 	}
-	{	//spring joint test
+	{	// spring joint test
 		const box = createCrate(5, 1);
 
 		const box2 = createCrate(5, 4);

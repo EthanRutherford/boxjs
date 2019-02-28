@@ -91,7 +91,7 @@ module.exports = class Solver {
 		const inputRay = {p1, p2, maxFraction: 1};
 		this.broadPhase.raycast(inputRay, (ray, shape) => {
 			if (shouldCheck instanceof Function && !shouldCheck(shape)) {
-				return -1;	//skip this shape
+				return -1;	// skip this shape
 			}
 
 			const castData = shape.raycast(ray);
@@ -109,21 +109,21 @@ module.exports = class Solver {
 	}
 };
 
-//private functions
+// private functions
 function solveBroadPhase(solver) {
-	//update aabbs
+	// update aabbs
 	for (const body of solver.bodies) {
 		for (const shape of body.shapes) {
 			shape.setAABB();
 		}
 	}
-	//the broadphase will update unique pairs of overlapping shapes
-	//any manifolds which cease to overlap will be removed
+	// the broadphase will update unique pairs of overlapping shapes
+	// any manifolds which cease to overlap will be removed
 	solver.broadPhase.updatePairs();
 }
 
 function solveNarrowPhase(solver) {
-	//here we iterate through the manifolds, solving the narrowphase
+	// here we iterate through the manifolds, solving the narrowphase
 	for (const manifold of solver.manifolds) {
 		manifold.solve();
 	}

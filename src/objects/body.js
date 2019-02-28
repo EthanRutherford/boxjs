@@ -30,40 +30,40 @@ module.exports = class Body {
 		this.shapes = shapes;
 		this.friction = friction != null ? friction : .6;
 		this.restitution = restitution != null ? restitution : .2;
-		//set mass data
+		// set mass data
 		density = density != null ? density : 1;
 		this.mass = new MassData();
 		for (const shape of this.shapes) {
-			//set body of shape
+			// set body of shape
 			shape.body = this;
-			//sum mass data
+			// sum mass data
 			const mass = shape.computeMass(density);
 			this.mass.m += mass.m;
 			this.mass.center.add(mass.center.times(mass.m));
 			this.mass.i += mass.i;
 		}
-		//inverse values
+		// inverse values
 		this.mass.iM = this.mass.m ? 1 / this.mass.m : 0;
 		this.mass.iI = this.mass.i ? 1 / this.mass.i : 0;
 		this.mass.center.mul(this.mass.iM);
 		for (const shape of this.shapes) {
-			//translate each shape
+			// translate each shape
 			if (shape.recenter instanceof Function) {
 				shape.recenter(this.mass.center);
 			}
-			//initialize aabb
+			// initialize aabb
 			shape.setAABB();
 		}
 		this.position.add(this.mass.center);
-		//set to static?
+		// set to static?
 		if (isStatic) {
 			this.setStatic();
 		}
-		//set to sensor
+		// set to sensor
 		this.sensor = sensor || false;
-		//set filter parameters
+		// set filter parameters
 		this.setFilter(filterGroup != null ? filterGroup : 1, exclusionList || []);
-		//set collision callback
+		// set collision callback
 		this.onCollide = onCollide;
 	}
 	get originalPosition() {

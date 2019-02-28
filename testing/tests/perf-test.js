@@ -7,7 +7,6 @@ const {
 } = require("2d-gl");
 const {
 	Math: {Vector2D},
-	Body,
 	Shapes: {Polygon},
 } = require("../../src/box");
 

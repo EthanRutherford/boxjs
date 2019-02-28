@@ -311,7 +311,7 @@ class AABBTree {
 			return 0;
 		}
 
-		return root.height;
+		return this.root.height;
 	}
 }
 
@@ -321,12 +321,12 @@ class BroadPhase {
 		this.shapeToNode = {};
 		this.pairs = manifolds;
 		this.queryCallback = (nodeA, nodeB) => {
-			//don't collide if on same body
+			// don't collide if on same body
 			if (nodeA.shape.body === nodeB.shape.body) {
 				return true;
 			}
 
-			//perform collision filtering
+			// perform collision filtering
 			const groupA = nodeA.shape.body.filterGroup;
 			const groupB = nodeB.shape.body.filterGroup;
 			const maskA = nodeA.shape.body.exclusionMask;
@@ -335,7 +335,7 @@ class BroadPhase {
 				return true;
 			}
 
-			//use standard order and add to pairs
+			// use standard order and add to pairs
 			const [a, b] = Shape.order(nodeA.shape, nodeB.shape);
 			this.pairs.add({a, b});
 			return true;

@@ -254,10 +254,10 @@ class Matrix3D {
 	}
 }
 
-//inverse of 2pi
+// inverse of 2pi
 const i2pi = 1 / (2 * Math.PI);
 
-//wrap angle between -pi and pi
+// wrap angle between -pi and pi
 function cleanAngle(angle) {
 	return angle - 2 * Math.PI * Math.trunc(angle * i2pi + Math.sign(angle) * .5);
 }

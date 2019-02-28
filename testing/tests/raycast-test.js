@@ -20,7 +20,7 @@ const red = rgba(1, 0, 0, 1);
 const green = rgba(0, 1, 0, 1);
 const white = rgba(1, 1, 1, 1);
 
-//shapes/materials
+// shapes/materials
 const boxShape = new Shape(
 	new Polygon().setAsBox(.5, .5).originalPoints,
 );
@@ -38,13 +38,13 @@ const rayMaterial = new VectorMaterial(
 	VectorMaterial.lineStrip,
 );
 
-//variables
+// variables
 let ray;
 const p1 = new Vector2D(0, 0);
 let p2 = new Vector2D(50, 0);
 let angle = 0;
 
-//initialization method
+// initialization method
 function create({createBody, createBall, createRenderObj}) {
 	createBody({
 		position: new Vector2D(4, 0),
@@ -69,7 +69,7 @@ function create({createBody, createBall, createRenderObj}) {
 	initRay(createRenderObj);
 }
 
-//create the ray
+// create the ray
 function initRay(createRenderObj) {
 	ray = createRenderObj(
 		new Shape([{x: 0, y: 0}, {x: 0, y: 0}]),

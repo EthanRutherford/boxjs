@@ -10,7 +10,7 @@ class ManifoldPoint {
 		this.normalMass = 0;
 		this.tangentMass = 0;
 
-		//identification components
+		// identification components
 		this.indexA = indexA;
 		this.indexB = indexB;
 		this.typeA = typeA;
@@ -230,7 +230,7 @@ class Manifold {
 			let vn1 = dv1.dot(this.normal);
 			const b = new Vector2D(vn0 - contact0.bias, vn1 - contact1.bias).sub(this.k.times(a));
 
-			//block solver, taken from Box2D
+			// block solver, taken from Box2D
 			while (true) {
 				const x = this.nMass.times(b).negate();
 				if (x.x >= 0 && x.y >= 0) {

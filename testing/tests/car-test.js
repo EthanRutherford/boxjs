@@ -25,7 +25,7 @@ const yellow = rgba(1, 1, 0, 1);
 const orange = rgba(1, .5, 0, 1);
 const cyan = rgba(0, 1, 1, 1);
 
-//shapes/materials
+// shapes/materials
 const carShape = new Shape(carVerts);
 const carMaterial = new VectorMaterial(
 	[blue, blue, blue, blue, blue, blue],
@@ -61,7 +61,7 @@ const bridgeMaterial = new VectorMaterial(
 	[cyan, cyan, cyan, cyan],
 );
 
-//variables
+// variables
 let body;
 let motor;
 let a = false;
@@ -110,10 +110,10 @@ const onKeyUp = (event) => {
 	}
 };
 
-//initialization method
+// initialization method
 function create({getSolver, createBody, createCrate, createBall}) {
 	const solver = getSolver();
-	{	//create the car
+	{	// create the car
 		const frame = createBody({
 			position: new Vector2D(0, 2),
 			shapes: [new Polygon().set(carVerts)],
@@ -154,7 +154,7 @@ function create({getSolver, createBody, createCrate, createBall}) {
 		body = frame;
 		motor = joint1;
 	}
-	{	//create some terrain
+	{	// create some terrain
 		const ground1 = createBody({
 			position: new Vector2D(40, 0),
 			shapes: [new Polygon().setAsBox(50, .5)],
@@ -263,7 +263,7 @@ function create({getSolver, createBody, createCrate, createBall}) {
 	registerCallbacks();
 }
 
-//register some callbacks
+// register some callbacks
 function registerCallbacks() {
 	motor.setMotor(0, 1);
 
@@ -275,7 +275,7 @@ function registerCallbacks() {
 	window.addEventListener("keyup", onKeyUp);
 }
 
-//on step method
+// on step method
 function step({prevCam, curCam}) {
 	prevCam.set(curCam);
 	const error = body.position.minus(curCam);
@@ -283,7 +283,7 @@ function step({prevCam, curCam}) {
 	curCam.add(correction);
 }
 
-//clean up the test
+// clean up the test
 function cleanUp() {
 	window.removeEventListener("keydown", onKeyDown);
 	window.removeEventListener("keyup", onKeyUp);

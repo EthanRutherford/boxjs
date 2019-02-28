@@ -63,7 +63,7 @@ solver.applyG = (bodies) => {
 const canvas = document.querySelector("canvas");
 const renderer = new Renderer(canvas);
 
-//set up scene and camera
+// set up scene and camera
 const renderObjects = new Set();
 const getVisibleFunc = ({x0, y0, x1, y1}) => {
 	const visible = [];
@@ -303,7 +303,7 @@ loader.all().then(() => {
 	startLoop();
 });
 
-//test switching
+// test switching
 function setTest(test) {
 	cleanUpTests();
 	test.create(testParams);
@@ -379,9 +379,9 @@ function endEvent(data) {
 }
 
 canvas.addEventListener("touchstart", (event) => {
-	//prevent mousedown handler from firing
+	// prevent mousedown handler from firing
 	event.preventDefault();
-	//only track one touch
+	// only track one touch
 	if (event.touches.length !== 1) {
 		return;
 	}
