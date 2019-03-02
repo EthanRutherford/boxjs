@@ -15,42 +15,12 @@ module.exports = class Solver {
 	}
 	solve(dt) {
 		if (this.applyG) {
-			this.applyG([...this.bodies]);
+			this.applyG(getAwakeBodies(this.bodies));
 		}
 
 		solveBroadPhase(this);
 		solveNarrowPhase(this);
-		applyForces(this, dt);
-		solveVelocities(this, dt);
-		solvePositions(this, dt);
-		clearForces(this);
-		collisionCallbacks(this, dt);
-	}
-	solveWithPerf(dt, perf) {
-		if (this.applyG) {
-			this.applyG([...this.bodies]);
-		}
-
-		let time = performance.now();
-		solveBroadPhase(this);
-		perf.bp = perf.bp * .99 + (performance.now() - time) * .01;
-
-		time = performance.now();
-		solveNarrowPhase(this);
-		perf.np = perf.np * .99 + (performance.now() - time) * .01;
-
-		applyForces(this, dt);
-
-		time = performance.now();
-		solveVelocities(this, dt);
-		perf.sv = perf.sv * .99 + (performance.now() - time) * .01;
-
-		time = performance.now();
-		solvePositions(this, dt);
-		perf.sp = perf.sp * .99 + (performance.now() - time) * .01;
-
-		clearForces(this);
-		collisionCallbacks(this, dt);
+		solveIslands(this, dt);
 	}
 	addBody(body) {
 		this.bodies.add(body);
@@ -71,10 +41,14 @@ module.exports = class Solver {
 	addJoint(joint) {
 		this.joints.add(joint);
 		this.jointMap[joint.id] = joint;
+		joint.bodyA.setAsleep(false);
+		joint.bodyB.setAsleep(false);
 	}
 	removeJoint(joint) {
 		this.joints.delete(joint);
 		delete this.jointMap[joint.id];
+		joint.bodyA.setAsleep(false);
+		joint.bodyB.setAsleep(false);
 	}
 	flush() {
 		const bodies = [...this.bodies];
@@ -110,6 +84,17 @@ module.exports = class Solver {
 };
 
 // private functions
+function getAwakeBodies(bodies) {
+	const results = [];
+	for (const body of bodies) {
+		if (!body.isAsleep) {
+			results.push(body);
+		}
+	}
+
+	return results;
+}
+
 function solveBroadPhase(solver) {
 	// update aabbs
 	for (const body of solver.bodies) {
@@ -117,8 +102,9 @@ function solveBroadPhase(solver) {
 			shape.setAABB();
 		}
 	}
-	// the broadphase will update unique pairs of overlapping shapes
-	// any manifolds which cease to overlap will be removed
+
+	// the broadphase will update unique pairs of overlapping shapes.
+	// any manifolds which cease to overlap will be removed.
 	solver.broadPhase.updatePairs();
 }
 
@@ -126,6 +112,99 @@ function solveNarrowPhase(solver) {
 	// here we iterate through the manifolds, solving the narrowphase
 	for (const manifold of solver.manifolds) {
 		manifold.solve();
+	}
+}
+
+function solveIslands(solver, dt) {
+	const unprocessed = new Set(solver.bodies);
+	const manifoldMap = {};
+	for (const manifold of solver.manifolds) {
+		if (manifoldMap[manifold.shapeA.body.id] == null) {
+			manifoldMap[manifold.shapeA.body.id] = [];
+		}
+		if (manifoldMap[manifold.shapeB.body.id] == null) {
+			manifoldMap[manifold.shapeB.body.id] = [];
+		}
+
+		manifoldMap[manifold.shapeA.body.id].push(manifold);
+		manifoldMap[manifold.shapeB.body.id].push(manifold);
+	}
+
+	const jointMap = {};
+	for (const joint of solver.joints) {
+		if (jointMap[joint.bodyA.id] == null) {
+			jointMap[joint.bodyA.id] = [];
+		}
+		if (jointMap[joint.bodyB.id] == null) {
+			jointMap[joint.bodyB.id] = [];
+		}
+
+		jointMap[joint.bodyA.id].push(joint);
+		jointMap[joint.bodyB.id].push(joint);
+	}
+
+	for (const body of unprocessed) {
+		if (body.isAsleep || body.isStatic) {
+			continue;
+		}
+
+		const island = {
+			bodies: new Set(),
+			manifolds: new Set(),
+			joints: new Set(),
+		};
+
+		makeIsland(island, body, unprocessed, manifoldMap, jointMap);
+
+		applyForces(island, dt);
+		solveVelocities(island, dt);
+		solvePositions(island, dt);
+		clearForces(island, dt);
+		collisionCallbacks(island, dt);
+		setSleep(island, dt);
+	}
+}
+
+function makeIsland(island, body, unprocessed, manifoldMap, jointMap) {
+	// we don't propogate islands across static bodies
+	// in addition, since they're static, they don't need to iterate
+	if (body.isStatic) {
+		return;
+	}
+
+	// any body which is connected with an awake body should be awoken
+	island.bodies.add(body);
+	unprocessed.delete(body);
+	body.setAsleep(false);
+
+	for (const manifold of manifoldMap[body.id] || []) {
+		if (island.manifolds.has(manifold) || !manifold.isCollided) {
+			continue;
+		}
+
+		island.manifolds.add(manifold);
+
+		const other = (manifold.shapeA.body === body ? manifold.shapeB : manifold.shapeA).body;
+		if (island.bodies.has(other)) {
+			continue;
+		}
+
+		makeIsland(island, other, unprocessed, manifoldMap, jointMap);
+	}
+
+	for (const joint of jointMap[body.id] || []) {
+		if (island.joints.has(joint)) {
+			continue;
+		}
+
+		island.joints.add(joint);
+
+		const other = joint.bodyA === body ? joint.bodyB : joint.bodyA;
+		if (island.bodies.has(other)) {
+			continue;
+		}
+
+		makeIsland(island, other, unprocessed, manifoldMap, jointMap);
 	}
 }
 
@@ -190,6 +269,37 @@ function collisionCallbacks(solver, dt) {
 		}
 		if (shapeB.body.onCollide instanceof Function) {
 			shapeB.body.onCollide(new ContactData(manifold, true, dt));
+		}
+	}
+}
+
+function setSleep(solver, dt) {
+	const angularTolerance = 2 / 180 * Math.PI;
+	const linearTolerance = .0001;
+	const sleepThreshold = .5;
+
+	let minSleepTime = Infinity;
+
+	for (const body of solver.bodies) {
+		if (body.isStatic) {
+			continue;
+		}
+
+		if (
+			body.angularVelocity > angularTolerance ||
+			body.velocity.lsqr > linearTolerance
+		) {
+			body.sleepTime = 0;
+			minSleepTime = 0;
+		} else {
+			body.sleepTime += dt;
+			minSleepTime = Math.min(minSleepTime, body.sleepTime);
+		}
+	}
+
+	if (minSleepTime >= sleepThreshold) {
+		for (const body of solver.bodies) {
+			body.setAsleep(true);
 		}
 	}
 }

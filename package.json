@@ -1,12 +1,12 @@
 {
   "name": "boxjs",
-  "version": "1.1.7",
+  "version": "1.2.0",
   "description": "2D physics engine based on Box2D",
   "main": "src/box.js",
   "scripts": {
     "build": "preload build",
     "rebuild": "preload rebuild",
-    "start": "start http-server ../",
+    "start": "start http-server ../ -p8082",
     "lint": "eslint . --ignore-pattern=*.min.js --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

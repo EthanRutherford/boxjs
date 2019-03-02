@@ -40,6 +40,8 @@ function cloneBody(body, map) {
 	clone.filterGroup = body.filterGroup;
 	clone.exclusionMask = body.exclusionMask;
 	clone.onCollide = body.onCollide;
+	clone.sleepTime = body.sleepTime;
+	clone.isAsleep = body.isAsleep;
 	return clone;
 }
 

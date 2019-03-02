@@ -55,13 +55,20 @@ class Manifold {
 		this.hasSensor = a.body.sensor || b.body.sensor;
 	}
 	solve() {
+		const wasCollided = this.isCollided;
+
 		const a = this.shapeA;
 		const b = this.shapeB;
 		if (!a.aabb.test(b.aabb)) {
 			this.contacts = [];
-			return;
+		} else {
+			Collision.getCollider(a.constructor, b.constructor)(this, a, b);
 		}
-		Collision.getCollider(a.constructor, b.constructor)(this, a, b);
+
+		if (this.isCollided !== wasCollided) {
+			a.body.setAsleep(false);
+			b.body.setAsleep(false);
+		}
 	}
 	get isCollided() {
 		return !this.hasSensor && this.contacts.length > 0;

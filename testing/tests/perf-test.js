@@ -36,11 +36,11 @@ function create({getSolver, createBody, createCrate}) {
 	}
 
 	const start = performance.now();
-	for (let i = 0; i < 1000; i++) {
+	for (let i = 0; i < 5000; i++) {
 		solver.solve(1 / 45);
 	}
 
-	console.log("1000 steps in " + (performance.now() - start) + "ms");
+	console.log("5000 steps in " + (performance.now() - start) + "ms");
 }
 
 module.exports = {

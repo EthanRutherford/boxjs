@@ -162,9 +162,6 @@ function alerp(a, b, ratio) {
 	return lerp(a, b, ratio);
 }
 
-const outputDiv = document.querySelector(".stats");
-const perfVals = {bp: 0, np: 0, sv: 0, sp: 0};
-
 function render(lerpRatio) {
 	const camPos = vlerp(prevCam, curCam, lerpRatio);
 	camera.set(camPos);
@@ -191,13 +188,6 @@ function render(lerpRatio) {
 	}
 
 	renderer.render(camera, scene);
-
-	outputDiv.innerText =
-		`bp: ${perfVals.bp}\n` +
-		`np: ${perfVals.np}\n` +
-		`sv: ${perfVals.sv}\n` +
-		`sp: ${perfVals.sp}`
-	;
 }
 
 function startLoop() {
@@ -216,7 +206,7 @@ function startLoop() {
 		steps = Math.min(steps, maxSteps);
 
 		for (let i = 0; i < steps; i++) {
-			solver.solveWithPerf(physTarget, perfVals);
+			solver.solve(physTarget);
 			curTest.step({solver, prevCam, curCam});
 		}
 

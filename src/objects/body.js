@@ -65,6 +65,10 @@ module.exports = class Body {
 		this.setFilter(filterGroup != null ? filterGroup : 1, exclusionList || []);
 		// set collision callback
 		this.onCollide = onCollide;
+		// set sleep time
+		this.sleepTime = 0;
+		// set asleep
+		this.isAsleep = false;
 	}
 	get originalPosition() {
 		const offset = this.transform.times(this.mass.center);
@@ -81,6 +85,10 @@ module.exports = class Body {
 		this.torque += torque;
 	}
 	applyGravity(mass, direction, distance) {
+		if (this.isAsleep) {
+			return;
+		}
+
 		const g = bigG * mass * this.mass.m / (distance ** 2);
 		const f = direction.times(g);
 		this.applyForce(f);
@@ -94,6 +102,22 @@ module.exports = class Body {
 		this.mass.iM = 0;
 		this.mass.i = 0;
 		this.mass.iI = 0;
+	}
+	get isStatic() {
+		return this.mass.m === 0;
+	}
+	setAsleep(asleep) {
+		if (asleep) {
+			this.isAsleep = asleep;
+			this.sleepTime = 0;
+			this.velocity.set({x: 0, y: 0});
+			this.force.set({x: 0, y: 0});
+			this.angularVelocity = 0;
+			this.torque = 0;
+		} else if (this.isAsleep) {
+			this.isAsleep = asleep;
+			this.sleepTime = 0;
+		}
 	}
 	setFilter(filterGroup, exclusionList) {
 		if (filterGroup > 32 || filterGroup < 0) {

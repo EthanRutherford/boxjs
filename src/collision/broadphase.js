@@ -353,6 +353,11 @@ class BroadPhase {
 		for (const [key, pair] of this.pairs.map) {
 			if (pair.shapeA === shape || pair.shapeB === shape) {
 				this.pairs.delete(key);
+
+				if (pair.isCollided) {
+					pair.shapeA.body.setAsleep(false);
+					pair.shapeB.body.setAsleep(false);
+				}
 			}
 		}
 	}
