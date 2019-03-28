@@ -149,3 +149,5 @@ module.exports = function fork(solver) {
 	clone.broadPhase = cloneBroadPhase(solver.broadPhase, clone.manifolds, clone.shapeMap);
 	return clone;
 };
+
+module.exports.cloneBody = (body) => cloneBody(body, {});
