@@ -93,7 +93,7 @@ module.exports = class Body {
 		const f = direction.times(g);
 		this.applyForce(f);
 	}
-	applyImpules(impulse, contact) {
+	applyImpulse(impulse, contact) {
 		this.velocity.add(impulse.times(this.mass.iM));
 		this.angularVelocity += this.mass.iI * contact.cross(impulse);
 	}
