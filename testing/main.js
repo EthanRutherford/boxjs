@@ -25,6 +25,7 @@ const carTest = require("./tests/car-test");
 const raycastTest = require("./tests/raycast-test");
 const forkTest = require("./tests/fork-test");
 const perfTest = require("./tests/perf-test");
+const particleTest = require("./tests/particle-test");
 
 // circle helpers
 function generateCirclePoints(radius, count) {
@@ -207,7 +208,16 @@ function startLoop() {
 
 		for (let i = 0; i < steps; i++) {
 			solver.solve(physTarget);
-			curTest.step({solver, prevCam, curCam});
+			curTest.step({
+				solver,
+				scene,
+				prevCam,
+				curCam,
+				createBody,
+				createCrate,
+				createBall,
+				createRenderObj,
+			});
 		}
 
 		render(acc / physTarget);
@@ -279,6 +289,12 @@ const testParams = {
 };
 
 function cleanUpTests() {
+	for (const body of solver.bodies) {
+		for (const shape of body.shapes) {
+			scene.delete(shape.renderable);
+		}
+	}
+
 	solver.flush();
 	curTest.cleanUp({removeRenderObj});
 
@@ -463,6 +479,8 @@ window.addEventListener("keydown", (event) => {
 		setTest(forkTest);
 	} else if (event.key === "5") {
 		setTest(perfTest);
+	} else if (event.key === "6") {
+		setTest(particleTest);
 	} else if (event.key === "0") {
 		window.debugDraw = !window.debugDraw;
 	}
