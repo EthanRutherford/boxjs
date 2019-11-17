@@ -78,10 +78,13 @@ class Manifold {
 			return;
 		}
 
-		const mA = this.shapeA.body.mass.iM;
-		const iA = this.shapeA.body.mass.iI;
-		const mB = this.shapeB.body.mass.iM;
-		const iB = this.shapeB.body.mass.iI;
+		const treatStaticA = this.shapeB.body.particle;
+		const treatStaticB = this.shapeA.body.particle;
+
+		const mA = treatStaticA ? 0 : this.shapeA.body.mass.iM;
+		const iA = treatStaticA ? 0 : this.shapeA.body.mass.iI;
+		const mB = treatStaticB ? 0 : this.shapeB.body.mass.iM;
+		const iB = treatStaticB ? 0 : this.shapeB.body.mass.iI;
 
 		const vA = this.shapeA.body.velocity;
 		const vB = this.shapeB.body.velocity;
@@ -143,10 +146,13 @@ class Manifold {
 			return;
 		}
 
-		const mA = this.shapeA.body.mass.iM;
-		const iA = this.shapeA.body.mass.iI;
-		const mB = this.shapeB.body.mass.iM;
-		const iB = this.shapeB.body.mass.iI;
+		const treatStaticA = this.shapeB.body.particle;
+		const treatStaticB = this.shapeA.body.particle;
+
+		const mA = treatStaticA ? 0 : this.shapeA.body.mass.iM;
+		const iA = treatStaticA ? 0 : this.shapeA.body.mass.iI;
+		const mB = treatStaticB ? 0 : this.shapeB.body.mass.iM;
+		const iB = treatStaticB ? 0 : this.shapeB.body.mass.iI;
 
 		const vA = this.shapeA.body.velocity;
 		const vB = this.shapeB.body.velocity;
@@ -175,10 +181,13 @@ class Manifold {
 			return;
 		}
 
-		const mA = this.shapeA.body.mass.iM;
-		const iA = this.shapeA.body.mass.iI;
-		const mB = this.shapeB.body.mass.iM;
-		const iB = this.shapeB.body.mass.iI;
+		const treatStaticA = this.shapeB.body.particle;
+		const treatStaticB = this.shapeA.body.particle;
+
+		const mA = treatStaticA ? 0 : this.shapeA.body.mass.iM;
+		const iA = treatStaticA ? 0 : this.shapeA.body.mass.iI;
+		const mB = treatStaticB ? 0 : this.shapeB.body.mass.iM;
+		const iB = treatStaticB ? 0 : this.shapeB.body.mass.iI;
 
 		const vA = this.shapeA.body.velocity;
 		const vB = this.shapeB.body.velocity;
@@ -321,10 +330,13 @@ class Manifold {
 		const percent = .2;
 		const kSlop = .005;
 
-		const mA = this.shapeA.body.mass.iM;
-		const iA = this.shapeA.body.mass.iI;
-		const mB = this.shapeB.body.mass.iM;
-		const iB = this.shapeB.body.mass.iI;
+		const treatStaticA = this.shapeB.body.particle;
+		const treatStaticB = this.shapeA.body.particle;
+
+		const mA = treatStaticA ? 0 : this.shapeA.body.mass.iM;
+		const iA = treatStaticA ? 0 : this.shapeA.body.mass.iI;
+		const mB = treatStaticB ? 0 : this.shapeB.body.mass.iM;
+		const iB = treatStaticB ? 0 : this.shapeB.body.mass.iI;
 
 		const cA = this.shapeA.body.position.clone();
 		const cB = this.shapeB.body.position.clone();

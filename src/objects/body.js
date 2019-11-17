@@ -13,6 +13,7 @@ module.exports = class Body {
 		restitution,
 		density,
 		sensor,
+		particle,
 		static: isStatic,
 		filterGroup,
 		exclusionList,
@@ -61,6 +62,7 @@ module.exports = class Body {
 		}
 		// set to sensor
 		this.sensor = sensor || false;
+		this.particle = particle || false;
 		// set filter parameters
 		this.setFilter(filterGroup != null ? filterGroup : 1, exclusionList || []);
 		// set collision callback
