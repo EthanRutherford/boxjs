@@ -286,7 +286,7 @@ function setSleep(solver, dt) {
 		}
 
 		if (
-			body.angularVelocity > angularTolerance ||
+			Math.abs(body.angularVelocity) > angularTolerance ||
 			body.velocity.lsqr > linearTolerance
 		) {
 			body.sleepTime = 0;
