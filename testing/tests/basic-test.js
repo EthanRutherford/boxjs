@@ -69,6 +69,7 @@ function create({getSolver, createBody, createCrate, createBall}) {
 			static: true,
 			filterGroup: 0,
 		});
+		solver.addBody(anchorPoint);
 
 		position.x += .25;
 		let lastBox = anchorPoint;

@@ -203,6 +203,14 @@ class Rotation {
 		const {s, c} = this;
 		return new Vector2D(c * v.x - s * v.y, s * v.x + c * v.y);
 	}
+	mul(v) {
+		const {s, c} = this;
+		const x = c * v.x - s * v.y;
+		const y = s * v.x + c * v.y;
+		v.x = x;
+		v.y = y;
+		return v;
+	}
 	transpose() {
 		return Rotation.from(-this.r, this.c, -this.s);
 	}

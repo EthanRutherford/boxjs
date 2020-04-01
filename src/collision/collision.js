@@ -41,12 +41,11 @@ function findSeparatingAxis(a, b) {
 	let bestDistance = -Number.MAX_VALUE;
 	let bestIndex = 0;
 	for (let i = 0; i < a.points.length; i++) {
-		const nw = a.body.transform.times(a.norms[i]);
-		const n = btT.times(nw);
+		const n = btT.mul(a.body.transform.times(a.norms[i]));
 
 		const s = b.getSupport(n.neg());
 		let v = a.body.transform.times(a.points[i]).add(a.body.position);
-		v = btT.times(v.minus(b.body.position));
+		v = btT.mul(v.sub(b.body.position));
 
 		const d = n.dot(s.minus(v));
 		if (d > bestDistance) {
@@ -59,9 +58,9 @@ function findSeparatingAxis(a, b) {
 }
 
 function findIncidentEdge(ref, inc, index) {
-	let refNormal = ref.norms[index];
-	refNormal = ref.body.transform.times(refNormal);
-	refNormal = inc.body.transform.transpose().times(refNormal);
+	let refNormal = ref.norms[index].clone();
+	refNormal = ref.body.transform.mul(refNormal);
+	refNormal = inc.body.transform.transpose().mul(refNormal);
 	let edge1 = 0;
 	let minDot = Number.MAX_VALUE;
 	for (let i = 0; i < inc.points.length; i++) {
@@ -107,8 +106,8 @@ function clipPoints(input, n, c, index) {
 	if (dist0 * dist1 < 0) {
 		const interp = dist0 / (dist0 - dist1);
 		output.push(new ManifoldPoint(
-			input[0].point.plus(input[1].point.minus(input[0].point).mul(interp)),
-			input[0].lpoint.plus(input[1].lpoint.minus(input[0].lpoint).mul(interp)),
+			input[1].point.minus(input[0].point).mul(interp).add(input[0].point),
+			input[1].lpoint.minus(input[0].lpoint).mul(interp).add(input[0].lpoint),
 			index,
 			input[0].indexB,
 			ManifoldPoint.vert,

@@ -116,35 +116,24 @@ function solveNarrowPhase(solver) {
 }
 
 function solveIslands(solver, dt) {
-	const unprocessed = new Set(solver.bodies);
+	const processed = new Set();
 	const manifoldMap = {};
+	const jointMap = {};
+	for (const body of solver.bodies) {
+		manifoldMap[body.id] = [];
+		jointMap[body.id] = [];
+	}
 	for (const manifold of solver.manifolds) {
-		if (manifoldMap[manifold.shapeA.body.id] == null) {
-			manifoldMap[manifold.shapeA.body.id] = [];
-		}
-		if (manifoldMap[manifold.shapeB.body.id] == null) {
-			manifoldMap[manifold.shapeB.body.id] = [];
-		}
-
 		manifoldMap[manifold.shapeA.body.id].push(manifold);
 		manifoldMap[manifold.shapeB.body.id].push(manifold);
 	}
-
-	const jointMap = {};
 	for (const joint of solver.joints) {
-		if (jointMap[joint.bodyA.id] == null) {
-			jointMap[joint.bodyA.id] = [];
-		}
-		if (jointMap[joint.bodyB.id] == null) {
-			jointMap[joint.bodyB.id] = [];
-		}
-
 		jointMap[joint.bodyA.id].push(joint);
 		jointMap[joint.bodyB.id].push(joint);
 	}
 
-	for (const body of unprocessed) {
-		if (body.isAsleep || body.isStatic) {
+	for (const body of solver.bodies) {
+		if (body.isAsleep || body.isStatic || processed.has(body)) {
 			continue;
 		}
 
@@ -154,7 +143,7 @@ function solveIslands(solver, dt) {
 			joints: new Set(),
 		};
 
-		makeIsland(island, body, unprocessed, manifoldMap, jointMap);
+		makeIsland(island, body, processed, manifoldMap, jointMap);
 
 		applyForces(island, dt);
 		solveVelocities(island, dt);
@@ -165,46 +154,38 @@ function solveIslands(solver, dt) {
 	}
 }
 
-function makeIsland(island, body, unprocessed, manifoldMap, jointMap) {
+function makeIsland(island, body, processed, manifoldMap, jointMap) {
 	// we don't propogate islands across static bodies
 	// in addition, since they're static, they don't need to iterate
-	if (body.isStatic) {
+	if (body.isStatic || processed.has(body)) {
 		return;
 	}
 
 	// any body which is connected with an awake body should be awoken
 	island.bodies.add(body);
-	unprocessed.delete(body);
+	processed.add(body);
 	body.setAsleep(false);
 
-	for (const manifold of manifoldMap[body.id] || []) {
+	for (const manifold of manifoldMap[body.id]) {
 		if (island.manifolds.has(manifold) || !manifold.isCollided) {
 			continue;
 		}
 
 		island.manifolds.add(manifold);
 
-		const other = (manifold.shapeA.body === body ? manifold.shapeB : manifold.shapeA).body;
-		if (island.bodies.has(other)) {
-			continue;
-		}
-
-		makeIsland(island, other, unprocessed, manifoldMap, jointMap);
+		makeIsland(island, manifold.shapeA.body, processed, manifoldMap, jointMap);
+		makeIsland(island, manifold.shapeB.body, processed, manifoldMap, jointMap);
 	}
 
-	for (const joint of jointMap[body.id] || []) {
+	for (const joint of jointMap[body.id]) {
 		if (island.joints.has(joint)) {
 			continue;
 		}
 
 		island.joints.add(joint);
 
-		const other = joint.bodyA === body ? joint.bodyB : joint.bodyA;
-		if (island.bodies.has(other)) {
-			continue;
-		}
-
-		makeIsland(island, other, unprocessed, manifoldMap, jointMap);
+		makeIsland(island, joint.bodyA, processed, manifoldMap, jointMap);
+		makeIsland(island, joint.bodyB, processed, manifoldMap, jointMap);
 	}
 }
 
