@@ -367,8 +367,7 @@ class BroadPhase {
 	}
 	collectMovedNodes() {
 		const moved = [];
-		for (const id of Object.keys(this.shapeToNode)) {
-			const node = this.shapeToNode[id];
+		for (const node of Object.values(this.shapeToNode)) {
 			const shape = node.shape;
 			const displacement = shape.body.position.minus(shape.body.prevPos);
 			if (this.tree.checkMove(node, shape.aabb, displacement)) {

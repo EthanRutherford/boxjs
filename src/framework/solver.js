@@ -98,8 +98,10 @@ function getAwakeBodies(bodies) {
 function solveBroadPhase(solver) {
 	// update aabbs
 	for (const body of solver.bodies) {
-		for (const shape of body.shapes) {
-			shape.setAABB();
+		if (!body.isAsleep) {
+			for (const shape of body.shapes) {
+				shape.setAABB();
+			}
 		}
 	}
 
@@ -111,7 +113,9 @@ function solveBroadPhase(solver) {
 function solveNarrowPhase(solver) {
 	// here we iterate through the manifolds, solving the narrowphase
 	for (const manifold of solver.manifolds) {
-		manifold.solve();
+		if (!(manifold.shapeA.body.isAsleep && manifold.shapeB.body.isAsleep)) {
+			manifold.solve();
+		}
 	}
 }
 
