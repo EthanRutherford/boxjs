@@ -266,10 +266,6 @@ function setSleep(solver, dt) {
 	let minSleepTime = Infinity;
 
 	for (const body of solver.bodies) {
-		if (body.isStatic) {
-			continue;
-		}
-
 		if (
 			Math.abs(body.angularVelocity) > angularTolerance ||
 			body.velocity.lsqr > linearTolerance
