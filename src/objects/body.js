@@ -70,7 +70,7 @@ module.exports = class Body {
 		// set sleep time
 		this.sleepTime = 0;
 		// set asleep
-		this.isAsleep = false;
+		this.isAsleep = isStatic;
 	}
 	get originalPosition() {
 		const offset = this.transform.times(this.mass.center);
@@ -109,6 +109,7 @@ module.exports = class Body {
 		return this.mass.m === 0;
 	}
 	setAsleep(asleep) {
+		asleep &= !this.isStatic;
 		if (asleep) {
 			this.isAsleep = asleep;
 			this.sleepTime = 0;
