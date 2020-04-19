@@ -265,7 +265,7 @@ class Manifold {
 				x.x = -contact0.normalMass * b.x;
 				x.y = 0;
 				vn0 = 0;
-				vn1 = this.k.ji * x.x + b.yy;
+				vn1 = this.k.ji * x.x + b.y;
 				if (x.x >= 0 && x.y >= 0) {
 					const d = x.minus(a);
 					const p0 = this.normal.times(d.x);

@@ -195,7 +195,7 @@ function makeIsland(island, body, processed, manifoldMap, jointMap) {
 
 function applyForces(solver, dt) {
 	for (const body of solver.bodies) {
-		body.velocity.add(body.force.times(body.mass.iM).times(dt));
+		body.velocity.add(body.force.times(body.mass.iM).mul(dt));
 		body.angularVelocity += body.torque * body.mass.iI * dt;
 	}
 }
