@@ -26,6 +26,7 @@ const raycastTest = require("./tests/raycast-test");
 const forkTest = require("./tests/fork-test");
 const perfTest = require("./tests/perf-test");
 const particleTest = require("./tests/particle-test");
+const selfRightingTest = require("./tests/self-righting-test");
 
 // circle helpers
 function generateCirclePoints(radius, count) {
@@ -209,6 +210,7 @@ function startLoop() {
 		for (let i = 0; i < steps; i++) {
 			solver.solve(physTarget);
 			curTest.step({
+				dt: physTarget,
 				solver,
 				scene,
 				prevCam,
@@ -481,6 +483,8 @@ window.addEventListener("keydown", (event) => {
 		setTest(perfTest);
 	} else if (event.key === "6") {
 		setTest(particleTest);
+	} else if (event.key === "7") {
+		setTest(selfRightingTest);
 	} else if (event.key === "0") {
 		window.debugDraw = !window.debugDraw;
 	}

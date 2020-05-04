@@ -277,6 +277,7 @@ function registerCallbacks() {
 
 // on step method
 function step({prevCam, curCam}) {
+	body.setAsleep(false);
 	prevCam.set(curCam);
 	const error = body.position.minus(curCam);
 	const correction = error.times(.1);
