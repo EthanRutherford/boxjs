@@ -110,7 +110,7 @@ module.exports = class WheelJoint extends Joint {
 		const iA = this.bodyA.mass.iI;
 		const iB = this.bodyB.mass.iI;
 
-		{ //spring constraint
+		{ // spring constraint
 			const cDot = this.ax.dot(vB.minus(vA)) + this.sBx * wB - this.sAx * wA;
 			const impulse = -(cDot + this.bias + this.gamma * this.springImpulse) * this.springMass;
 			this.springImpulse += impulse;
@@ -124,7 +124,7 @@ module.exports = class WheelJoint extends Joint {
 			wB += iB * lB;
 		}
 
-		{ //motor constraint
+		{ // motor constraint
 			const cDot = wB - wA - this.motorSpeed;
 			let impulse = -this.motorMass * cDot;
 
@@ -137,7 +137,7 @@ module.exports = class WheelJoint extends Joint {
 			wB += iA * impulse;
 		}
 
-		{ //axis constraint
+		{ // axis constraint
 			const cDot = this.ay.dot(vB.minus(vA)) + this.sBy * wB - this.sAy * wA;
 			const impulse = -this.mass * cDot;
 			this.impulse += impulse;
