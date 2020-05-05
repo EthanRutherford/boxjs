@@ -130,10 +130,12 @@ function step({dt, prevCam, curCam}) {
 	// keep body awake
 	body.setAsleep(false);
 
-	const vx = (body.velocity.x + wheel.velocity.x) / 2;
-	const angle = dir === 0 ? clamp(vx / 2, -1, 1) * Math.PI / 8 : -dir * Math.PI / 8;
+	const desVel = dir * 20;
+	const curVel = (body.velocity.x + wheel.velocity.x) / 2;
+	const diff = desVel - curVel;
+	const angle = -clamp(diff * .5, -1, 1) * Math.PI / 8;
 	const speed = -pid.calc(angle, body.transform.radians, dt);
-	joint.setMotor(speed, 10);
+	joint.setMotor(speed, 15);
 
 	// do camera thing
 	prevCam.set(curCam);
