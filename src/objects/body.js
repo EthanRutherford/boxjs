@@ -12,7 +12,6 @@ module.exports = class Body {
 		friction,
 		restitution,
 		density,
-		sensor,
 		particle,
 		static: isStatic,
 		filterGroup,
@@ -56,12 +55,12 @@ module.exports = class Body {
 			shape.setAABB();
 		}
 		this.position.add(this.mass.center);
+		this.prevPos.add(this.mass.center);
 		// set to static?
 		if (isStatic) {
 			this.setStatic();
 		}
-		// set to sensor
-		this.sensor = sensor || false;
+		// set to particle
 		this.particle = particle || false;
 		// set filter parameters
 		this.setFilter(filterGroup != null ? filterGroup : 1, exclusionList || []);

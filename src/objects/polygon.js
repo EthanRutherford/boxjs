@@ -5,8 +5,8 @@ const {AABB, Shape} = require("./shape");
 const inv3 = 1 / 3;
 
 module.exports = class Polygon extends Shape {
-	constructor() {
-		super();
+	constructor(sensor = false) {
+		super(sensor);
 		this.body = null;
 		this.aabb = new AABB(0, 0, 0, 0);
 		this.points = [];
@@ -131,6 +131,10 @@ module.exports = class Polygon extends Shape {
 	}
 	computeMass(density) {
 		const mass = new MassData();
+		if (this.sensor) {
+			return mass;
+		}
+
 		let area = 0;
 		let inertia = 0;
 		for (let i = 0; i < this.points.length; i++) {
@@ -173,6 +177,7 @@ module.exports = class Polygon extends Shape {
 	clone() {
 		const clone = Object.create(Polygon.prototype);
 		clone.id = this.id;
+		clone.sensor = this.sensor;
 		clone.body = null;
 		clone.aabb = new AABB(0, 0, 0, 0);
 		clone.points = [];

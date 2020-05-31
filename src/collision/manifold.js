@@ -52,7 +52,7 @@ class Manifold {
 		this.ltangent = new Vector2D(0, 0);
 		this.k = new Matrix2D(0, 0, 0, 0);
 		this.nMass = null;
-		this.hasSensor = a.body.sensor || b.body.sensor;
+		this.hasSensor = a.sensor || b.sensor;
 	}
 	solve() {
 		const wasCollided = this.isCollided;
@@ -70,8 +70,11 @@ class Manifold {
 			b.body.setAsleep(false);
 		}
 	}
+	get isTouching() {
+		return this.contacts.length > 0;
+	}
 	get isCollided() {
-		return !this.hasSensor && this.contacts.length > 0;
+		return !this.hasSensor && this.isTouching;
 	}
 	initialize() {
 		if (!this.isCollided) {

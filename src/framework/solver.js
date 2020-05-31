@@ -18,9 +18,15 @@ module.exports = class Solver {
 			this.applyG(getAwakeBodies(this.bodies));
 		}
 
+		for (const body of this.bodies) {
+			body.prevPos = body.position.clone();
+			body.prevTrans = body.transform.clone();
+		}
+
 		solveBroadPhase(this);
 		solveNarrowPhase(this);
 		solveIslands(this, dt);
+		collisionCallbacks(this, dt);
 	}
 	addBody(body) {
 		this.bodies.add(body);
@@ -153,7 +159,6 @@ function solveIslands(solver, dt) {
 		solveVelocities(island, dt);
 		solvePositions(island, dt);
 		clearForces(island, dt);
-		collisionCallbacks(island, dt);
 		setSleep(island, dt);
 	}
 }
@@ -222,9 +227,7 @@ function solveVelocities(solver, dt) {
 
 function solvePositions(solver, dt) {
 	for (const body of solver.bodies) {
-		body.prevPos = body.position.clone();
 		body.position.add(body.velocity.times(dt));
-		body.prevTrans = body.transform.clone();
 		body.transform.radians += body.angularVelocity * dt;
 	}
 	for (let i = 0; i < 3; i++) {
@@ -247,6 +250,10 @@ function clearForces(solver) {
 
 function collisionCallbacks(solver, dt) {
 	for (const manifold of solver.manifolds) {
+		if (!manifold.isTouching) {
+			continue;
+		}
+
 		const shapeA = manifold.shapeA;
 		const shapeB = manifold.shapeB;
 		if (shapeA.body.onCollide instanceof Function) {

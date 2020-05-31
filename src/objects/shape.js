@@ -43,8 +43,9 @@ class AABB {
 }
 
 class Shape {
-	constructor() {
+	constructor(sensor) {
 		this.id = next++;
+		this.sensor = sensor;
 	}
 	static order(a, b) {
 		if (a.id < b.id) {

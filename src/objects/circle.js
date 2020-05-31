@@ -3,8 +3,8 @@ const MassData = require("./mass");
 const {AABB, Shape} = require("./shape");
 
 module.exports = class Circle extends Shape {
-	constructor(radius) {
-		super();
+	constructor(radius, sensor = false) {
+		super(sensor);
 		this.body = null;
 		this.aabb = new AABB(0, 0, 0, 0);
 		this.radius = radius;
@@ -39,6 +39,10 @@ module.exports = class Circle extends Shape {
 	}
 	computeMass(density) {
 		const mass = new MassData();
+		if (this.sensor) {
+			return mass;
+		}
+
 		mass.center = new Vector2D(0, 0);
 		mass.m = Math.PI * (this.radius ** 2) * density;
 		mass.iM = mass.m ? 1 / mass.m : 0;
@@ -49,6 +53,7 @@ module.exports = class Circle extends Shape {
 	clone() {
 		const clone = Object.create(Circle.prototype);
 		clone.id = this.id;
+		clone.sensor = this.sensor;
 		clone.body = null;
 		clone.aabb = new AABB(0, 0, 0, 0);
 		clone.radius = this.radius;
