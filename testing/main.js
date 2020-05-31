@@ -27,30 +27,8 @@ const forkTest = require("./tests/fork-test");
 const perfTest = require("./tests/perf-test");
 const particleTest = require("./tests/particle-test");
 const selfRightingTest = require("./tests/self-righting-test");
-
-// circle helpers
-function generateCirclePoints(radius, count) {
-	const points = [];
-	const sector = 2 * Math.PI / count;
-	for (let i = 0; i < count; i++) {
-		const angle = sector * i;
-		points.push({
-			x: Math.cos(angle) * radius,
-			y: Math.sin(angle) * radius,
-		});
-	}
-
-	return points;
-}
-
-function generateCircleColors(count) {
-	const colors = [];
-	for (let i = 0; i < count; i++) {
-		colors.push(rgba(i / 40 + .5, i / 40 + .5, i / 40 + .5, 1));
-	}
-
-	return colors;
-}
+const sensorTest = require("./tests/sensor-test");
+const {generateCirclePoints, generateCircleColors} = require("./utils");
 
 // initialize solver
 let solver = new Solver();
@@ -485,6 +463,8 @@ window.addEventListener("keydown", (event) => {
 		setTest(particleTest);
 	} else if (event.key === "7") {
 		setTest(selfRightingTest);
+	} else if (event.key === "8") {
+		setTest(sensorTest);
 	} else if (event.key === "0") {
 		window.debugDraw = !window.debugDraw;
 	}
