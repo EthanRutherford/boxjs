@@ -33,10 +33,7 @@ const triangleMaterial = new VectorMaterial(
 	[white, white, white, white],
 );
 
-const rayMaterial = new VectorMaterial(
-	[red, red],
-	VectorMaterial.lineStrip,
-);
+const rayMaterial = new VectorMaterial([red, red]);
 
 // variables
 let ray;
@@ -72,7 +69,7 @@ function create({createBody, createBall, createRenderObj}) {
 // create the ray
 function initRay(createRenderObj) {
 	ray = createRenderObj(
-		new Shape([{x: 0, y: 0}, {x: 0, y: 0}]),
+		new Shape([{x: 0, y: 0}, {x: 0, y: 0}], Shape.lineStrip),
 		rayMaterial,
 	);
 

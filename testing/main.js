@@ -72,7 +72,7 @@ const getVisibleFunc = ({x0, y0, x1, y1}) => {
 			];
 
 			if (node.shape.debug == null) {
-				node.shape.debug = {shape: new Shape(points)};
+				node.shape.debug = {shape: new Shape(points, Shape.lineLoop)};
 				node.shape.debug.renderable = renderer.getInstance(
 					node.shape.debug.shape,
 					debugMaterial,
@@ -118,10 +118,7 @@ loader.get("crate", "/boxjs/testing/images/crate.png").then((result) => {
 	);
 });
 
-const debugMaterial = new VectorMaterial(
-	[red, red, red, red],
-	VectorMaterial.lineLoop,
-);
+const debugMaterial = new VectorMaterial([red, red, red, red]);
 
 // rendering linear interpolation helpers
 function lerp(a, b, ratio) {
