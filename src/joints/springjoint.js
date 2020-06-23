@@ -114,7 +114,10 @@ module.exports = class SpringJoint extends Joint {
 
 		const u = cB.plus(rB).sub(cA.plus(rA));
 		const length = u.length;
-		u.mul(1 / length);
+		if (length > .005) {
+			this.u.mul(1 / length);
+		}
+
 		const c = clamp(length - this.length, -.2, .2);
 		const impulse = -this.mass * c;
 
