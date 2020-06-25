@@ -49,6 +49,9 @@ class Vector2D {
 	eq(other) {
 		return this.x === other.x && this.y === other.y;
 	}
+	lerp(other, ratio) {
+		return new Vector2D(lerp(this.x, other.x, ratio), lerp(this.y, other.y, ratio));
+	}
 	get length() {
 		return Math.sqrt(this.lsqr);
 	}
@@ -211,11 +214,26 @@ class Rotation {
 		v.y = y;
 		return v;
 	}
+	lerp(other, ratio) {
+		return new Rotation(Rotation.lerp(this.radians, other.radians, ratio));
+	}
 	transpose() {
 		return Rotation.from(-this.r, this.c, -this.s);
 	}
 	clone() {
 		return Rotation.from(this.r, this.c, this.s);
+	}
+	static lerp(a, b, ratio) {
+		const diff = Math.abs(a - b);
+		if (diff > Math.PI) {
+			if (a > b) {
+				b += 2 * Math.PI;
+			} else {
+				a += 2 * Math.PI;
+			}
+		}
+
+		return lerp(a, b, ratio);
 	}
 	static from(r, c, s) {
 		const rot = Object.create(Rotation.prototype);
@@ -270,6 +288,11 @@ function cleanAngle(angle) {
 	return angle - 2 * Math.PI * Math.trunc(angle * i2pi + Math.sign(angle) * .5);
 }
 
+// linear interpolation
+function lerp(a, b, ratio) {
+	return a + (b - a) * ratio;
+}
+
 module.exports = {
 	Vector2D,
 	Vector3D,
@@ -277,6 +300,7 @@ module.exports = {
 	Rotation,
 	Matrix3D,
 	cleanAngle,
+	lerp,
 	bigG: 6.674 * Math.pow(10, -11),
 	clamp: (value, min, max) => Math.max(min, Math.min(value, max)),
 };

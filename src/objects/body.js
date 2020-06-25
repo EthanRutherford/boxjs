@@ -13,6 +13,7 @@ module.exports = class Body {
 		restitution,
 		density,
 		particle,
+		toi,
 		static: isStatic,
 		filterGroup,
 		exclusionList,
@@ -60,8 +61,10 @@ module.exports = class Body {
 		if (isStatic) {
 			this.setStatic();
 		}
-		// set to particle
+		// set to particle?
 		this.particle = particle || false;
+		// enable toi?
+		this.toi = toi || false;
 		// set filter parameters
 		this.setFilter(filterGroup != null ? filterGroup : 1, exclusionList || []);
 		// set collision callback

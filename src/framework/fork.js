@@ -36,6 +36,8 @@ function cloneBody(body, map) {
 	clone.friction = body.friction;
 	clone.restitution = body.restitution;
 	clone.mass = cloneMass(body.mass);
+	clone.particle = body.particle;
+	clone.toi = body.toi;
 	clone.filterGroup = body.filterGroup;
 	clone.exclusionMask = body.exclusionMask;
 	clone.onCollide = body.onCollide;

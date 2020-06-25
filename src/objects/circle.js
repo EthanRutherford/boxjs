@@ -8,6 +8,7 @@ module.exports = class Circle extends Shape {
 		this.body = null;
 		this.aabb = new AABB(0, 0, 0, 0);
 		this.radius = radius;
+		this.points = [new Vector2D(0, 0)];
 	}
 	setAABB() {
 		this.aabb.max.x = this.body.position.x + this.radius;
@@ -49,6 +50,9 @@ module.exports = class Circle extends Shape {
 		mass.i = mass.m * (this.radius ** 2);
 		mass.iI = mass.i ? 1 / mass.i : 0;
 		return mass;
+	}
+	getSupport() {
+		return this.points[0];
 	}
 	clone() {
 		const clone = Object.create(Circle.prototype);

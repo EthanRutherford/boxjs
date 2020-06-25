@@ -14,7 +14,7 @@ const {
 	},
 } = require("2d-gl");
 const {
-	Math: {Vector2D},
+	Math: {Vector2D, Rotation},
 	Solver,
 	Body,
 	AABB,
@@ -28,6 +28,7 @@ const perfTest = require("./tests/perf-test");
 const particleTest = require("./tests/particle-test");
 const selfRightingTest = require("./tests/self-righting-test");
 const sensorTest = require("./tests/sensor-test");
+const ccdTest = require("./tests/ccd-test");
 const {generateCirclePoints, generateCircleColors} = require("./utils");
 
 // initialize solver
@@ -121,31 +122,13 @@ loader.get("crate", "/boxjs/testing/images/crate.png").then((result) => {
 const debugMaterial = new VectorMaterial([red, red, red, red]);
 
 // rendering linear interpolation helpers
-function lerp(a, b, ratio) {
-	return (a * (1 - ratio)) + (b * ratio);
-}
-function vlerp(a, b, ratio) {
-	return new Vector2D(lerp(a.x, b.x, ratio), lerp(a.y, b.y, ratio));
-}
-function alerp(a, b, ratio) {
-	const diff = Math.abs(a - b);
-	if (diff > Math.PI) {
-		if (a > b) {
-			b += 2 * Math.PI;
-		} else {
-			a += 2 * Math.PI;
-		}
-	}
-	return lerp(a, b, ratio);
-}
-
 function render(lerpRatio) {
-	const camPos = vlerp(prevCam, curCam, lerpRatio);
+	const camPos = prevCam.lerp(curCam, lerpRatio);
 	camera.set(camPos);
 
 	for (const item of renderObjects) {
-		const pos = vlerp(item.prevPos, item.position, lerpRatio);
-		const angle = alerp(item.prevAngle, item.angle, lerpRatio);
+		const pos = item.prevPos.lerp(item.position, lerpRatio);
+		const angle = Rotation.lerp(item.prevAngle, item.angle, lerpRatio);
 
 		item.renderable.x = pos.x;
 		item.renderable.y = pos.y;
@@ -153,8 +136,8 @@ function render(lerpRatio) {
 	}
 
 	for (const body of solver.bodies) {
-		const pos = vlerp(body.originalPrevPos, body.originalPosition, lerpRatio);
-		const angle = alerp(body.prevTrans.radians, body.transform.radians, lerpRatio);
+		const pos = body.originalPrevPos.lerp(body.originalPosition, lerpRatio);
+		const angle = Rotation.lerp(body.prevTrans.radians, body.transform.radians, lerpRatio);
 		for (const shape of body.shapes) {
 			if (shape.renderable) {
 				shape.renderable.x = pos.x;
@@ -197,7 +180,7 @@ function startLoop() {
 			});
 		}
 
-		render(acc / physTarget);
+		render(window.debugDraw ? 1 : acc / physTarget);
 	}
 
 	window.requestAnimationFrame(step);
@@ -352,10 +335,6 @@ function endEvent(data) {
 		velocity: data.v.times(5),
 	});
 	solver.addBody(box);
-	// const colors = [];
-	// for (let i = 0; i < 4; i++) {
-	// 	colors.push(Math.random(), Math.random(), Math.random(), 1);
-	// }
 
 	box.shapes[0].renderable = renderer.getInstance(crateShape, crateMaterial);
 	scene.add(box.shapes[0].renderable);
@@ -462,6 +441,8 @@ window.addEventListener("keydown", (event) => {
 		setTest(selfRightingTest);
 	} else if (event.key === "8") {
 		setTest(sensorTest);
+	} else if (event.key === "9") {
+		setTest(ccdTest);
 	} else if (event.key === "0") {
 		window.debugDraw = !window.debugDraw;
 	}

@@ -41,7 +41,11 @@ class AABBTree {
 		this.root = null;
 	}
 	checkMove(node, aabb, displacement) {
-		if (node.aabb.contains(aabb)) {
+		const stretchAABB = aabb.clone();
+		(displacement.x < 0 ? stretchAABB.min : stretchAABB.max).x += displacement.x;
+		(displacement.y < 0 ? stretchAABB.min : stretchAABB.max).y += displacement.y;
+
+		if (node.aabb.contains(stretchAABB)) {
 			return false;
 		}
 

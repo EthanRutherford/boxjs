@@ -54,12 +54,12 @@ class Manifold {
 		this.nMass = null;
 		this.hasSensor = a.sensor || b.sensor;
 	}
-	solve() {
+	solve(checkAABBs = true) {
 		const wasCollided = this.isCollided;
 
 		const a = this.shapeA;
 		const b = this.shapeB;
-		if (!a.aabb.test(b.aabb)) {
+		if (checkAABBs && !a.aabb.test(b.aabb)) {
 			this.contacts = [];
 		} else {
 			Collision.getCollider(a.constructor, b.constructor)(this, a, b);
@@ -325,7 +325,7 @@ class Manifold {
 		this.shapeA.body.angularVelocity = wA;
 		this.shapeB.body.angularVelocity = wB;
 	}
-	positionalCorrection() {
+	positionalCorrection(staticA = false, staticB = false) {
 		if (!this.isCollided) {
 			return;
 		}
@@ -333,8 +333,8 @@ class Manifold {
 		const percent = .2;
 		const kSlop = .005;
 
-		const treatStaticA = this.shapeB.body.particle;
-		const treatStaticB = this.shapeA.body.particle;
+		const treatStaticA = staticA || this.shapeB.body.particle;
+		const treatStaticB = staticB || this.shapeA.body.particle;
 
 		const mA = treatStaticA ? 0 : this.shapeA.body.mass.iM;
 		const iA = treatStaticA ? 0 : this.shapeA.body.mass.iI;

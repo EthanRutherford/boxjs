@@ -1,6 +1,7 @@
 const {BroadPhase} = require("../collision/broadphase");
 const ContactData = require("../collision/contactdata");
 const {ManifoldMap} = require("../collision/manifold");
+const findTimeOfImpact = require("../collision/toi");
 
 module.exports = class Solver {
 	constructor() {
@@ -18,14 +19,37 @@ module.exports = class Solver {
 			this.applyG(getAwakeBodies(this.bodies));
 		}
 
+		// update contact list
+		solveBroadPhase(this);
+		solveNarrowPhase(this);
+
+		// store previous positions
 		for (const body of this.bodies) {
 			body.prevPos = body.position.clone();
 			body.prevTrans = body.transform.clone();
 		}
 
-		solveBroadPhase(this);
-		solveNarrowPhase(this);
-		solveIslands(this, dt);
+		// create constraint maps
+		const manifoldMap = {};
+		const jointMap = {};
+		for (const body of this.bodies) {
+			manifoldMap[body.id] = [];
+			jointMap[body.id] = [];
+		}
+		for (const manifold of this.manifolds) {
+			manifoldMap[manifold.shapeA.body.id].push(manifold);
+			manifoldMap[manifold.shapeB.body.id].push(manifold);
+		}
+		for (const joint of this.joints) {
+			jointMap[joint.bodyA.id].push(joint);
+			jointMap[joint.bodyB.id].push(joint);
+		}
+
+		// solve
+		solveIslands(this, manifoldMap, jointMap, dt);
+		solveToiIslands(this, manifoldMap, dt);
+
+		// find and call collision callbacks
 		collisionCallbacks(this, dt);
 	}
 	addBody(body) {
@@ -85,6 +109,8 @@ module.exports = class Solver {
 		});
 	}
 	debugGetNodes() {
+		// fast forward the broadphase and return nodes
+		solveBroadPhase(this);
 		return this.broadPhase.debugGetNodes();
 	}
 };
@@ -125,22 +151,8 @@ function solveNarrowPhase(solver) {
 	}
 }
 
-function solveIslands(solver, dt) {
+function solveIslands(solver, manifoldMap, jointMap, dt) {
 	const processed = new Set();
-	const manifoldMap = {};
-	const jointMap = {};
-	for (const body of solver.bodies) {
-		manifoldMap[body.id] = [];
-		jointMap[body.id] = [];
-	}
-	for (const manifold of solver.manifolds) {
-		manifoldMap[manifold.shapeA.body.id].push(manifold);
-		manifoldMap[manifold.shapeB.body.id].push(manifold);
-	}
-	for (const joint of solver.joints) {
-		jointMap[joint.bodyA.id].push(joint);
-		jointMap[joint.bodyB.id].push(joint);
-	}
 
 	for (const body of solver.bodies) {
 		if (body.isAsleep || body.isStatic || processed.has(body)) {
@@ -248,23 +260,6 @@ function clearForces(solver) {
 	}
 }
 
-function collisionCallbacks(solver, dt) {
-	for (const manifold of solver.manifolds) {
-		if (!manifold.isTouching) {
-			continue;
-		}
-
-		const shapeA = manifold.shapeA;
-		const shapeB = manifold.shapeB;
-		if (shapeA.body.onCollide instanceof Function) {
-			shapeA.body.onCollide(new ContactData(manifold, false, dt));
-		}
-		if (shapeB.body.onCollide instanceof Function) {
-			shapeB.body.onCollide(new ContactData(manifold, true, dt));
-		}
-	}
-}
-
 function setSleep(solver, dt) {
 	const angularTolerance = 2 / 180 * Math.PI;
 	const linearTolerance = .0001;
@@ -288,6 +283,153 @@ function setSleep(solver, dt) {
 	if (minSleepTime >= sleepThreshold) {
 		for (const body of solver.bodies) {
 			body.setAsleep(true);
+		}
+	}
+}
+
+function solveToiIslands(solver, manifoldMap, dt) {
+	let t0 = 0;
+
+	// set of contacts that have failed toi
+	// used to prevent considering the same toi event repeatedly
+	const skipSet = new Set();
+	while (true) {
+		let earliest = null;
+		let minFraction = 1;
+		for (const manifold of solver.manifolds) {
+			if (
+				skipSet.has(manifold) ||
+				(manifold.shapeA.body.isAsleep && manifold.shapeB.body.isAsleep) ||
+				(!manifold.shapeA.body.toi && !manifold.shapeB.body.toi) ||
+				manifold.hasSensor
+			) {
+				continue;
+			}
+
+			const relativeSpeed = manifold.shapeA.body.velocity
+				.minus(manifold.shapeB.body.velocity).lsqr;
+			if (relativeSpeed < 10) {
+				continue;
+			}
+
+			const result = findTimeOfImpact(t0, 1, manifold.shapeA, manifold.shapeB);
+			if (result != null && result < minFraction) {
+				minFraction = result;
+				earliest = manifold;
+			}
+		}
+
+		// no more toi impacts found
+		if (earliest == null) {
+			return;
+		}
+
+		t0 = minFraction;
+		const bodyA = earliest.shapeA.body;
+		const bodyB = earliest.shapeB.body;
+
+		const pA = bodyA.position;
+		const tA = bodyA.transform;
+		const pB = bodyB.position;
+		const tB = bodyB.transform;
+
+		bodyA.position = bodyA.prevPos.lerp(pA, minFraction);
+		bodyA.transform = bodyA.prevTrans.lerp(tA, minFraction);
+		bodyB.position = bodyB.prevPos.lerp(pB, minFraction);
+		bodyB.transform = bodyB.prevTrans.lerp(tB, minFraction);
+
+		// check for contacts at the toi
+		earliest.solve(false);
+
+		if (!earliest.isCollided) {
+			// restore positions and skip this manifold
+			bodyA.position = pA;
+			bodyA.transform = tA;
+			bodyB.position = pB;
+			bodyB.transform = tB;
+			skipSet.add(earliest);
+			continue;
+		}
+
+		// create minimal island
+		const island = {
+			bodies: new Set([bodyA, bodyB]),
+			manifolds: new Set([earliest]),
+		};
+
+		const toiBodies = new Set([bodyA, bodyB]);
+		for (const body of toiBodies) {
+			if (body.isStatic) continue;
+
+			for (const manifold of manifoldMap[body.id]) {
+				if (island.manifolds.has(manifold) || !manifold.isCollided) {
+					continue;
+				}
+
+				const other = manifold.shapeA.body === body ? manifold.shapeB.body : manifold.shapeA.body;
+
+				const pOther = other.position;
+				const tOther = other.transform;
+
+				other.position = other.prevPos.lerp(pOther, minFraction);
+				other.transform = other.prevTrans.lerp(tOther, minFraction);
+
+				manifold.solve(false);
+
+				if (!manifold.isCollided) {
+					// restore position
+					other.position = pOther;
+					other.transform = tOther;
+					continue;
+				}
+
+				island.manifolds.add(manifold);
+				island.bodies.add(other);
+			}
+		}
+
+		// do position correction on bodyA and bodyB
+		for (let i = 0; i < 20; i++) {
+			for (const manifold of island.manifolds) {
+				manifold.positionalCorrection(
+					toiBodies.has(manifold.shapeA.body),
+					toiBodies.has(manifold.shapeB.body),
+				);
+			}
+		}
+
+		// do impulses
+		for (const manifold of island.manifolds) {
+			manifold.initialize();
+		}
+		for (let i = 0; i < 8; i++) {
+			for (const manifold of island.manifolds) {
+				manifold.applyImpulse();
+			}
+		}
+
+		// compute new positions
+		const remDt = (1 - minFraction) * dt;
+		for (const body of island.bodies) {
+			body.position.add(body.velocity.times(remDt));
+			body.transform.radians += body.angularVelocity * remDt;
+		}
+	}
+}
+
+function collisionCallbacks(solver, dt) {
+	for (const manifold of solver.manifolds) {
+		if (!manifold.isTouching) {
+			continue;
+		}
+
+		const shapeA = manifold.shapeA;
+		const shapeB = manifold.shapeB;
+		if (shapeA.body.onCollide instanceof Function) {
+			shapeA.body.onCollide(new ContactData(manifold, false, dt));
+		}
+		if (shapeB.body.onCollide instanceof Function) {
+			shapeB.body.onCollide(new ContactData(manifold, true, dt));
 		}
 	}
 }
