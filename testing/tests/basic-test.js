@@ -72,6 +72,7 @@ function create({getSolver, createBody, createCrate, createBall}) {
 		solver.addBody(anchorPoint);
 
 		position.x += .25;
+		let lastLastBox = null;
 		let lastBox = anchorPoint;
 		for (let i = 0; i < 20; i++) {
 			const box = createBody({
@@ -79,6 +80,7 @@ function create({getSolver, createBody, createCrate, createBall}) {
 				shapes: [new Polygon().setAsBox(.275, .1)],
 				filterGroup: 2,
 				exclusionList: [2],
+				density: 2,
 			}, chainShape, chainMaterial);
 
 			position.x += .5;
@@ -90,6 +92,19 @@ function create({getSolver, createBody, createCrate, createBall}) {
 			});
 			solver.addJoint(joint);
 
+			if (lastLastBox != null) {
+				const rope = new RopeJoint({
+					bodyA: lastLastBox,
+					bodyB: box,
+					anchorA: new Vector2D(.25, 0),
+					anchorB: new Vector2D(-.25, 0),
+					limit: .5,
+				});
+
+				solver.addJoint(rope);
+			}
+
+			lastLastBox = lastBox;
 			lastBox = box;
 		}
 
@@ -108,15 +123,23 @@ function create({getSolver, createBody, createCrate, createBall}) {
 			anchorB: new Vector2D(-.5, 0),
 		});
 		const rope = new RopeJoint({
+			bodyA: lastLastBox,
+			bodyB: superDense,
+			anchorA: new Vector2D(.25, 0),
+			anchorB: new Vector2D(-.5, 0),
+			limit: .5,
+		});
+		const longRope = new RopeJoint({
 			bodyA: anchorPoint,
 			bodyB: superDense,
 			anchorA: new Vector2D(.5, 0),
 			anchorB: new Vector2D(-.5, 0),
-			limit: 10.25,
+			limit: 10.5,
 		});
 
 		solver.addJoint(joint);
 		solver.addJoint(rope);
+		solver.addJoint(longRope);
 	}
 	{	// spring joint test
 		const box = createCrate(5, 1);

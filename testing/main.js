@@ -150,6 +150,7 @@ function render(lerpRatio) {
 	renderer.render(camera, scene);
 }
 
+let postStep = null;
 function startLoop() {
 	const physTarget = 1 / 45;
 	const maxSteps = 5;
@@ -178,6 +179,7 @@ function startLoop() {
 				createBall,
 				createRenderObj,
 			});
+			if (postStep) postStep();
 		}
 
 		render(window.debugDraw ? 1 : acc / physTarget);
@@ -333,6 +335,7 @@ function endEvent(data) {
 		position: new Vector2D(data.origin.x, data.origin.y),
 		shapes: [new Polygon().setAsBox(.5, .5)],
 		velocity: data.v.times(5),
+		toi: true,
 	});
 	solver.addBody(box);
 
@@ -340,6 +343,58 @@ function endEvent(data) {
 	scene.add(box.shapes[0].renderable);
 }
 
+// body grabbing code
+function grabEvent(startEvent) {
+	let position = Vector2D.clone(renderer.viewportToWorld(
+		startEvent.clientX,
+		startEvent.clientY,
+		camera,
+	));
+
+	let body = null;
+	solver.query(new AABB(position.x, position.y, position.x, position.y), (shape) => {
+		body = shape.body;
+	});
+
+	if (body == null) {
+		return;
+	}
+
+	function mouseMove(event) {
+		position = Vector2D.clone(renderer.viewportToWorld(
+			event.clientX,
+			event.clientY,
+			camera,
+		));
+	}
+
+	function mouseUp() {
+		postStep = null;
+		window.removeEventListener("mousemove", mouseMove);
+		window.removeEventListener("mouseup", mouseUp);
+	}
+
+	postStep = () => {
+		// keep body awake
+		body.setAsleep(false);
+
+		// drive body toward mouse
+		const toPos = position.minus(body.position);
+		const distance = toPos.length;
+		toPos.mul(1 / distance);
+
+		const force = toPos.mul(Math.min(distance, 10) * body.mass.m * 100);
+		body.applyForce(force);
+
+		// dampen velocity
+		body.velocity.mul(.8);
+	};
+
+	window.addEventListener("mousemove", mouseMove);
+	window.addEventListener("mouseup", mouseUp);
+}
+
+// event handlers
 canvas.addEventListener("touchstart", (event) => {
 	// prevent mousedown handler from firing
 	event.preventDefault();
@@ -396,6 +451,11 @@ canvas.addEventListener("touchstart", (event) => {
 
 canvas.addEventListener("mousedown", (event) => {
 	if (event.button !== 0) {
+		return;
+	}
+
+	if (event.shiftKey) {
+		grabEvent(event);
 		return;
 	}
 

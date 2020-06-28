@@ -9,6 +9,7 @@ For a demo (WIP), check out [the testbed](https://ethanrutherford.github.io/boxj
 ### testbed info/controls
 - There are 9 tests, accessible with the number keys `1-9`.
 - Click and drag anywhere to spawn a box with velocity.
+- Shift + click to grab a body and drag it around.
 - Press `0` to toggle debug view, which draws the broadphase AABBs.
 
 #### test 1 - basic test
@@ -34,7 +35,7 @@ It logs the result to the console.
 
 #### test 6 - particle test
 This test demonstrates "particle" support. Particles are bodies in the engine which can
-bounce off other bodies, but don't themselves take up an space or impart any forces.
+bounce off other bodies, but don't themselves take up any space or impart any forces.
 
 #### test 7 - self-righting test
 This test is a simulation of a one-wheeled vehicle. It uses a PID controller to translate
