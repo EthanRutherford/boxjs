@@ -24,7 +24,7 @@
     "@rutherford/eslint-config": "^1.0.3",
     "2d-gl": "^1.7.2",
     "eslint": "^6.8.0",
-    "http-server": "^13.0.1",
+    "http-server": "^14.1.1",
     "pre-req": "^1.4.6"
   }
 }

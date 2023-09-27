@@ -43,7 +43,7 @@ class Manifold {
 		this.key = key;
 		this.type = -1;
 		this.e = Math.max(a.body.restitution, b.body.restitution);
-		this.df = Math.sqrt(a.body.friction, b.body.friction);
+		this.df = Math.sqrt(a.body.friction * b.body.friction);
 		this.contacts = [];
 		this.normal = new Vector2D(0, 0);
 		this.tangent = new Vector2D(0, 0);
